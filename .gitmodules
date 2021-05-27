@@ -1,7 +1,12 @@
 [submodule "ecoservice/finance-interface"]
 	path = ecoservice/finance-interface
 	url = https://nicolai-12-fi:z7osq7sygRYkfzenQHwL@gitlab.ecoservice.de/eco/finance-interface.git
+	branch = 12.0
 [submodule "ecoservice/german-documents"]
 	path = ecoservice/german-documents
 	url = https://nicolai-12-gd:yBMswyPH512DfXLeJ4S-@gitlab.ecoservice.de/eco/german-documents.git
+	branch = 12.0
+[submodule "ecoservice/nicolai"]
+	path = ecoservice/nicolai
+	url = https://nicolai-12-eco:tiAxXAcyrH2za52GLViC@gitlab.ecoservice.de/kunden/nicolai/ecoservice.git
 	branch = 12.0
