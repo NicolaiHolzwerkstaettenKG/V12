@@ -1,0 +1,4 @@
+[submodule "ecoservice/german-documents"]
+	path = ecoservice/german-documents
+	url = https://nicolai-12-gd:yBMswyPH512DfXLeJ4S-@gitlab.ecoservice.de/eco/german-documents.git
+	branch = 12.0
