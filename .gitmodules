@@ -1,0 +1,4 @@
+[submodule "ecoservice/nicolai"]
+	path = ecoservice/nicolai
+	url = https://nicolai-12-eco:tiAxXAcyrH2za52GLViC@gitlab.ecoservice.de/kunden/nicolai/ecoservice.git
+	branch = 12.0
