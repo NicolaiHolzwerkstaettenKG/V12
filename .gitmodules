@@ -1,0 +1,4 @@
+[submodule "ecoservice/finance-interface"]
+	path = ecoservice/finance-interface
+	url = https://nicolai-12-fi:z7osq7sygRYkfzenQHwL@gitlab.ecoservice.de/eco/finance-interface.git
+	branch = 12.0
