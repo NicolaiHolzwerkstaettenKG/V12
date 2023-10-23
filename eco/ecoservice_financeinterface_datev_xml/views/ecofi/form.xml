@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files in the root directory of this module for full details.
+-->
+
+<odoo>
+
+  <record id="view_ecofi_form" model="ir.ui.view">
+    <field name="name">ECOFI | XML Attachment (Form)</field>
+    <field name="model">ecofi</field>
+    <field name="type">form</field>
+    <field name="inherit_id" ref="ecoservice_financeinterface_datev.eco_ecofi_form_view_inherit_datev"/>
+    <field name="arch" type="xml">
+
+      <field name="csv_file" position="after">
+        <field name="xml_export_id" invisible="1"/>
+        <field name="xml_export_attachment_id" invisible="1"/>
+        <field name="xml_export_file"/>
+      </field>
+
+    </field>
+  </record>
+
+</odoo>
