@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files in the root directory of this module for full details.
+-->
+
+<odoo>
+
+  <record id="view_datev_export_form" model="ir.ui.view">
+    <field name="name">DATEV Export</field>
+    <field name="model">datev.export</field>
+    <field name="arch" type="xml">
+      <form string="DATEV Export">
+        <header>
+          <button
+            name="export"
+            string="Export"
+            type="object"
+            class="btn-primary"
+            attrs="{'invisible': [('generated', '=', True)]}"
+          />
+          <button
+            name="reset"
+            string="Reset"
+            type="object"
+            class="btn-danger"
+            groups="base.group_no_one"
+            confirm="Warning! Only proceed if the export hasn't been sent to your tax office or accountant!"
+            attrs="{'invisible': [('generated', '=', False)]}"
+          />
+        </header>
+        <sheet>
+
+          <group>
+            <group name="general">
+              <field name="type" attrs="{'readonly': [('generated', '=', True)]}"/>
+              <field name="company_id" readonly="1"/>
+            </group>
+            <group name="files">
+              <field name="uuid4" readonly="1"/>
+              <field name="archive_id" readonly="1"/>
+              <field name="generated" invisible="1"/>
+            </group>
+          </group>
+
+          <group>
+            <group name="dates" attrs="{'invisible': [('type', '=', False)]}">
+              <field name="date_from" attrs="{'readonly': [('generated', '=', True)]}"/>
+              <field name="date_to" attrs="{'readonly': [('generated', '=', True)]}"/>
+            </group>
+            <group name="misc">
+            </group>
+          </group>
+
+        </sheet>
+        <div class="oe_chatter">
+          <field name="message_follower_ids" widget="mail_followers"/>
+          <field name="activity_ids" widget="mail_activity"/>
+          <field name="message_ids" widget="mail_thread"/>
+        </div>
+      </form>
+    </field>
+  </record>
+
+</odoo>

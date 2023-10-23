@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files at the root directory for full details.
+-->
+
+<odoo noupdate="1">
+
+  <record id="datev_category" model="ir.module.category">
+    <field name="name">DATEV</field>
+  </record>
+
+  <record id="group_user" model="res.groups">
+    <field name="name">User</field>
+    <field name="category_id" ref="datev_category" />
+    <field name="comment">
+      Access to the DATEV menu, can create exports.
+    </field>
+  </record>
+
+  <record id="group_manager" model="res.groups">
+    <field name="name">Manager</field>
+    <field name="category_id" ref="datev_category" />
+    <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    <field name="implied_ids" eval="[(4, ref('group_user'))]" />
+    <field name="comment">
+      Access to previous tiers. Can adjust all DATEV settings.
+    </field>
+  </record>
+
+</odoo>

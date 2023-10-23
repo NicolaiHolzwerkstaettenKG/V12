@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files in the root directory of this module for full details.
+-->
+
+<odoo>
+
+  <record id="view_datev_export_tree" model="ir.ui.view">
+    <field name="name">DATEV Export</field>
+    <field name="model">datev.export</field>
+    <field name="arch" type="xml">
+
+      <tree
+        decoration-success="generated==True"
+        decoration-danger="generated==False"
+      >
+        <field name="generated" invisible="1"/>
+        <field name="type"/>
+        <field name="date_from"/>
+        <field name="date_to"/>
+        <field name="company_id"/>
+      </tree>
+
+    </field>
+  </record>
+
+</odoo>
