@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files at the root directory for full details.
+-->
+<odoo>
+    <data>
+        <record id="view_base_document_layout_inherit" model="ir.ui.view">
+            <field name="name">view.base.document.layout.inherit</field>
+            <field name="model">base.document.layout</field>
+            <field name="inherit_id" ref="web.view_base_document_layout"/>
+            <field name="arch" type="xml">
+              <field name="report_footer" position="after">
+                <field name="report_footer_as_image"/>
+                <field name="report_footer_image" widget="image" options="{'size': [250, 200]}"/>
+              </field>
+            </field>
+          </record>
+    </data>
+</odoo>
