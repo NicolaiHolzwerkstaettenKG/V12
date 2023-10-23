@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files at the root directory for full details.
+-->
+
+<odoo>
+
+  <record id="invoice_form_inherited_text_template" model="ir.ui.view">
+    <field name="name">account.move.form.inherited.text.template</field>
+    <field name="model">account.move</field>
+    <field name="inherit_id" ref="account.view_move_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//notebook" position="inside">
+        <page name="text_template" string="Text Template">
+          <group>
+            <field name="account_invoice"
+                   attrs="{'invisible': [('move_type', 'not in', ['in_invoice', 'out_invoice'])]}"/>
+            <field name="account_refund"
+                   attrs="{'invisible': [('move_type', 'not in', ['in_refund', 'out_refund'])]}"/>
+            <field name="account_invoice_bottom"
+                   attrs="{'invisible': [('move_type', 'not in', ['in_invoice', 'out_invoice'])]}"/>
+            <field name="account_refund_bottom"
+                   attrs="{'invisible': [('move_type', 'not in', ['in_refund', 'out_refund'])]}"/>
+          </group>
+        </page>
+      </xpath>
+      <field name="invoice_date" position="after">
+        <field name="delivery_date"
+               attrs="{'invisible': [('move_type', 'not in', ['out_invoice', 'out_refund'])]}" />
+      </field>
+    </field>
+  </record>
+
+</odoo>
