@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files at the root directory for full details.
+-->
+<!--
+For the case you wish to overwork the all stock tables,
+you can to this here by inherit or override.
+-->
+
+<odoo>
+
+  <template id="report_table_base_stock">
+    <t t-set="has_barcode"
+       t-value="any(move_lines.product_id and move_lines.product_id.sudo().barcode or move_lines.package_id for move_lines in o.move_line_ids)"/>
+    <t t-set="has_serial_number"
+       t-value="o.move_line_ids.filtered(lambda ml: ml.lot_id or ml.lot_name)"/>
+    <t t-set="display_pos_no"
+       t-value="o.company_id.report_table_position"/>
+
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th class="text-left" t-if="display_pos_no">
+            Pos
+          </th>
+          <th class="text-left">
+            Product
+          </th>
+          <th class="text-center" t-if="has_barcode and is_picking">
+            Barcode
+          </th>
+          <th class="text-center" t-if="has_serial_number"
+              groups="stock.group_lot_on_delivery_slip">
+            Lot/Serial Number
+          </th>
+          <th class="text-right">
+            Quantity
+          </th>
+          <th class="text-center">
+            UoM
+          </th>
+          <th class="text-right"
+              t-if="is_picking and o.picking_type_id.code != 'incoming'">
+            Source
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <t t-foreach="move_line_ids" t-as="move_line">
+
+          <t t-set="descriptions"
+             t-if="o.picking_type_code == 'outgoing' and move_line.product_id.sudo().description_pickingout"
+             t-value="move_line.product_id.sudo().description_pickingout.rstrip().split('\n')"/>
+          <t t-set="descriptions"
+             t-if="o.picking_type_code == 'incoming' and move_line.product_id.sudo().description_pickingin"
+             t-value="move_line.product_id.sudo().description_pickingin.rstrip().split('\n')"/>
+
+          <tr>
+            <!--Index-->
+            <td class="text-left" t-if="display_pos_no">
+              <t t-esc="move_line_index+1"/>
+            </td>
+
+            <!-- Product description -->
+            <!--
+              save description start value. In Odoo Standard the code is called in a sub template
+              and the variable scope is bound to the template. We are using the code in a loop and
+              need to save the incoming value and reset description to it after using it
+            -->
+            <t t-set="description_start_value" t-value="description"/>
+            <td class="text-left">
+              <!-- Odoo Standard -->
+              <span t-field="move_line.product_id"/>
+
+              <t t-if="not description and description != ''">
+                <t t-set="description" t-value="move_line.move_id.description_picking"/>
+              </t>
+
+              <t t-if="description !='' and description != move_line.product_id.name">
+                <br/>
+                <span t-esc="description"/>
+              </t>
+              <!-- End Odoo Standard -->
+              <!-- reset description to its start value (see comment above) -->
+              <t t-set="description" t-value="description_start_value"/>
+
+              <span t-esc="descriptions[0]" t-if="descriptions"
+                    style="margin-top: 8px"/>
+
+              <t t-if="not move_line.product_id and move_line.package_id">
+                <br/>
+                <span t-field="move_line.package_id"/>
+              </t>
+            </td>
+
+            <!--Barcode-->
+            <td t-if="has_barcode and is_picking" class="text-center">
+              <span t-if="move_line.product_id and move_line.product_id.barcode">
+                <img t-att-src="'/report/barcode/Code128/value=%s' %(move_line.product_id.barcode)"
+                     style="width:300px;height:50px"/>
+              </span>
+              <span t-if="move_line.package_id and not move_line.product_id">
+                <img t-att-src="'/report/barcode/Code128/value=%s' %(move_line.package_id.name)"
+                     style="width:300px;height:50px"/>
+              </span>
+            </td>
+
+            <!--Lot/Serial number-->
+            <t t-set="lot_id" t-value="move_line.lot_id"/>
+            <td class="text-center" t-if="has_serial_number and lot_id"
+                groups="stock.group_lot_on_delivery_slip">
+              <span t-field="lot_id.name"/>
+            </td>
+            <td class="text-center" t-if="has_serial_number and not lot_id"
+                groups="stock.group_lot_on_delivery_slip">
+              <span t-field="move_line.lot_name"/>
+            </td>
+
+            <!--Quantity-->
+            <td class="text-right">
+              <span t-if="o.state != 'done'"
+                    t-field="move_line.reserved_uom_qty"/>
+              <span t-if="o.state == 'done'" t-field="move_line.qty_done"/>
+            </td>
+
+            <!--Unit of measure-->
+            <td align="center">
+              <span t-field="move_line.product_uom_id"/>
+            </td>
+
+            <!--Location-->
+            <td class="text-right"
+                t-if="is_picking and o.picking_type_id.code != 'incoming'">
+              <span t-field="move_line.location_id"/>
+            </td>
+          </tr>
+          <tr t-foreach="descriptions" t-as="description">
+            <t t-if="description_index > 0">
+              <td class="no-mbp" t-if="display_pos_no">
+                &amp;nbsp;
+              </td>
+              <td align="left" class="no-bp">
+                <span t-esc="description.rstrip()"/>
+              </td>
+              <td class="no-mbp" t-if="has_barcode and is_picking">
+                &amp;nbsp;
+              </td>
+              <td class="no-mbp" t-if="has_serial_number"
+                  groups="stock.group_lot_on_delivery_slip">&amp;nbsp;
+              </td>
+              <td class="no-mbp">&amp;nbsp;</td>
+              <td class="no-mbp">&amp;nbsp;</td>
+              <td class="no-mbp"
+                  t-if="is_picking and o.picking_type_id.code != 'incoming'">
+                &amp;nbsp;
+              </td>
+            </t>
+          </tr>
+        </t>
+      </tbody>
+    </table>
+  </template>
+
+</odoo>

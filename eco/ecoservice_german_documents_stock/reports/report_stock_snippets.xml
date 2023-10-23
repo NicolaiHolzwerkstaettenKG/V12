@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files at the root directory for full details.
+-->
+
+<odoo>
+
+  <template id="letterhead_reference">
+    <div id="letterhead_reference" class="stock row">
+      <div>
+        <!-- Set document specific variables -->
+        <t t-if="'sale_id' in o and o.sale_id.client_order_ref"
+           t-set="client_order_ref"
+           t-value="o.sale_id.client_order_ref"/>
+        <t t-elif="'origin' in o and o.origin"
+           t-set="client_order_ref"
+           t-value="o.origin"/>
+
+        <!-- References about this document -->
+        <t name="reference_document"
+           t-call="ecoservice_german_documents_base.letterhead_reference_document"/>
+
+        <!-- Customer No. & VAT references -->
+        <t t-if="is_dropship and o.move_ids and o.move_ids[0].partner_id" name="reference_customer_vat_dropship">
+          <t t-call="ecoservice_german_documents_stock.letterhead_reference_customer_vat_drop_shipping"/><!-- Drop Shipping -->
+        </t>
+        <t t-else="" name="reference_customer_vat">
+          <t t-call="ecoservice_german_documents_base.letterhead_reference_customer_vat"/>
+        </t>
+
+        <!-- References about the case for the customer -->
+        <t t-if="is_dropship and o.move_ids and o.move_ids[0].partner_id" name="reference_case_vat_dropship">
+          <t t-call="ecoservice_german_documents_stock.letterhead_reference_case_drop_shipping"/><!-- Drop Shipping -->
+        </t>
+        <t t-else="" name="reference_case">
+          <t t-call="ecoservice_german_documents_base.letterhead_reference_case"/>
+        </t>
+
+        <!-- References about our company for the customer -->
+        <t name="reference_contact"
+           t-call="ecoservice_german_documents_base.letterhead_reference_contact"/>
+
+        <!-- Details about our company -->
+        <t name="reference_company"
+           t-call="ecoservice_german_documents_base.letterhead_reference_company"/>
+      </div>
+    </div>
+  </template>
+
+  <template id="letterhead_receiver_address_drop_shipping">
+    <div id="letterhead_receiver_address">
+      <t t-if="not delivery_address.is_company">
+        <span t-field="delivery_address.parent_id.name"/>
+        <br/>
+        <t t-if="delivery_address.name">
+          <t t-if="delivery_address.title.name == 'Herr'">
+            <span>Herrn</span>
+          </t>
+          <t t-if="delivery_address.title.name != 'Herr'">
+            <span t-field="delivery_address.title"/>
+          </t>
+          <t t-if="delivery_address.has_lastname()">
+            <span t-field="delivery_address.firstname"/>
+            <span t-field="delivery_address.lastname"/>
+          </t>
+          <t t-if="not delivery_address.has_lastname()">
+            <span t-field="delivery_address.name"/>
+          </t>
+          <br/>
+        </t>
+      </t>
+      <t t-if="delivery_address.is_company">
+        <span t-field="delivery_address.name"/>
+        <br/>
+      </t>
+
+      <span t-field="delivery_address.street"/>
+      <br/>
+      <t t-if="delivery_address.street2">
+        <span t-field="delivery_address.street2"/>
+        <br/>
+      </t>
+      <span t-field="delivery_address.zip"/>
+      <t t-if="delivery_address.country_id">
+        <span style="text-transform: uppercase" t-field="delivery_address.city"/>
+        <br/>
+        <span style="text-transform: uppercase"
+              t-field="delivery_address.country_id.with_context(lang=o.company_id.partner_id.lang).name"/>
+      </t>
+      <t t-else="">
+        <span t-field="delivery_address.city"/>
+      </t>
+
+    </div>
+  </template>
+
+  <template id="letterhead_reference_customer_vat_drop_shipping">
+    <t t-set="partner_ref" t-value="o.move_ids[0].partner_id.ref"/>
+    <t t-set="partner_vat" t-value="o.move_ids[0].partner_id.vat"/>
+    <div id="letterhead_reference_customer_vat_case_drop_shipping"
+         class="row pl-15"
+         style="border-top: 0.1em solid #cacaca;"
+         t-if="partner_ref or partner_vat">
+      <div class="col-6 ptb-5" t-if="partner_ref">
+        <div class="span font-alt no-wrap">Customer No.</div>
+        <br/>
+        <span class="no-wrap" t-esc="partner_ref"/>
+      </div>
+      <div t-attf-class="col-6 ptb-5 #{ partner_ref and 'text-right' }"
+           t-if="partner_vat">
+        <div class="span font-alt no-wrap">Customer VAT-ID</div>
+        <br/>
+        <span class="no-wrap" t-esc="partner_vat"/>
+      </div>
+    </div>
+  </template>
+
+  <template id="letterhead_reference_case_drop_shipping">
+    <div id="letterhead_reference_case_drop_shipping"
+         class="row"
+         style="border-top: 0.1em solid #cacaca;"
+         t-if="client_order_ref">
+      <div class="col-3 ptb-5 pl-15">
+        <div class="span font-alt no-wrap">Reference:</div>
+      </div>
+      <div class="col-9 ptb-5" t-if="o.sale_id">
+        <span t-field="o.sale_id"/>,&#032;
+        <span t-field="o.sale_id.client_order_ref"/>
+      </div>
+      <div class="col-9 ptb-5" t-else="">
+        <span t-esc="client_order_ref"/><br/>
+      </div>
+    </div>
+  </template>
+
+</odoo>
