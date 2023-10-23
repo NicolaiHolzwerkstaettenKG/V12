@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files at the root directory for full details.
+-->
+
+<odoo noupdate="1">
+
+  <!-- Resource: res.partner.title -->
+  <record id="res_partner_title_doctor_female" model="res.partner.title">
+    <field name="name">Doctor (f)</field>
+    <field name="shortcut">Dr. (f)</field>
+    <field name="salutation">Dear Dr.</field>
+  </record>
+
+  <record id="res_partner_title_prof_female" model="res.partner.title">
+    <field name="name">Professor (f)</field>
+    <field name="shortcut">Prof. (f)</field>
+    <field name="salutation">Dear Professor</field>
+  </record>
+
+</odoo>
