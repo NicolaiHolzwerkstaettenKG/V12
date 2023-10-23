@@ -1,0 +1,57 @@
+-----------------------
+Introduction Letter
+-----------------------
+
+Dear developer,
+
+in future you may need to modify or extend this modules which is why I want to leave you some notes.
+
+Note that the base module always needs work with all models (sale, purchase, invoice, etc.) so under no circumstances should there be any model-specific references or fields in this module. If you need changes for specific models, do it by altering the child modules. If there aren't any, create one.
+
+But halt!
+Remember that all reports in this modules (including child-modules) are built completely modular. This means before you even touch one file please think carefully if your goals can't be archived with a simple t-jquery or by inheriting/extending one of the existent templates.
+
+- Odoo Standard: You may want to avoid it or try to make it "better" ... don't do it! If your improvements won't breaks things today, they'll tomorrow. There often is some odd sense or feature we don't think about behind odoos logic or it'll just mess things up for migrations.
+
+- Copy&Paste: We all like it fast&lazy but as soon as you copy & paste code blocks, you already did something wrong. It's one of the main reasons why this modules were made. Make yourself and your dev-mates the favor by making an effort adjusting the existent code-blocks to the new requirements.
+
+- DO NOT OVERWRITE! DO NOT USE "REPLACE"! ONLY EXTEND! Or you will easily break the templates for other modules or migrations. Write new features into own methods! Work with invisible instead of replace! Respect the modular aspects of odoo!
+
+- Customer specific changes: You are completely wrong here! Please move such changes to an own, totally separated, module.
+
+- WORK IN ENGLISH!! There are translation files for a good reason.
+
+Finally the code is well commented, so read the comments and comment your changes.
+
+
+---------------------------------
+Child-modules, minimum structure
+---------------------------------
+
+<xxx> = dependend module/model-range.
+
+| ecoservice_german_documents_<xxx>
+|- __init__.py
+|- __manifest__.py
+|- AUTHORS
+|- COPYRIGHT
+|- LICENSE
+|- README.md
+|- AUTHORS
+|- i18n/
+|-- de.po [Translation file, WORK IN ENGLISH!! and export the translation file via odoo settings once you're done.]
+|- models/
+|-- __init__.py [Make sure to use "from . import <xxx>"
+|-- <xxx>.py [Must inherit 'eco_report.mixin' and contain functions get_report_column_titles and get_report_values.]
+|- reports/
+|-- report_<xxx>.xml [Declare ALL! reports for this modules namespace, add context & report dependend variables]
+|-- report_<xxx>_css.xml [Declare module specific CSS]
+|-- report_<xxx>_document.xml [Here you build the different snippets you need together]
+|-- report_<xxx>_snippets.xml [Your customizable snippets, such as letterhead]
+|-- report_<xxx>_table.xml [Includes the table-builder dependend on your settings in <xxx>.py]
+|- static/
+|-- description/
+|--- icon.png
+
+Happy coding!
+/ Jan Brodersen
