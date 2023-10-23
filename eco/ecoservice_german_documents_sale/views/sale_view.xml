@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files at the root directory for full details.
+-->
+
+<odoo>
+
+  <record id="view_order_form_inherited_text_template" model="ir.ui.view">
+    <field name="name">sale.order.form.inherited.text.template</field>
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="sale.view_order_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//notebook" position="inside">
+        <page name="text_templates" string="Text Template">
+          <group>
+            <field name="sale_quotation"/>
+            <field name="sale_confirmation"/>
+            <field name="proforma_invoice"/>
+            <field name="sale_quotation_bottom"/>
+            <field name="sale_confirmation_bottom"/>
+            <field name="proforma_invoice_bottom"/>
+          </group>
+        </page>
+      </xpath>
+    </field>
+  </record>
+
+</odoo>
