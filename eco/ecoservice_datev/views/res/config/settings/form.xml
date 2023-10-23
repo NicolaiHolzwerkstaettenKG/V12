@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files in the root directory of this module for full details.
+-->
+
+<odoo>
+
+  <record id="res_config_settings_view_form" model="ir.ui.view">
+    <field name="name">DATEV Settings</field>
+    <field name="model">res.config.settings</field>
+    <field name="priority" eval="80"/>
+    <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+    <field name="arch" type="xml">
+
+    <div class="settings" position="inside">
+
+        <div
+          name="ecoservice_datev"
+          class="app_settings_block"
+          data-string="DATEV"
+          string="DATEV"
+          data-key="ecoservice_datev"
+          groups="ecoservice_datev.group_manager"
+        >
+          <h2>DATEV</h2>
+          <div id="datev" class="row mt16 o_settings_container">
+
+            <div class="col-xs-12 col-md-3 o_setting_box">
+              <div class="o_setting_right_pane">
+                <label
+                  for="account_code_digits"
+                  string="Length of analytic G/L account numbers"
+                />
+                <field name="account_code_digits" class="oe_inline"/>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-md-3 o_setting_box">
+              <div class="o_setting_right_pane">
+                <label for="l10n_de_datev_consultant_number"/>
+                <div class="text-muted">Obtained from accountant</div>
+                <field name="l10n_de_datev_consultant_number" class="oe_inline"/>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-md-3 o_setting_box">
+              <div class="o_setting_right_pane">
+                <label for="l10n_de_datev_client_number"/>
+                <div class="text-muted">Obtained from accountant</div>
+                <field name="l10n_de_datev_client_number" class="oe_inline"/>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-md-3 o_setting_box">
+              <div class="o_setting_left_pane">
+                <field name="datev_assume_taxfree" class="oe_inline"/>
+              </div>
+              <div class="o_setting_right_pane">
+                <label for="datev_assume_taxfree"/>
+                <div class="text-muted">
+                Unlike odoo, DATEV requires tax lines for any invoice line.
+                Checking this will export emtpy tax fields as 0% tax free.
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+    </div>
+
+    </field>
+  </record>
+
+</odoo>

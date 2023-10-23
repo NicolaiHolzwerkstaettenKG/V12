@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files in the root directory of this module for full details.
+-->
+
+<odoo>
+
+  <menuitem
+    id="menu_datev"
+    parent="account.menu_finance_entries"
+    name="DATEV"
+    groups="ecoservice_datev.group_user"
+    sequence="9"
+  />
+
+  <menuitem
+    id="menu_datev_export"
+    parent="ecoservice_datev.menu_datev"
+    name="Export"
+    action="action_datev_export"
+    groups="ecoservice_datev.group_user"
+    sequence="9"
+  />
+
+</odoo>
