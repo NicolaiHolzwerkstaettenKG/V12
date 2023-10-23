@@ -1,0 +1,96 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ecoservice_datev_xml
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-09-29 16:27+0000\n"
+"PO-Revision-Date: 2022-09-29 16:27+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: ecoservice_datev_xml
+#: model:ir.model,name:ecoservice_datev_xml.model_res_partner_bank
+msgid "Bank Accounts"
+msgstr "Bankkonten"
+
+#. module: ecoservice_datev_xml
+#: model:ir.model,name:ecoservice_datev_xml.model_res_partner
+msgid "Contact"
+msgstr "Kontakt"
+
+#. module: ecoservice_datev_xml
+#: model:ir.model,name:ecoservice_datev_xml.model_res_country
+msgid "Country"
+msgstr "Land"
+
+#. module: ecoservice_datev_xml
+#: model:ir.model,name:ecoservice_datev_xml.model_datev_export
+msgid "DATEV Export"
+msgstr ""
+
+#. module: ecoservice_datev_xml
+#: code:addons/ecoservice_datev_xml/models/datev/export.py:0
+#, python-format
+msgid "DATEV XML ledger export not implemented."
+msgstr "DATEV Belegsatzdaten Export nicht verfügbar."
+
+#. module: ecoservice_datev_xml
+#: model:ir.model.fields,field_description:ecoservice_datev_xml.field_datev_export__date_from
+msgid "Date From"
+msgstr "Von"
+
+#. module: ecoservice_datev_xml
+#: model:ir.model.fields,field_description:ecoservice_datev_xml.field_datev_export__date_to
+msgid "Date To"
+msgstr "Bis"
+
+#. module: ecoservice_datev_xml
+#: model:ir.model,name:ecoservice_datev_xml.model_account_move
+msgid "Journal Entry"
+msgstr "Buchungssatz"
+
+#. module: ecoservice_datev_xml
+#: model:ir.model,name:ecoservice_datev_xml.model_account_move_line
+msgid "Journal Item"
+msgstr "Buchungszeile"
+
+#. module: ecoservice_datev_xml
+#: code:addons/ecoservice_datev_xml/models/datev/export.py:0
+#: code:addons/ecoservice_datev_xml/models/datev/export.py:0
+#, python-format
+msgid "None of the invoices contain taxes. Nothing to export."
+msgstr "Keiner der Buchungen enthält Steuerzeilen. Nichts zu exportieren."
+
+#. module: ecoservice_datev_xml
+#: code:addons/ecoservice_datev_xml/models/datev/export.py:0
+#: code:addons/ecoservice_datev_xml/models/datev/export.py:0
+#, python-format
+msgid "Nothing to export."
+msgstr "Nichts zu exportieren."
+
+#. module: ecoservice_datev_xml
+#: model:ir.model.fields,field_description:ecoservice_datev_xml.field_datev_export__type
+msgid "Type"
+msgstr "Typ"
+
+#. module: ecoservice_datev_xml
+#: model:ir.model.fields.selection,name:ecoservice_datev_xml.selection__datev_export__type__xml_csv_extension
+msgid "XML CSV extension"
+msgstr "XML CSV Erweiterung"
+
+#. module: ecoservice_datev_xml
+#: model:ir.model.fields.selection,name:ecoservice_datev_xml.selection__datev_export__type__xml_invoice
+msgid "XML Invoice"
+msgstr "XML Rechnungsdaten Export"
+
+#. module: ecoservice_datev_xml
+#: model:ir.model.fields.selection,name:ecoservice_datev_xml.selection__datev_export__type__xml_ledger
+msgid "XML Ledger"
+msgstr "XML Belegsatzdaten Export"
