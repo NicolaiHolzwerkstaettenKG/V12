@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files at the root directory for full details.
+-->
+
+<odoo>
+
+  <!-- Register: Report Delivery Note (without logo) -->
+  <record id="report_stock_delivery_note_no_logo" model="ir.actions.report">
+    <field name="name">Delivery Note Letter Paper</field>
+    <field name="model">stock.picking</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="print_report_name">'Delivery Note Letter paper'</field>
+    <field name="report_name">ecoservice_german_documents_stock.report_stock_delivery_note_template_without_logo</field>
+    <field name="binding_model_id" ref="model_stock_picking"/>
+    <field name="binding_type">report</field>
+  </record>
+
+  <!-- Register: Picking Operation (without logo) -->
+  <record id="report_stock_picking_operation_no_logo" model="ir.actions.report">
+    <field name="name">Picking Operation Letter Paper</field>
+    <field name="model">stock.picking</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="print_report_name">'Picking Operation Letter paper'</field>
+    <field name="report_name">ecoservice_german_documents_stock.report_stock_picking_operation_template_without_logo</field>
+    <field name="binding_model_id" ref="model_stock_picking"/>
+    <field name="binding_type">report</field>
+  </record>
+
+  <!-- Build: Report Delivery Note (without logo) -->
+  <template id="report_stock_delivery_note_template_without_logo">
+    <t t-set="hide_header_footer">True</t>
+    <t t-call="stock.report_deliveryslip"/>
+  </template>
+
+  <!-- Build: Report Picking Operation (without logo) -->
+  <template id="report_stock_picking_operation_template_without_logo">
+    <t t-set="hide_header_footer">True</t>
+    <t t-call="stock.report_picking"/>
+  </template>
+
+  <!-- Translate: Report Purchase Order (non-fields) -->
+  <template id="report_delivery_note_translator">
+    <t t-set="o" t-value="o.with_context(lang=o.partner_id.get_lang())"/>
+    <t t-esc="o.set_report_line_index(1)"/>
+    <t t-set="public_reference" t-value="o.name"/>
+    <t t-set="move_line_ids" t-value="o.move_line_ids"/>
+    <t t-set="doc_name">Delivery Note</t>
+    <t t-call="ecoservice_german_documents_stock.report_stock_document_delivery_note"/>
+  </template>
+
+  <!-- Translate: Report Picking Operation (non-fields) -->
+  <template id="report_picking_operation_translator">
+    <t t-set="o" t-value="o.with_context(lang=o.partner_id.get_lang())"/>
+    <t t-esc="o.set_report_line_index(1)"/>
+    <t t-set="public_reference" t-value="o.name"/>
+    <t t-set="is_picking" t-value="True"/>
+    <t t-set="move_line_ids" t-value="o.move_line_ids"/>
+    <t t-set="doc_name">Picking Operation</t>
+    <t t-call="ecoservice_german_documents_stock.report_stock_document_picking_operation"/>
+  </template>
+
+  <template id="report_deliveryslip_inherit_gd" inherit_id="stock.report_deliveryslip">
+    <xpath expr="//t[@t-call='stock.report_delivery_document']" position="attributes">
+      <attribute name="t-if">
+        o.sudo().company_id.external_report_layout_id.key != 'ecoservice_german_documents_base.external_layout_german_documents'
+      </attribute>
+    </xpath>
+    <xpath expr="//t[@t-call='stock.report_delivery_document']" position="before">
+      <t t-call="ecoservice_german_documents_stock.report_delivery_note_translator"
+        t-lang="o.partner_id.get_lang()"
+         t-if="o.sudo().company_id.external_report_layout_id.key == 'ecoservice_german_documents_base.external_layout_german_documents'"/>
+    </xpath>
+  </template>
+
+  <template id="report_picking_inherit_gd" inherit_id="stock.report_picking">
+    <xpath expr="//t[@t-call='web.external_layout']" position="before">
+      <t t-call="ecoservice_german_documents_stock.report_picking_operation_translator"
+        t-if="o.sudo().company_id.external_report_layout_id.key == 'ecoservice_german_documents_base.external_layout_german_documents'"
+        t-lang="o.partner_id.get_lang()"/>
+    </xpath>
+    <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
+      <attribute name="t-if">
+        o.sudo().company_id.external_report_layout_id.key != 'ecoservice_german_documents_base.external_layout_german_documents'
+      </attribute>
+    </xpath>
+  </template>
+
+</odoo>
