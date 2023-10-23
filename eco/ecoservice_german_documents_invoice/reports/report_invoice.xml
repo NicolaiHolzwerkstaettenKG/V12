@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files at the root directory for full details.
+-->
+
+<odoo>
+
+  <!-- Register: Invoice without Payment (without logo) -->
+  <record id="report_invoice_without_payment_without_logo" model="ir.actions.report">
+    <field name="name">Invoice without Payment Letter Paper</field>
+    <field name="model">account.move</field>
+    <field name="attachment_use">True</field>
+    <field name="attachment">(object.state in ('open','paid')) and (('{}'.format(object.eco_report_name())).replace('/','')+'.pdf')</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="print_report_name">'Invoice'</field>
+    <field name="report_name">ecoservice_german_documents_invoice.report_invoice_template_without_payment_without_logo</field>
+    <field name="binding_model_id" ref="model_account_move"/>
+    <field name="binding_type">report</field>
+  </record>
+
+  <!-- Register: Invoice (without logo) -->
+  <record id="report_invoice_without_logo" model="ir.actions.report">
+    <field name="name">Invoice Letter Paper</field>
+    <field name="model">account.move</field>
+    <field name="attachment_use">True</field>
+    <field name="attachment">(object.state in ('open','paid')) and (('{}'.format(object.eco_report_name())).replace('/','')+'.pdf')</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">ecoservice_german_documents_invoice.report_invoice_template_without_logo</field>
+    <field name="print_report_name">'Invoice'</field>
+    <field name="binding_model_id" ref="model_account_move"/>
+    <field name="binding_type">report</field>
+  </record>
+
+  <!-- Build: Report Invoice without Payment -->
+  <template id="report_invoice_template_without_payment">
+    <t t-call="account.report_invoice"
+      t-lang="o.partner_id.get_lang()"/>
+  </template>
+
+  <!-- Build: Report Invoice without Payment (without logo) -->
+  <template id="report_invoice_template_without_payment_without_logo">
+    <t t-set="hide_header_footer">True</t>
+    <t t-call="account.report_invoice"/>
+  </template>
+
+  <!-- Build: Report Invoice -->
+  <template id="report_invoice_template">
+    <t t-call="account.report_invoice_with_payments"
+      t-lang="o.partner_id.get_lang()"/>
+  </template>
+
+  <!-- Build: Report Invoice (without logo) -->
+  <template id="report_invoice_template_without_logo">
+    <t t-set="hide_header_footer">True</t>
+    <t t-call="account.report_invoice_with_payments"/>
+  </template>
+
+  <!-- Translate: Invoice (non-fields) -->
+  <template id="report_translator_invoice">
+    <t t-set="o" t-value="o.with_context(lang=o.partner_id.get_lang())"/>
+    <t t-esc="o.set_report_line_index(1)"/>
+    <t t-set="public_reference" t-value="o.name"/>
+
+    <t t-set="doc_name">Invoice</t>
+    <t t-if="'refund' in o.move_type" t-set="doc_name">Refund</t>
+    <t t-if="o.is_down_payment()" t-set="doc_name">Advance Invoice</t>
+
+    <t t-set="doc_text" t-value="o.account_invoice"/>
+    <t t-if="'refund' in o.move_type" t-set="doc_text" t-value="o.account_refund"/>
+
+    <t t-set="doc_text_bottom" t-value="o.account_invoice_bottom"/>
+    <t t-if="'refund' in o.move_type" t-set="doc_text_bottom" t-value="o.account_refund_bottom"/>
+
+    <t t-call="ecoservice_german_documents_invoice.report_invoice_document"/>
+  </template>
+
+  <template id="report_invoice_inherit_gd" inherit_id="account.report_invoice">
+    <xpath expr="//t[@t-call='web.html_container']//t[@t-call]" position="attributes">
+      <attribute name="t-if">False</attribute>
+    </xpath>
+    <xpath expr="//t[@t-call='web.html_container']//t[@t-call]" position="before">
+      <t t-set="gd_active"
+        t-value="o.sudo().company_id.external_report_layout_id.key == 'ecoservice_german_documents_base.external_layout_german_documents'" />
+      <t t-call="ecoservice_german_documents_invoice.report_translator_invoice"
+        t-lang="o.partner_id.get_lang()"
+        t-if="gd_active" />
+      <t t-call="#{ o._get_name_invoice_report() }"
+        t-lang="o.partner_id.get_lang()"
+        t-else="" />
+    </xpath>
+  </template>
+
+  <template id="report_invoice_with_payments_inherit_gd" inherit_id="account.report_invoice_with_payments">
+    <xpath expr="//t[@t-call='web.html_container']//t[@t-call]" position="attributes">
+      <attribute name="t-if">False</attribute>
+    </xpath>
+    <xpath expr="//t[@t-call='web.html_container']//t[@t-call]" position="before">
+      <t t-set="gd_active"
+        t-value="o.sudo().company_id.external_report_layout_id.key == 'ecoservice_german_documents_base.external_layout_german_documents'" />
+      <t t-call="ecoservice_german_documents_invoice.report_translator_invoice"
+        t-lang="o.partner_id.get_lang()"
+        t-if="gd_active" />
+      <t t-call="#{ o._get_name_invoice_report() }"
+        t-lang="o.partner_id.get_lang()"
+        t-else="" />
+    </xpath>
+  </template>
+
+  <!-- Register: Report Invoice Duplicate-->
+  <record id="report_invoice_duplicate_report" model="ir.actions.report">
+    <field name="name">Duplicate</field>
+    <field name="model">account.move</field>
+    <field name="attachment_use">True</field>
+    <field name="attachment">(object.state in ('open','paid')) and (('{}-Duplikat'.format(object.eco_report_name())).replace('/','')+'.pdf')</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">ecoservice_german_documents_invoice.report_invoice_duplicate_template</field>
+    <field name="binding_model_id" ref="model_account_move"/>
+    <field name="binding_type">report</field>
+  </record>
+
+  <!-- Register: Invoice Duplicate (without logo) -->
+  <record id="report_invoice_duplicate_without_logo" model="ir.actions.report">
+    <field name="name">Duplicate Letter Paper</field>
+    <field name="model">account.move</field>
+    <field name="attachment_use">True</field>
+    <field name="attachment">(object.state in ('open','paid')) and (('{}-Duplikat'.format(object.eco_report_name())).replace('/','')+'.pdf')</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">ecoservice_german_documents_invoice.report_invoice_duplicate_template_without_logo</field>
+    <field name="binding_model_id" ref="model_account_move"/>
+    <field name="binding_type">report</field>
+  </record>
+
+  <!-- Build: Report Invoice Duplicate -->
+  <template id="report_invoice_duplicate_template">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="o">
+        <t t-set="payments_vals"
+           t-value="o._get_reconciled_info_json_values()"/>
+        <t t-call="ecoservice_german_documents_invoice.report_translator_invoice_duplicate" t-lang="o.partner_id.get_lang()"/>
+      </t>
+    </t>
+  </template>
+
+  <!-- Build: Report Invoice Duplicate (without logo) -->
+  <template id="report_invoice_duplicate_template_without_logo">
+    <t t-set="hide_header_footer">True</t>
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="o">
+        <t t-set="payments_vals"
+          t-value="o._get_reconciled_info_json_values()"/>
+        <t t-call="ecoservice_german_documents_invoice.report_translator_invoice_duplicate" t-lang="o.partner_id.get_lang()"/>
+      </t>
+    </t>
+  </template>
+
+  <!-- Translate: Invoice Duplicate (non-fields) -->
+  <template id="report_translator_invoice_duplicate">
+    <t t-set="o" t-value="o.with_context(lang=o.partner_id.get_lang())"/>
+    <t t-esc="o.set_report_line_index(1)"/>
+    <t t-set="public_reference" t-value="o.name"/>
+
+    <t t-set="doc_name">Invoice (Duplicate)</t>
+    <t t-if="'refund' in o.move_type" t-set="doc_name">Refund (Duplicate)</t>
+    <t t-if="o.is_down_payment()" t-set="doc_name">Advance Invoice (Duplicate)</t>
+
+    <t t-set="doc_text" t-value="o.account_invoice"/>
+    <t t-if="'refund' in o.move_type" t-set="doc_text" t-value="o.account_refund"/>
+
+    <t t-set="doc_text_bottom" t-value="o.account_invoice_bottom"/>
+    <t t-if="'refund' in o.move_type" t-set="doc_text_bottom" t-value="o.account_refund_bottom"/>
+
+    <t t-call="ecoservice_german_documents_invoice.report_invoice_document"/>
+  </template>
+
+</odoo>
