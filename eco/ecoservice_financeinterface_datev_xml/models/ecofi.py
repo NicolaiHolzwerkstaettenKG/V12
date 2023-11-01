@@ -40,7 +40,7 @@ class Ecofi(models.Model):
             self.xml_export_id.date_from = self.date_from
             self.xml_export_id.date_to = self.date_to
 
-        self.xml_export_id.with_context(csv_moves=self.account_moves).export()
+        self.xml_export_id.export()
 
     def unlink(self):
         xml_export = self.xml_export_id
