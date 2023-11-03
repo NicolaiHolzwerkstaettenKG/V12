@@ -53,6 +53,14 @@
             </div>
 
             <div class="col-xs-12 col-md-3 o_setting_box">
+              <div class="o_setting_right_pane">
+                <label for="tax_consultant_id"/>
+                <div class="text-muted">of the current company.</div>
+                <field name="tax_consultant_id" class="oe_inline"/>
+              </div>
+            </div>
+
+            <div class="col-xs-12 col-md-3 o_setting_box">
               <div class="o_setting_left_pane">
                 <field name="datev_assume_taxfree" class="oe_inline"/>
               </div>

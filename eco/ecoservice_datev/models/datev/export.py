@@ -81,6 +81,8 @@ class DatevExport(models.Model):
 
     def write_protection(self, vals):
         for export in self:
+            if 'message_main_attachment_id' in vals:
+                continue
             if export.generated and 'generated' not in vals:
                 raise exceptions.UserError(_(
                     'Generated exports can not be modified.'

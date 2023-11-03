@@ -22,3 +22,6 @@ class ResCompany(models.Model):
         string='Client No.',
         size=9,
     )
+    tax_consultant_id = fields.Many2one(
+        comodel_name='res.partner',
+    )
