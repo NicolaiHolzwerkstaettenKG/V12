@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-25 15:10+0000\n"
-"PO-Revision-Date: 2022-10-25 15:10+0000\n"
+"POT-Creation-Date: 2023-10-26 12:26+0000\n"
+"PO-Revision-Date: 2023-10-26 12:26+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -68,13 +68,19 @@ msgid "Activity Type Icon"
 msgstr ""
 
 #. module: ecoservice_datev
+#: model:ir.model,name:ecoservice_datev.model_ir_attachment
+msgid "Attachment"
+msgstr "Dateianhang"
+
+#. module: ecoservice_datev
 #: model:ir.model.fields,field_description:ecoservice_datev.field_datev_export__message_attachment_count
 msgid "Attachment Count"
 msgstr "Anzahl Anhänge"
 
 #. module: ecoservice_datev
-#: model_terms:ir.ui.view,arch_db:ecoservice_datev.res_config_settings_view_form
-msgid "Client Number"
+#: model:ir.model.fields,field_description:ecoservice_datev.field_res_company__l10n_de_datev_client_number
+#: model:ir.model.fields,field_description:ecoservice_datev.field_res_config_settings__l10n_de_datev_client_number
+msgid "Client No."
 msgstr "Mandanten-Nr."
 
 #. module: ecoservice_datev
@@ -93,8 +99,9 @@ msgid "Config Settings"
 msgstr "Konfigurationseinstellungen"
 
 #. module: ecoservice_datev
-#: model_terms:ir.ui.view,arch_db:ecoservice_datev.res_config_settings_view_form
-msgid "Consultant Number"
+#: model:ir.model.fields,field_description:ecoservice_datev.field_res_company__l10n_de_datev_consultant_number
+#: model:ir.model.fields,field_description:ecoservice_datev.field_res_config_settings__l10n_de_datev_consultant_number
+msgid "Consultant No."
 msgstr "Berater-Nr."
 
 #. module: ecoservice_datev
@@ -129,24 +136,6 @@ msgstr "Von"
 #: model:ir.model.fields,field_description:ecoservice_datev.field_datev_export__date_to
 msgid "Date To"
 msgstr "Bis"
-
-#. module: ecoservice_datev
-#: model:ir.model.fields,field_description:ecoservice_datev.field_res_company__datev_assume_taxfree
-#: model:ir.model.fields,field_description:ecoservice_datev.field_res_config_settings__datev_assume_taxfree
-msgid "Missing tax as tax free"
-msgstr "Fehlende Steuer als Steuerfrei"
-
-#. module: ecoservice_datev
-#: model:ir.model.fields,field_description:ecoservice_datev.field_res_company__l10n_de_datev_client_number
-#: model:ir.model.fields,field_description:ecoservice_datev.field_res_config_settings__l10n_de_datev_client_number
-msgid "Client No."
-msgstr "Mandanten-Nr."
-
-#. module: ecoservice_datev
-#: model:ir.model.fields,field_description:ecoservice_datev.field_res_company__l10n_de_datev_consultant_number
-#: model:ir.model.fields,field_description:ecoservice_datev.field_res_config_settings__l10n_de_datev_consultant_number
-msgid "Consultant No."
-msgstr "Berater-Nr."
 
 #. module: ecoservice_datev
 #: model:ir.model.fields,field_description:ecoservice_datev.field_account_bank_statement_line__datev_export
@@ -194,12 +183,14 @@ msgid "Generated"
 msgstr "Generiert"
 
 #. module: ecoservice_datev
+#. odoo-python
 #: code:addons/ecoservice_datev/models/datev/export.py:0
 #, python-format
 msgid "Generated exports can not be deleted."
 msgstr "Generierte Exporte können nicht gelöscht werden."
 
 #. module: ecoservice_datev
+#. odoo-python
 #: code:addons/ecoservice_datev/models/datev/export.py:0
 #, python-format
 msgid "Generated exports can not be modified."
@@ -244,7 +235,7 @@ msgstr ""
 #. module: ecoservice_datev
 #: model:ir.model,name:ecoservice_datev.model_account_move
 msgid "Journal Entry"
-msgstr "Journaleintrag"
+msgstr "Journalbuchung"
 
 #. module: ecoservice_datev
 #: model:ir.model,name:ecoservice_datev.model_account_move_line
@@ -297,8 +288,24 @@ msgid "Messages"
 msgstr "Nachrichten"
 
 #. module: ecoservice_datev
+#: model:ir.model.fields,field_description:ecoservice_datev.field_res_company__datev_assume_taxfree
+#: model:ir.model.fields,field_description:ecoservice_datev.field_res_config_settings__datev_assume_taxfree
+msgid "Missing tax as tax free"
+msgstr "Fehlende Steuer als Steuerfrei"
+
+#. module: ecoservice_datev
 #: model:ir.model.fields,field_description:ecoservice_datev.field_datev_export__my_activity_date_deadline
 msgid "My Activity Deadline"
+msgstr ""
+
+#. module: ecoservice_datev
+#: model:ir.model.fields,field_description:ecoservice_datev.field_datev_export__name
+msgid "Name"
+msgstr ""
+
+#. module: ecoservice_datev
+#: model:ir.model.fields,field_description:ecoservice_datev.field_datev_export__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
 msgstr ""
 
 #. module: ecoservice_datev
@@ -334,7 +341,7 @@ msgstr "Fehleranzahl"
 
 #. module: ecoservice_datev
 #: model:ir.model.fields,help:ecoservice_datev.field_datev_export__message_needaction_counter
-msgid "Number of messages which requires an action"
+msgid "Number of messages requiring action"
 msgstr ""
 
 #. module: ecoservice_datev
@@ -377,15 +384,22 @@ msgid "Tax"
 msgstr "Steuer"
 
 #. module: ecoservice_datev
+#: model:ir.model.fields,field_description:ecoservice_datev.field_res_company__tax_consultant_id
+#: model:ir.model.fields,field_description:ecoservice_datev.field_res_config_settings__tax_consultant_id
+msgid "Tax Consultant"
+msgstr "Steuerberater"
+
+#. module: ecoservice_datev
 #: model_terms:ir.ui.view,arch_db:ecoservice_datev.view_move_form
 msgid ""
 "The move was exported to the accountant and/or tax office.<br/>\n"
-"          Due to legal revision restrictions the move should not be modified."
+"            Due to legal revision restrictions the move should not be modified."
 msgstr ""
 "Der Buchungssatz wurde an den Steuerberater und/oder das Finanzamt übermittelt.<br/>\n"
 "Aufgrund der Revisionssicherheit sollte der Buchungssatz nicht mehr bearbeitet werden."
 
 #. module: ecoservice_datev
+#. odoo-python
 #: code:addons/ecoservice_datev/models/account/move_line.py:0
 #, python-format
 msgid ""
@@ -460,6 +474,12 @@ msgid "Website communication history"
 msgstr ""
 
 #. module: ecoservice_datev
+#: model_terms:ir.ui.view,arch_db:ecoservice_datev.res_config_settings_view_form
+msgid "of the current company."
+msgstr "des jetzigen Unternehmens."
+
+#. module: ecoservice_datev
+#. odoo-python
 #: code:addons/ecoservice_datev/models/account/move.py:0
 #: model:ir.model.constraint,message:ecoservice_datev.constraint_account_move_uuid4_uniq
 #, python-format

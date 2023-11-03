@@ -26,3 +26,8 @@ class ResConfigSettings(models.TransientModel):
         related='company_id.l10n_de_datev_consultant_number',
         readonly=False,
     )
+
+    tax_consultant_id = fields.Many2one(
+        related='company_id.tax_consultant_id',
+        readonly=False,
+    )
