@@ -9,19 +9,19 @@ class ClientName(core.XsdSimpleType):
     def __new__(
         cls,
         value,
-    ) -> int:
+    ) -> str:
         cls.validate_value(value)
-        return value
+        return str(value)[0:36]
 
     @staticmethod
     def validate_value(value):
         if not value:
             raise exception.DatevXmlMissingError(field='ClientName.value')
 
-        len_value = len(str(value))
-        if len_value < 1 or len_value > 36:
-            raise exception.DatevXmlLengthError(
-                message='Invalid ClientName length.',
-                value=value,
-                range='1-36',
-            )
+        # len_value = len(str(value))
+        # if len_value < 1 or len_value > 36:
+        #     raise exception.DatevXmlLengthError(
+        #         message='Invalid ClientName length.',
+        #         value=value,
+        #         range='1-36',
+        #     )

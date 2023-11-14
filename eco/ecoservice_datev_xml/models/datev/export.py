@@ -144,16 +144,11 @@ class DatevExport(models.Model):
         if self.type != 'xml_csv_extension':
             return
 
-        moves = self.env.context.get('csv_moves') or self.moves()
-        moves = moves.filtered(
-            lambda x: x.move_type in (
-                'out_invoice',
-                'out_refund',
-                'in_invoice',
-                'in_refund',
-            )
-        )
-        if not moves:
+        ecofi = self.env['ecofi'].sudo().search([('xml_export_id', '=', self.id)])
+        if not ecofi:
+            raise exceptions.UserError(_('Related CSV export not found.'))
+
+        if not ecofi.account_moves:
             # No raise, extension might just be a non-invoice export
             return
 
@@ -162,7 +157,7 @@ class DatevExport(models.Model):
         os.makedirs(exportdir, exist_ok=True)
         documents = []
 
-        for move in moves:
+        for move in ecofi.account_moves:
             move.get_uuid4()
             filename = f'{move.id}.xml'
             filepath = f'{exportdir}/{filename}'
