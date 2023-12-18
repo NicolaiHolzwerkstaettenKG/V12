@@ -84,16 +84,24 @@ class PurchaseOrder(models.Model):
     # endregion
 
     # region CRUD Methods
-    @api.model
-    def create(self, values):
+    @api.model_create_multi
+    def create(self, vals_list):
         fields_name = ['purchase_rfq', 'purchase_confirmation']
-        values = self.is_html_field_empty(
-            vals=values,
-            fields=fields_name
-        )
-        rfq = super(PurchaseOrder, self).create(values)
-        rfq.get_template_text()
-        return rfq
+        rfq_vals_list = []
+
+        for value in vals_list:
+            values = self.is_html_field_empty(
+                vals=value,
+                fields=fields_name
+            )
+            rfq_vals_list.append(values)
+
+        rfqs = super(PurchaseOrder, self).create(rfq_vals_list)
+
+        for rfq in rfqs:
+            rfq.get_template_text()
+
+        return rfqs
 
     def write(self, values):
         fields_name = ['purchase_rfq', 'purchase_confirmation']
