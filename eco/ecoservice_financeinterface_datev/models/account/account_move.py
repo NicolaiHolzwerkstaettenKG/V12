@@ -4,6 +4,7 @@
 from collections import defaultdict
 
 from odoo import _, api, exceptions, models
+from odoo.exceptions import UserError
 
 
 class AccountMove(models.Model):
@@ -70,6 +71,12 @@ class AccountMove(models.Model):
         self.set_main_account()
         self.set_ecofi_tax_id()
         return result
+
+    def button_draft(self):
+        if self.vorlauf_id:
+            raise UserError(_('This invoice has been exported and cannot be reset to draft.'))
+        else:
+            return super(AccountMove, self).button_draft()
 
     def set_ecofi_tax_id(self):
         for line in self.invoice_line_ids:
