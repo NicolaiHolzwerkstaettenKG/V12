@@ -5,7 +5,7 @@ def try_exec(cr, query):
     try:
         cr.execute(query)
         cr.commit()
-    except:  # nosec
+    except:  # noqa: E722
         cr.rollback()
 
 

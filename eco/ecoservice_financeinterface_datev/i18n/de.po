@@ -437,6 +437,13 @@ msgstr ""
 "Automatikkonto markiert werden soll!"
 
 #. module: ecoservice_financeinterface_datev
+#. odoo-python
+#: code:addons/ecoservice_financeinterface_datev/models/account/account_move.py:0
+#, python-format
+msgid "This invoice has been exported and cannot be reset to draft."
+msgstr "Diese Rechnung wurde exportiert und kann nicht auf Entwurf zurückgesetzt werden."
+
+#. module: ecoservice_financeinterface_datev
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_move_migration__to_check_counter
 msgid "To Check Counter"
 msgstr "Zu Prüfen-Zählern"

@@ -43,10 +43,46 @@ class Ecofi(models.Model):
         datevdict['Datum'] = export_date.strftime('%d%m')
         datevdict['Steuerperiode'] = move.date.strftime('%d%m%Y')
 
+        # Standard
+        datevdict['Beleg1'] = move.name
+
+        # Kundenzahlung
+        if move.journal_id.type == 'bank':
+            if not move.payment_id:
+                datevdict['Buchungstext'] = move.display_name
+                # Suche abgestimmte Zeilen
+                bank_line = self.env['account.move.line'].search([
+                    ('move_name', '=', move.name),
+                    ('account_type', '=', 'asset_receivable'),
+                ])
+                matched_lines = self.env['account.move.line']
+                for bline in bank_line:
+                    matched_lines += self.env['account.move.line'].search([
+                        ('name', '=', bline.name),
+                    ])
+
+                if matched_lines:
+                    # filte nach Ausgangsrechnung
+                    found_lines = matched_lines.filtered(
+                        lambda x: x.move_type == 'out_invoice'
+                    )
+                    datevdict['Beleg1'] = ' '.join([line.move_name for line in found_lines])
+            else:
+                if move.payment_id.reconciled_invoice_ids:
+                    datevdict['Buchungstext'] = datevdict['Beleg1']
+                    datevdict['Beleg1'] = move.payment_id.reconciled_invoice_ids.name
+                elif move.ref:
+                    datevdict['Buchungstext'] = datevdict['Beleg1']
+                    datevdict['Beleg1'] = move.ref
+
+        # Kundenrechnung
+        if move.journal_id.type == 'sale':
+            if move.name:
+                datevdict['Beleg1'] = move.name
+                datevdict['Buchungstext'] = move.name
+
         if move.journal_id.type == 'purchase' and move.ref:
             datevdict['Beleg1'] = move.ref
-        elif move.name:
-            datevdict['Beleg1'] = move.name
 
         if faelligkeit:
             datevdict['Beleg2'] = faelligkeit
