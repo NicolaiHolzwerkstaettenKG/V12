@@ -108,14 +108,19 @@ class SaleOrder(models.Model):
     # endregion
 
     # region CRUD Methods
-    @api.model
-    def create(self, values):
+    @api.model_create_multi
+    def create(self, vals_list):
         fields_name = ['sale_quotation', 'sale_confirmation', 'proforma_invoice']
-        values = self.is_html_field_empty(
-            vals=values,
-            fields=fields_name
-        )
-        return super(SaleOrder, self).create(values)
+        new_vals_list = []
+
+        for value in vals_list:
+            values = self.is_html_field_empty(
+                vals=value,
+                fields=fields_name
+            )
+            new_vals_list.append(values)
+
+        return super(SaleOrder, self).create(new_vals_list)
 
     def write(self, values):
         fields_name = ['sale_quotation', 'sale_confirmation', 'proforma_invoice']
@@ -150,4 +155,10 @@ class SaleOrder(models.Model):
             'ecoservice_german_documents_sale'
             '.report_quotation_proforma_template_without_logo',
         ]
+
+    def get_qr_code_for_proforma_invoice(self):
+        is_proforma = self.env.context.get('proforma', False)
+        if self.invoice_ids and self.invoice_ids.display_qr_code and is_proforma:
+            return self.invoice_ids[0]._generate_qr_code()
+        return False
     # endregion

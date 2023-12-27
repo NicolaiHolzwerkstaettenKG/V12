@@ -126,6 +126,20 @@
           </div>
         </div>
 
+        <!-- QR-Code on the Proforma invoice. -->
+        <t t-set="qr_code" t-value="o.get_qr_code_for_proforma_invoice()" />
+        <div t-if="qr_code" id="qrcode" class="row mt16">
+          <div class="col-12">
+            <p>
+              <strong class="text-center">Scan me with your banking app.</strong>
+              <br />
+              <br />
+              <img class="" t-att-src="qr_code" style="float:left; margin-left: 31px;"
+                width="85" height="85" />
+            </p>
+          </div>
+        </div>
+
         <!--Incoterms-->
         <t t-call="ecoservice_german_documents_base.incoterms"
            groups="sale_stock.group_display_incoterm">
