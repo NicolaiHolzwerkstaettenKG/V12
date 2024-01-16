@@ -59,13 +59,13 @@ msgstr "<span>Chargen-/Seriennummer</span>"
 
 #. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_translator_invoice
-msgid "Advance Invoice"
-msgstr "Abschlagsrechnung"
+msgid "Down payment invoice"
+msgstr "Anzahlungsrechnung"
 
 #. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_translator_invoice_duplicate
-msgid "Advance Invoice (Duplicate)"
-msgstr "Abschlagsrechnung (Duplikat)"
+msgid "Down payment invoice (Duplicate)"
+msgstr "Anzahlungsrechnung (Duplikat)"
 
 #. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_table_base_invoice

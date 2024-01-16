@@ -182,16 +182,22 @@ class AccountMove(models.Model):
     # endregion
 
     # region CRUD Methods
-    @api.model
-    def create(self, values):
+    @api.model_create_multi
+    def create(self, vals_list):
         fields_name = ['account_invoice', 'account_refund']
-        values = self.is_html_field_empty(
-            vals=values,
-            fields=fields_name
-        )
-        invoice = super(AccountMove, self).create(values)
-        invoice.get_template_text()
-        return invoice
+        invoice_vals_list = []
+
+        for value in vals_list:
+            values = self.is_html_field_empty(
+                vals=value,
+                fields=fields_name
+            )
+            invoice_vals_list.append(values)
+
+        invoices = super(AccountMove, self).create(invoice_vals_list)
+        for invoice in invoices:
+            invoice.get_template_text()
+        return invoices
 
     def write(self, values):
         fields_name = ['account_invoice', 'account_refund']
