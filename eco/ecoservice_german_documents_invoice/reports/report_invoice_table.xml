@@ -79,7 +79,7 @@ you can to this here by inherit or override.
               </td>
 
               <td t-if="display_discount" class="text-right">
-                <span t-field="line.discount"/>
+                <span t-esc="'%.0f'% line.discount"/>
                 %
               </td>
 
