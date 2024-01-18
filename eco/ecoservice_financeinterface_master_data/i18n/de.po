@@ -1,0 +1,373 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ecoservice_financeinterface_master_data
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-04-21 12:29+0000\n"
+"PO-Revision-Date: 2021-04-21 12:29+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: ecoservice_financeinterface_master_data
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate_accounts.py:0
+#, python-format
+msgid ""
+"Account: {code} {fieldname} could not be exported!\n"
+"\t{log}\n"
+msgstr ""
+"Konto: {code} {fieldname} konnte nicht exportiert werden!\n"
+"\t{log}\n"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ecofi.datev.formate,name:ecoservice_financeinterface_master_data.ecofi_datev_formate_default_account_payable
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_master_data.selection__ecofi_datev_formate__datev_type__account_payable
+msgid "Accounts Payable"
+msgstr "Kreditoren"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ecofi.datev.formate,name:ecoservice_financeinterface_master_data.ecofi_datev_formate_default_account_receivable
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_master_data.selection__ecofi_datev_formate__datev_type__account_receivable
+msgid "Accounts Receivable"
+msgstr "Debitoren"
+
+#. module: ecoservice_financeinterface_master_data
+#: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_master_data.datev_export_view
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model,name:ecoservice_financeinterface_master_data.model_ecofi_datev_spalten
+msgid "Configuration for Datev Reference Data Exports Columns"
+msgstr "Konfiguration für Datev Stammdatenexport Spalten"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model,name:ecoservice_financeinterface_master_data.model_ecofi_datev_formate
+msgid "Configuration for Datev master data exports"
+msgstr "Konfiguration für Datev Stammdatenexport"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.actions.act_window,name:ecoservice_financeinterface_master_data.datev_export_wizard
+#: model:ir.ui.menu,name:ecoservice_financeinterface_master_data.datev_export_wizard_menu
+msgid "Reference Data Export"
+msgstr "Datev Stammdatenexport"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_datev_reference_data_export__create_uid
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_formate__create_uid
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__create_uid
+msgid "Created by"
+msgstr "Erstellt von"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_datev_reference_data_export__create_date
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_formate__create_date
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__create_date
+msgid "Created on"
+msgstr "Erstellt am"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_formate__csv_spalten
+msgid "DATEV Columns"
+msgstr "DATEV Spalten"
+
+#. module: ecoservice_financeinterface_master_data
+#: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_master_data.ecofi_datev_formate_view
+msgid "Datev Export Formats"
+msgstr "Datev Export Formate"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__datevid
+msgid "Datev ID"
+msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.actions.act_window,name:ecoservice_financeinterface_master_data.ecofi_datev_formate_all
+#: model:ir.ui.menu,name:ecoservice_financeinterface_master_data.menu_ecofi_datev_formate
+msgid "Datev Reference Format Configuration"
+msgstr "Datev Stammdatenexport Konfiguration"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__nks
+msgid "Decimal places"
+msgstr "Nachkommastellen"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__beschreibung
+msgid "Description"
+msgstr "Beschreibung"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_datev_reference_data_export__display_name
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_formate__display_name
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__display_name
+msgid "Display Name"
+msgstr "Anzeigename"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_formate__datev_domain
+msgid "Domain"
+msgstr "Domäne"
+
+#. module: ecoservice_financeinterface_master_data
+#: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_master_data.ecofi_datev_spalten_form_view
+msgid "Export Columns"
+msgstr "Export Felder"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_datev_reference_data_export__file_export
+msgid "Export File"
+msgstr "Exportdatei"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_datev_reference_data_export__file_export_name
+msgid "Export Filename"
+msgstr "Export Dateiname"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_datev_reference_data_export__export_format_id
+msgid "Export Format"
+msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_datev_reference_data_export__file_export_log
+msgid "Export Log"
+msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_master_data.datev_export_view
+msgid "Exportfile:"
+msgstr "Exportdatei:"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_formate__datev_type
+msgid "Exporttype"
+msgstr "Exporttyp"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__feldname
+msgid "Fieldname"
+msgstr "Feldname"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__typ
+msgid "Fieldtype"
+msgstr "Feldtyp"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_datev_reference_data_export__id
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_formate__id
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__id
+msgid "ID"
+msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__import_id
+msgid "Import"
+msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_master_data.ecofi_datev_formate_view
+msgid "Import Template"
+msgstr "Vorlage importieren"
+
+#. module: ecoservice_financeinterface_master_data
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate.py:0
+#, python-format
+msgid "Importformat not correct, Headervalues \"{header}\" not found in the csv!"
+msgstr ""
+"CSV Vorlage konnte nicht geladen werden, die Kopfzeile \"{header}\" wurde "
+"nicht gefunden!"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_datev_reference_data_export____last_update
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_formate____last_update
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten____last_update
+msgid "Last Modified on"
+msgstr "Zuletzt geändert am"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_datev_reference_data_export__write_uid
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_formate__write_uid
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__write_uid
+msgid "Last Updated by"
+msgstr "Zuletzt aktualisiert durch"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_datev_reference_data_export__write_date
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_formate__write_date
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__write_date
+msgid "Last Updated on"
+msgstr "Zuletzt aktualisiert am"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__laenge
+msgid "Length"
+msgstr "Länge"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__mako
+msgid "Mako"
+msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_formate__mako_help
+msgid "Mako Help"
+msgstr "Mako Hilfe"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__mussfeld
+msgid "Mandatory field"
+msgstr "Pflichtfeld"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_spalten__maxlaenge
+msgid "Maximal length"
+msgstr "Maximale Länge"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_ecofi_datev_formate__name
+msgid "Name"
+msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ecofi.datev.formate,name:ecoservice_financeinterface_master_data.ecofi_datev_formate_default_payment_terms
+msgid "Payment Terms"
+msgstr "Zahlungbedingungen"
+
+#. module: ecoservice_financeinterface_master_data
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate_payment_terms.py:0
+#, python-format
+msgid "Payment term {name} has more than 2 percent lines"
+msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate_payment_terms.py:0
+#, python-format
+msgid "Payment term {name} has no balance line"
+msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate_payment_terms.py:0
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate_payment_terms.py:0
+#, python-format
+msgid ""
+"Payment term: {name} could not be exported!\n"
+"\t{log}\n"
+msgstr ""
+"Zahlungbedingung: {name} konnte nicht exportiert werden!\n"
+"\t{log}\n"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_master_data.field_datev_reference_data_export__only_new_partners
+msgid "Only New Partners"
+msgstr "Nur neue Partner"
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_master_data.selection__ecofi_datev_formate__datev_type__payment_term
+msgid "Payment terms"
+msgstr "Zahlungbedingungen"
+
+#. module: ecoservice_financeinterface_master_data
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate_accounts.py:0
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate_accounts.py:0
+#, python-format
+msgid ""
+"Possible Mako Object account and partner\n"
+"\n"
+"If you want to export the Code of the account and the Name of the Partner use:\n"
+"${account.code} and ${partner.name} as Makotext."
+msgstr ""
+"Mögliche Mako Objekte: Account und Partner\n"
+"Wenn sie die Kontonummer eines Kontos und den Name eines Partners exportieren möchten:\n"
+"${account.code} und ${partner.name} als Makotext."
+
+#. module: ecoservice_financeinterface_master_data
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate_payment_terms.py:0
+#, python-format
+msgid ""
+"Possible Mako Object paymentterm\n"
+"\n"
+"Paymentterm Values:\n"
+"    'number'\n"
+"    'name'\n"
+"    'typ'\n"
+"    'netdays'\n"
+"    'skonto1days'\n"
+"    'skonto1percent'\n"
+"    'skonto2days'\n"
+"    'skonto2percent'\n"
+"    'error'\n"
+"    'log'"
+msgstr ""
+"Mögliches Mako Objekt Zahlungbedingung\n"
+"\n"
+"Paymentterm Values:\n"
+"    'number'\n"
+"    'name'\n"
+"    'typ'\n"
+"    'netdays'\n"
+"    'skonto1days'\n"
+"    'skonto1percent'\n"
+"    'skonto2days'\n"
+"    'skonto2percent'\n"
+"    'error'\n"
+"    'log'"
+
+#. module: ecoservice_financeinterface_master_data
+#: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_master_data.datev_export_view
+msgid "Reference Export"
+msgstr "Stammdatenexport"
+
+#. module: ecoservice_financeinterface_master_data
+#: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_master_data.datev_export_view
+msgid "Start Export"
+msgstr "Export starten"
+
+#. module: ecoservice_financeinterface_master_data
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate.py:0
+#, python-format
+msgid "Value {value} could not be converted into {message}!"
+msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate.py:0
+#, python-format
+msgid "a date"
+msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate.py:0
+#, python-format
+msgid "a decimal"
+msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate.py:0
+#, python-format
+msgid "an integer"
+msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: model:ir.model,name:ecoservice_financeinterface_master_data.model_datev_reference_data_export
+msgid "datev.reference.data.export"
+msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate.py:0
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate.py:0
+#, python-format
+msgid "text"
+msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate.py:0
+#, python-format
+msgid "unspecified"
+msgstr ""
