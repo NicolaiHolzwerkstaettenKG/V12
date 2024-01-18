@@ -5,7 +5,7 @@
     'name': 'Finance Interface',
     'summary': 'Base module of the Finance Interface',
     'category': 'Accounting',
-    'version': '16.0.1.0.0',
+    'version': '16.0.1.0.1',
     'license': 'OPL-1',
     'application': False,
     'installable': True,

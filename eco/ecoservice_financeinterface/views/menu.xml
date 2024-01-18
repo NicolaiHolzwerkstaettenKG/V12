@@ -30,6 +30,7 @@
             parent="ecoservice_financeinterface.menu_finance_interface"
             name="Settings"
             action="action_financeinterface_configuration"
+            groups="base.group_no_one"
             sequence="30"/>
 
 </odoo>
