@@ -5,7 +5,7 @@
     'name': 'German Documents (Stock)',
     'summary': 'Designed German Documents for Odoo.',
     'category': 'Base',
-    'version': '16.0.1.0.5',
+    'version': '16.0.1.1.0',
     'license': 'OPL-1',
     'application': False,
     'installable': True,

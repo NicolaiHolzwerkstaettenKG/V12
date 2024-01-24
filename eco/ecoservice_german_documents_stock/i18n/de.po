@@ -139,7 +139,7 @@ msgstr "Lagerbuchung"
 #. module: ecoservice_german_documents_stock
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_stock.report_stock_document_delivery_note
 msgid "This shipment is a backorder of"
-msgstr "Diese Lieferung ist eine Retour von"
+msgstr "Diese Lieferung ist ein Lieferrückstand von"
 
 #. module: ecoservice_german_documents_stock
 #: model:ir.model,name:ecoservice_german_documents_stock.model_stock_picking

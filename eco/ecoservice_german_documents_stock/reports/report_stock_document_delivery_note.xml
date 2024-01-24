@@ -57,9 +57,12 @@
           </div>
 
           <!-- Other customly needed fields -->
-          <div id="custom_area" class="picking_operation">
+          <div id="custom_area" class="picking_operation" style="page-break-inside:avoid">
             <div class="row mt16">
               <div class="col-5 mt32">
+                <div t-if="o.signing_date" class="text-center">
+                  <t t-esc="o.signing_date.strftime('%d.%m.%Y')"/>
+                </div>
                 <div class="text-8 text-center"
                      style="border-top: 1px solid #cacaca;">
                   Date
@@ -68,17 +71,28 @@
             </div>
             <div class="row mt16">
               <div class="col-5 mt16">
-                <div class="text-8 text-center"
-                     style="border-top: 1px solid #cacaca;">
+                <div t-if="o.signer_name" class="text-center">
+                  <t t-esc="o.signer_name"/>
+                </div>
+                <div class="text-8 text-center" style="border-top: 1px solid #cacaca;">
                   Receiver (block letters)
                 </div>
               </div>
             </div>
             <div class="row mt16">
-              <div class="col-5 mt16">
-                <div class="text-8 text-center"
-                     style="border-top: 1px solid #cacaca;">
-                  Signature Receiver
+              <div class="col-5">
+                <div t-if="o.signature" name="signature">
+                  <img t-att-src="image_data_uri(o.signature)" style="max-height: 4cm; max-width: 8cm; margin-left: 0.5cm"/>
+                  <div class="text-8 text-center" style="border-top: 1px solid #cacaca; position: relative; top: -1cm;">
+                    Signature Receiver
+                  </div>
+                </div>
+                <div t-else="" class="mt16">
+                  <!--is needed for optic-->
+                  <div class="row" style="color: white">.</div>
+                  <div class="text-8 text-center " style="border-top: 1px solid #cacaca;">
+                    Signature Receiver
+                  </div>
                 </div>
               </div>
             </div>
