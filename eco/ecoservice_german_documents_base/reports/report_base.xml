@@ -138,6 +138,10 @@ For everything else please use the report_snippets.xml!
                   <div style="display:inline;">VAT-ID:</div>
                   <span t-field="company.vat"/>
                 </t>
+                <t t-if="'l10n_de_stnr' in company and company.l10n_de_stnr">
+                  <div style="display:inline;">St.-Nr.:</div>
+                  <span t-field="company.l10n_de_stnr"/>
+                </t>
               </div>
             </td>
 

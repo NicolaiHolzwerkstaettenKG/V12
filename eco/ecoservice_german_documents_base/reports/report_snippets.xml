@@ -8,8 +8,7 @@
 
   <!-- Get proper salutation -->
   <template id="letter_salutation">
-    <span t-esc="o.partner_id.get_xml_salutation()"/>
-    ,
+    <span t-esc="o.partner_id.get_xml_salutation()"/>,
   </template>
 
   <!-- Get receiver of this letter -->

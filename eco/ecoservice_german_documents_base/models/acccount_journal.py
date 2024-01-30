@@ -6,4 +6,4 @@ from odoo import fields, models
 
 class AccountJournal(models.Model):
     _inherit = 'account.journal'
-    show_bank_data_invoice = fields.Boolean(string='Set this to show bank data on invoice')
+    show_bank_data_invoice = fields.Boolean(string='Display bank details')

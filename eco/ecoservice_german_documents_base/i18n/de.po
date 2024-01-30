@@ -271,8 +271,8 @@ msgstr "Verkaufsauftrag "
 
 #. module: ecoservice_german_documents_base
 #: model:ir.model.fields,field_description:ecoservice_german_documents_base.field_account_journal__show_bank_data_invoice
-msgid "Set this to show bank data on invoice"
-msgstr "Setzen Sie das Feld um Bank Daten auf der Rechnung anzuzeigen"
+msgid "Display bank details"
+msgstr "Bankdaten anzeigen"
 
 #. module: ecoservice_german_documents_base
 #: model:ir.model.fields,field_description:ecoservice_german_documents_base.field_res_company__report_table_position_continuous
