@@ -91,11 +91,11 @@
       <tr>
         <td class="font-alt">Your contact:</td>
         <td>
-          <t t-if="o.partner_id.has_lastname()">
+          <t t-if="your_contact.has_lastname()">
             <span t-field="your_contact.firstname"/>
             <span t-field="your_contact.lastname"/>
           </t>
-          <span t-if="not o.partner_id.has_lastname()" t-field="your_contact.name"/>
+          <span t-if="not your_contact.has_lastname()" t-field="your_contact.name"/>
         </td>
       </tr>
 

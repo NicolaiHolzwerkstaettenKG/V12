@@ -59,8 +59,8 @@ Always use report_css_* so that it's easily understandable what you do call.
       table { border-collapse: inherit;}
 
       /* Letterhead Snippets */
-      div#letterhead_sender_address { font-size:10px; text-align:left; color:#707070; padding-top: 5mm }
-      div#letterhead_receiver_address { margin-top: 0px; }
+      div#letterhead_sender_address { font-size:10px; text-align:left; color:#707070; padding-top: 18mm; padding-bottom: 2mm; }
+      div#letterhead_receiver_address { margin-top: 0px; padding-top: 1mm; }
       .address_row { min-height: 90mm; }
       .letterhead_address { margin-top: 5px; font-size: 12px; }
       .letterhead_address span:first-child { font-weight: bold; }

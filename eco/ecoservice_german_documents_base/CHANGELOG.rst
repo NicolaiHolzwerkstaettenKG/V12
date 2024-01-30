@@ -1,5 +1,11 @@
 Changelog
 =========
+16.0.1.2.2
+----------
+* fix space in salutation
+* minimal adjustment for sender address position
+* fix firstname lastname referenced object
+
 16.0.1.2.0
 ----------
 * Added Field in journal so the bank account data is only shown on invoice if set to true
