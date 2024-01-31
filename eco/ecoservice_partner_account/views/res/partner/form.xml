@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files in the root directory of this module for full details.
+-->
+
+<odoo>
+
+  <record id="view_partner_property_form"
+          model="ir.ui.view">
+    <field name="name">Res Partner Account | Form View </field>
+    <field name="model">res.partner</field>
+    <field name="type">form</field>
+    <field name="inherit_id" ref="account.view_partner_property_form"/>
+    <field name="arch" type="xml">
+
+      <field name="duplicated_bank_account_partners_count" position="before">
+
+        <field name="has_custom_receivable" invisible="1"/>
+        <field name="has_custom_payable" invisible="1"/>
+
+        <button
+          name="action_create_receivable_account"
+          type="object"
+          string="Generate Receivable"
+          attrs="{'invisible': [('has_custom_receivable', '!=', False)]}"
+          class="btn btn-outline-secondary"
+        />
+
+        <button
+          name="action_create_payable_account"
+          type="object"
+          string="Generate Payable"
+          attrs="{'invisible': [('has_custom_payable', '!=', False)]}"
+          class="btn btn-outline-secondary"
+        />
+
+      </field>
+
+    </field>
+  </record>
+
+</odoo>

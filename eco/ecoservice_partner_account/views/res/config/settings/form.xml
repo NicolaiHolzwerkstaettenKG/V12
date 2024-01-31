@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files in the root directory of this module for full details.
+-->
+
+<odoo>
+
+  <record id="res_config_settings_view_form" model="ir.ui.view">
+    <field name="name">Res Config Settings | Partner Account | Form</field>
+    <field name="model">res.config.settings</field>
+    <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//div[@data-key='account']//div[@id='bank_cash']" position="after">
+
+        <h2>Partner Account Generation</h2>
+        <div class="row mt16 o_settings_container">
+          <div class="col-md-6 o_setting_box">
+            <div class="o_setting_left_pane">
+              <field name="partner_account_generate_automatically"/>
+            </div>
+            <div class="o_setting_right_pane">
+              <label for="partner_account_generate_automatically"/>
+              <span class="fa fa-lg fa-building-o"
+                    title="Values set here are company-specific."
+                    aria-label="Values set here are company-specific."
+                    groups="base.group_multi_company"
+                    role="img"/>
+              <div class="text-muted">
+                Generate partner payable or receivable accounts with the first in or out going invoice related to the partner.
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 o_setting_box">
+            <div class="o_setting_left_pane">
+              <field name="shared_partner_accounts"/>
+            </div>
+            <div class="o_setting_right_pane">
+              <label for="shared_partner_accounts"/>
+              <span class="fa fa-lg fa-building-o"
+                    title="Values set here are company-specific."
+                    aria-label="Values set here are company-specific."
+                    groups="base.group_multi_company"
+                    role="img"/>
+              <div class="text-muted">
+                Instead of using company specific partner accounts, use partner
+                accounts shared across all companies that have this option enabled.
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 o_setting_box">
+            <div class="o_setting_left_pane">
+            </div>
+            <div class="o_setting_right_pane">
+              <label for="partner_ref_source"/>
+              <span class="fa fa-lg fa-building-o"
+                    title="Values set here are company-specific."
+                    aria-label="Values set here are company-specific."
+                    groups="base.group_multi_company"
+                    role="img"/>
+              <div class="text-muted">Set payable/receivable code as partner reference</div>
+              <field name="partner_ref_source"/>
+            </div>
+          </div>
+        </div>
+
+      </xpath>
+    </field>
+  </record>
+
+</odoo>
