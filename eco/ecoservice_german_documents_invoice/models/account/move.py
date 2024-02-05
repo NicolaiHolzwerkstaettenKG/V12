@@ -243,3 +243,13 @@ class AccountMove(models.Model):
             lambda line: line.is_down_payment()
         )
     # endregion
+
+    @api.model
+    def check_if_remove_html_tags(self, html_field):
+
+        if hasattr(self.env['res.company'], 'remove_html_tags'):
+            raw_text = self.env['res.company'].remove_html_tags(html_field)
+        else:
+            raw_text = html_field
+
+        return raw_text
