@@ -72,16 +72,33 @@ you can to this here by inherit or override.
             <t t-set="description_start_value" t-value="description"/>
             <td class="text-left">
               <!-- Odoo Standard -->
-              <span t-field="move_line.product_id"/>
+              <!--don't print product_id if sales description is set (already contains product name)-->
+              <t t-if="not o.origin">
+                <span t-field="move_line.product_id"/>
+                <!-- <span t-field="o.origin"/> -->
+              </t>
 
               <t t-if="not description and description != ''">
                 <t t-set="description" t-value="move_line.move_id.description_picking"/>
               </t>
 
               <t t-if="description !='' and description != move_line.product_id.name">
-                <br/>
-                <span t-esc="description"/>
+                <t t-if="not o.origin">
+                  <br/>
+                </t>
+
+                <t t-set="description_list" t-value="description.strip().split('\n')"/>
+                <t t-if="descriptions != description_list">
+                  <span t-esc="description_list[0]"/>
+                  <t t-foreach="description_list" t-as="description_item">
+                    <t t-if="description_item_index > 0">
+                      <br/>
+                      <span t-esc="description_item"/>
+                    </t>
+                  </t>
+                </t>
               </t>
+
               <!-- End Odoo Standard -->
               <!-- reset description to its start value (see comment above) -->
               <t t-set="description" t-value="description_start_value"/>
