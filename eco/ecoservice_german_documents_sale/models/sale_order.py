@@ -162,3 +162,13 @@ class SaleOrder(models.Model):
             return self.invoice_ids[0]._generate_qr_code()
         return False
     # endregion
+
+    @api.model
+    def check_if_remove_html_tags(self, html_field):
+
+        if hasattr(self.env['res.company'], 'remove_html_tags'):
+            raw_text = self.env['res.company'].remove_html_tags(html_field)
+        else:
+            raw_text = html_field
+
+        return raw_text
