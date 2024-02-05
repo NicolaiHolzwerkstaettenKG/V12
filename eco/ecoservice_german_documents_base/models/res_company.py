@@ -1,7 +1,8 @@
 # Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
 # See COPYRIGHT and LICENSE files at the root directory for full details.
 
-from odoo import fields, models
+from odoo import api, fields, models
+import re
 
 
 class ResCompany(models.Model):
@@ -59,3 +60,12 @@ class ResCompany(models.Model):
         return False
 
     # endregion
+
+    @api.model
+    def remove_html_tags(self, html_field):
+
+        text = str(html_field)
+        pattern = re.compile(r'<[^>]+>')
+        raw_text = pattern.sub("", text).replace("&nbsp;", " ").strip()
+
+        return raw_text
