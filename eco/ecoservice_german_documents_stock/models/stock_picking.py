@@ -12,7 +12,7 @@ class StockPicking(models.Model):
     signer_name = fields.Char(string='Signer Name', store=True, readonly=True, copy=False)
 
     # region Compute Methods
-    def _compute_date(self):
+    def _compute_dates(self):
         for rec in self:
             date = (
                 rec.date_done
