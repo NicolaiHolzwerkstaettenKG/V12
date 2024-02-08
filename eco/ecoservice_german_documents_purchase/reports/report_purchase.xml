@@ -35,12 +35,16 @@
     <t t-if="o.state in ['purchase', 'done']">
       <t t-set="doc_name">Purchase Order</t>
       <t t-set="is_po" t-value="True"/>
-      <t t-set="doc_text" t-value="o.purchase_confirmation"/>
+      <t t-if="o.check_if_remove_html_tags(o.purchase_confirmation)">
+        <t t-set="doc_text" t-value="o.purchase_confirmation"/>
+      </t>
       <t t-set="doc_text_bottom" t-value="o.purchase_confirmation_bottom"/>
     </t>
     <t t-else="">
       <t t-set="doc_name">Request for Quotation</t>
-      <t t-set="doc_text" t-value="o.purchase_rfq"/>
+      <t t-if="o.check_if_remove_html_tags(o.purchase_rfq)">
+        <t t-set="doc_text" t-value="o.purchase_rfq"/>
+      </t>
       <t t-set="doc_text_bottom" t-value="o.purchase_rfq_bottom"/>
     </t>
     <t t-call="ecoservice_german_documents_purchase.report_document_purchase"/>
