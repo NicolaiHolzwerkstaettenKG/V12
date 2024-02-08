@@ -24,7 +24,7 @@ class PurchaseOrder(models.Model):
     # endregion
 
     # region Compute Methods
-    def _compute_date(self):
+    def _compute_dates(self):
         for rec in self:
             rec.report_compute_date = fields.Date.context_today(
                 rec,
@@ -118,3 +118,13 @@ class PurchaseOrder(models.Model):
         oc = any(r.state in ['purchase', 'done'] for r in self)
         return [x for x in [quot and _('RfQ'), oc and _('PO')] if x]
     # endregion
+
+    @api.model
+    def check_if_remove_html_tags(self, html_field):
+
+        if hasattr(self.env['res.company'], 'remove_html_tags'):
+            raw_text = self.env['res.company'].remove_html_tags(html_field)
+        else:
+            raw_text = html_field
+
+        return raw_text
