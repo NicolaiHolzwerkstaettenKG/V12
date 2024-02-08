@@ -24,7 +24,7 @@ class PurchaseOrder(models.Model):
     # endregion
 
     # region Compute Methods
-    def _compute_date(self):
+    def _compute_dates(self):
         for rec in self:
             rec.report_compute_date = fields.Date.context_today(
                 rec,
