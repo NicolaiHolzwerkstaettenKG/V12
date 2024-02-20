@@ -1,5 +1,8 @@
 # Changelog
 
+## 16.0.1.1.0 (2024-02-20)
+* made "is_partner_account" field in account.account.view visible and editable, when in debug mode
+
 ## 15.0.2.1.0 (2021-11-05)
 * Migration from 14.0
 

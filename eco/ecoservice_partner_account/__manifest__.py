@@ -5,7 +5,7 @@
     'name': 'ecoservice: Partner Account',
     'summary': 'New debit and credit account following a sequence per company for partner.',
     'category': 'Accounting',
-    'version': '16.0.1.0.3',
+    'version': '16.0.1.1.0',
     'license': 'OPL-1',
     'application': False,
     'installable': True,
@@ -29,5 +29,6 @@
         'views/res/config/settings/form.xml',
         'views/res/partner/form.xml',
         'views/res/partner/action.xml',
+        'views/res/account/form.xml',
     ],
 }
