@@ -396,11 +396,14 @@ class ImportDatev(models.Model):
     def compute_currency(self, move_line, line, import_config):
         cur_obj = self.env['res.currency']
         cur = False
-        if type(line['wkz']) == str and line['wkz'] != import_config['company_currency_id'].name:
+        if (type(line['wkz']) == int or str) and line['wkz'] != import_config['company_currency_id'].name:
             context = self.env.context.copy()
             context.update({'date': line['belegdatum'] or fields.Date.today()})
             if 'wkz' in line and line['wkz']:
-                cur = self.env['res.currency'].search([('name', '=', line['wkz'])])
+                if type(line['wkz']) == int:
+                    cur = self.env['res.currency'].search([('id', '=', line['wkz'])])
+                if type(line['wkz']) == str:
+                    cur = self.env['res.currency'].search([('name', '=', line['wkz'])])
             move_line['currency_id'] = cur[0].id if cur and cur[0] else cur
             move_line['amount_currency'] = move_line['debit'] - move_line['credit']
             move_line['debit'] = Decimal(str(
@@ -695,7 +698,8 @@ class ImportDatev(models.Model):
                                     check_move_validity=False,
                                 ).create(move)
                             # catch up validity check after all lines are created
-                            thismove._check_balanced()
+                            container = {'records': thismove}
+                            thismove._check_balanced(container)
                             self.log_line.create({
                                 'parent_id': datev_import.id,
                                 'name': _('Line: {line} has been imported').format(
