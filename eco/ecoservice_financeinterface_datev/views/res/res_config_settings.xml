@@ -96,6 +96,11 @@
               <button name="%(action_ecofi_move_migration)d" type="action" string="Migration of old Accounting Entries" class="btn-primary"/>
             </div>
           </div>
+          <div class="row mt16 o_settings_container">
+            <div class="col-xs-12 col-md-3 o_setting_box">
+              <button name="%(action_ecofi_set_account_counterpart)d" type="action" string="Set Account Counterparts" class="btn-primary"/>
+            </div>
+          </div>
         </div>
 
       </xpath>
