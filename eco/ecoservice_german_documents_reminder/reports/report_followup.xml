@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="followup_filter_info_template_inherit" inherit_id="account_followup.followup_filter_info_template">
+        <xpath expr="//div[hasclass('fallback_header')]/div" position="replace">
+            <!-- Load Base CSS Styles-->
+            <t t-call="ecoservice_german_documents_base.report_css_body"/>
+            <div style="padding-top: 30mm; font-size: 10px; margin-left: 10px;">
+                <t t-set="invoice_company" t-value="(partner_addr.invoice_ids.mapped('company_id')[:1] or
+                partner_addr.unpaid_invoice_ids.mapped('company_id')[:1]) or
+                (partner_addr.parent_id.invoice_ids.mapped('company_id')[:1] or
+                partner_addr.parent_id.unpaid_invoice_ids.mapped('company_id')[:1])"/>
+                <t t-if="partner_addr.company_id"/>
+                <t t-if="partner_addr.company_id">
+                    <t t-set="invoice_company" t-value="partner_addr.company_id"/>
+                </t>
+                <t t-if="invoice_company">
+                    <div id="sender_address" style="color: #707070;white-space: nowrap;">
+                      <span class="bold" t-field="invoice_company.name"/>
+                      &amp;#8226;
+                      <span t-field="invoice_company.street"/>
+                      &amp;#8226;
+                      <span t-field="invoice_company.zip"/>
+                      <span t-field="invoice_company.city"/>
+                    </div>
+                </t>
+                <div style="margin-top: 5px; font-size: 12px;" t-field="partner_addr.self"
+                     t-options="{'widget': 'contact', 'fields': ['address', 'name'], 'no_marker': 'true'}"/>
+                <span t-field="partner_addr.vat"/>
+            </div>
+        </xpath>
+        <xpath expr="//p" position="attributes">
+            <attribute name="style">margin-top: 55px;margin-bottom: 35px !important; margin-left: 550px;</attribute>
+        </xpath>
+    </template>
+
+    <template id="main_template_inherit" inherit_id="account_reports.main_template">
+      <xpath expr="//div[hasclass('col-8')]" position="attributes">
+          <attribute name="t-if">False</attribute>
+      </xpath>
+    </template>
+
+  </odoo>
