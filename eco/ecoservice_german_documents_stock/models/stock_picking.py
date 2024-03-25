@@ -58,3 +58,11 @@ class StockPicking(models.Model):
             self.write({'signing_date': current_date})
 
         return super()._attach_sign()
+
+    def get_signed_by(self):
+        related_sale_order = self.env['sale.order'].search([('name', '=', self.origin)], limit=1)
+        return related_sale_order.signed_by
+
+    def get_signature(self):
+        related_sale_order = self.env['sale.order'].search([('name', '=', self.origin)], limit=1)
+        return related_sale_order.signature
