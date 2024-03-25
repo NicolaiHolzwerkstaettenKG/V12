@@ -56,47 +56,63 @@
             </div>
           </div>
 
-          <!-- Other customly needed fields -->
-          <div id="custom_area" class="picking_operation" style="page-break-inside:avoid">
-            <div class="row mt16">
-              <div class="col-5 mt32">
-                <div t-if="o.signing_date" class="text-center">
-                  <t t-esc="o.signing_date.strftime('%d.%m.%Y')"/>
-                </div>
-                <div class="text-8 text-center"
-                     style="border-top: 1px solid #cacaca;">
-                  Date
-                </div>
-              </div>
+          <t t-set="signature" t-value="o.get_signature()"/>
+          <t t-set="signed_by" t-value="o.get_signed_by()"/>
+          <div t-if="signature" class="mt-4 ml64 mr4" name="signature">
+            <div class="offset-8">
+              <strong>Signature</strong>
             </div>
-            <div class="row mt16">
-              <div class="col-5 mt16">
-                <div t-if="o.signer_name" class="text-center">
-                  <t t-esc="o.signer_name"/>
-                </div>
-                <div class="text-8 text-center" style="border-top: 1px solid #cacaca;">
-                  Receiver (block letters)
-                </div>
-              </div>
+            <div class="offset-8">
+              <img t-att-src="image_data_uri(signature)" style="max-height: 4cm; max-width: 8cm;"/>
             </div>
-            <div class="row mt16">
-              <div class="col-5">
-                <div t-if="o.signature" name="signature">
-                  <img t-att-src="image_data_uri(o.signature)" style="max-height: 4cm; max-width: 8cm; margin-left: 0.5cm"/>
-                  <div class="text-8 text-center" style="border-top: 1px solid #cacaca; position: relative; top: -1cm;">
-                    Signature Receiver
-                  </div>
-                </div>
-                <div t-else="" class="mt16">
-                  <!--is needed for optic-->
-                  <div class="row" style="color: white">.</div>
-                  <div class="text-8 text-center " style="border-top: 1px solid #cacaca;">
-                    Signature Receiver
-                  </div>
-                </div>
-              </div>
+            <div class="offset-8 text-center">
+              <p t-esc="signed_by"/>
             </div>
           </div>
+
+          <!-- Other customly needed fields -->
+          <t t-if="not signature">
+            <div id="custom_area" class="picking_operation" style="page-break-inside:avoid">
+              <div class="row mt16">
+                <div class="col-5 mt32">
+                  <div t-if="o.signing_date" class="text-center">
+                    <t t-esc="o.signing_date.strftime('%d.%m.%Y')"/>
+                  </div>
+                  <div class="text-8 text-center"
+                      style="border-top: 1px solid #cacaca;">
+                    Date
+                  </div>
+                </div>
+              </div>
+              <div class="row mt16">
+                <div class="col-5 mt16">
+                  <div t-if="o.signer_name" class="text-center">
+                    <t t-esc="o.signer_name"/>
+                  </div>
+                  <div class="text-8 text-center" style="border-top: 1px solid #cacaca;">
+                    Receiver (block letters)
+                  </div>
+                </div>
+              </div>
+              <div class="row mt16">
+                <div class="col-5">
+                  <div t-if="o.signature" name="signature">
+                    <img t-att-src="image_data_uri(o.signature)" style="max-height: 4cm; max-width: 8cm; margin-left: 0.5cm"/>
+                    <div class="text-8 text-center" style="border-top: 1px solid #cacaca; position: relative; top: -1cm;">
+                      Signature Receiver
+                    </div>
+                  </div>
+                  <div t-else="" class="mt16">
+                    <!--is needed for optic-->
+                    <div class="row" style="color: white">.</div>
+                    <div class="text-8 text-center " style="border-top: 1px solid #cacaca;">
+                      Signature Receiver
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </t>
 
           <!--Note-->
           <div class="row mt32">
