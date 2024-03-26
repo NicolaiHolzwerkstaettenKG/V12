@@ -9,13 +9,23 @@ class ImportDatevLog(models.Model):
     _order = 'id desc'
 
     name = fields.Text(string='Name')
-    parent_id = fields.Many2one(comodel_name='import.datev', string='Import', ondelete='cascade')
-    date = fields.Datetime(string='Time', readonly=True, default=lambda *a: fields.Datetime.today())
+    parent_id = fields.Many2one(
+        comodel_name='import.datev',
+        string='Import',
+        ondelete='cascade'
+    )
+    date = fields.Datetime(
+        string='Time',
+        readonly=True,
+        default=lambda *a: fields.Datetime.today()
+    )
     state = fields.Selection(
         selection=[
             ('info', 'Info'),
             ('error', 'Error'),
             ('standard', 'Ok')
         ],
-        string='State', readonly=True, default='info'
+        string='State',
+        readonly=True,
+        default='info'
     )
