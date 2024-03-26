@@ -385,22 +385,29 @@ class ImportDatev(models.Model):
             'ecofi_account_counterpart': move['ecofi_account_counterpart'],
             'ecofi_tax_id': move.get('ecofi_tax_id', False),
             'amount_currency': move.get('amount_currency', False),
-            'currency_id': move.get('currency_id', False),
             'date_maturity': move.get('date_maturity', False),
             'quantity': 1.0,
             'datev_posting_key': move.get('datev_posting_key', ''),
             'product_id': False,
         }
+        currency_id = move.get('currency_id', False)
+        if currency_id:
+            move_line_dict.update({
+                'currency_id': currency_id,
+            })
         return move_line_dict
 
     def compute_currency(self, move_line, line, import_config):
         cur_obj = self.env['res.currency']
         cur = False
-        if type(line['wkz']) == str and line['wkz'] != import_config['company_currency_id'].name:
+        if (type(line['wkz']) == int or str) and line['wkz'] != import_config['company_currency_id'].name:
             context = self.env.context.copy()
             context.update({'date': line['belegdatum'] or fields.Date.today()})
             if 'wkz' in line and line['wkz']:
-                cur = self.env['res.currency'].search([('name', '=', line['wkz'])])
+                if type(line['wkz']) == int:
+                    cur = self.env['res.currency'].search([('id', '=', line['wkz'])])
+                if type(line['wkz']) == str:
+                    cur = self.env['res.currency'].search([('name', '=', line['wkz'])])
             move_line['currency_id'] = cur[0].id if cur and cur[0] else cur
             move_line['amount_currency'] = move_line['debit'] - move_line['credit']
             move_line['debit'] = Decimal(str(
@@ -695,7 +702,8 @@ class ImportDatev(models.Model):
                                     check_move_validity=False,
                                 ).create(move)
                             # catch up validity check after all lines are created
-                            thismove._check_balanced()
+                            container = {'records': thismove}
+                            thismove._check_balanced(container)
                             self.log_line.create({
                                 'parent_id': datev_import.id,
                                 'name': _('Line: {line} has been imported').format(
@@ -736,7 +744,7 @@ class ImportDatev(models.Model):
             error = False
             for move in this_import.account_moves.filtered(lambda r: r.state == 'draft'):
                 try:
-                    move.post()
+                    move.action_post()
                     self.log_line.create({
                         'parent_id': this_import.id,
                         'name': _('{name} booked successful.').format(name=move.name),
@@ -754,30 +762,3 @@ class ImportDatev(models.Model):
                     error = True
             this_import.state = 'booking_error' if error else 'booked'
         return True
-
-
-class ImportDatevLog(models.Model):
-    _name = 'import.datev.log'
-    _order = 'id desc'
-
-    name = fields.Text(string='Name')
-    parent_id = fields.Many2one(
-        comodel_name='import.datev',
-        string='Import',
-        ondelete='cascade'
-    )
-    date = fields.Datetime(
-        string='Time',
-        readonly=True,
-        default=lambda *a: fields.Datetime.today()
-    )
-    state = fields.Selection(
-        selection=[
-            ('info', 'Info'),
-            ('error', 'Error'),
-            ('standard', 'Ok')
-        ],
-        string='State',
-        readonly=True,
-        default='info'
-    )
