@@ -17,6 +17,6 @@ class IrAttachment(models.Model):
     def datev_compatible(self):
         # https://apps.datev.de/help-center/documents/1007019
         return any(
-            ext in self.display_name.lower()
+            self.display_name.lower().strip().endswith(ext)
             for ext in self.datev_formats()
         )
