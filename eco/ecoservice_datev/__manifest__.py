@@ -4,7 +4,7 @@
     'name': 'DATEV',
     'summary': 'DATEV interface in accordance with offical docs.',
     'category': 'Accounting',
-    'version': '16.0.1.1.0',
+    'version': '16.0.1.2.0',
     'author': 'ecoservice GbR',
     'website': 'https://www.ecoservice.de',
     'license': 'OPL-1',
