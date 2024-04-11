@@ -1,7 +1,7 @@
 # Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from odoo import _, api, exceptions, models
 
@@ -40,26 +40,20 @@ class EcofiExportColumns(models.AbstractModel):
                 ' in the DATEV settings.',
             ))
 
-        # Calculate the current fiscal date
+        if ecofi.date_from.strftime('%Y') != ecofi.date_to.strftime('%Y'):
+            raise exceptions.UserError(_(
+                'The period to be exported must be in the same year.'
+            ))
+
+        # Set the correct fiscal date
         str_fiscal_date = '{year}-{month}-{day}'.format(
-            year=datetime.now().strftime('%Y'),
-            month=self.env.company.fiscalyear_last_month,
-            day=self.env.company.fiscalyear_last_day
+            year=ecofi.date_from.strftime('%Y'),
+            month='01',
+            day='01'
         )
         fiscal_date = (
             datetime.strptime(str_fiscal_date, '%Y-%m-%d')
-            + timedelta(days=1)
         )
-        if fiscal_date > datetime.now():
-            str_fiscal_date = '{year}-{month}-{day}'.format(
-                year=int(datetime.now().strftime('%Y')) - 1,
-                month=self.env.company.fiscalyear_last_month,
-                day=self.env.company.fiscalyear_last_day
-            )
-            fiscal_date = (
-                datetime.strptime(str_fiscal_date, '%Y-%m-%d')
-                + timedelta(days=1)
-            )
 
         # Get SKR No.
         skr_03 = self.env.ref('l10n_de_skr03.l10n_de_chart_template', False)

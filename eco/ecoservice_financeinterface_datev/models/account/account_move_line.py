@@ -162,15 +162,11 @@ class AccountMoveLine(models.Model):
             and 'ecofi_account_counterpart' not in vals
         ):
             move = self.env['account.move'].browse(vals['move_id'])
+            # most jounals got a fix account counterpart
+            # use the bank / cash default account as counterpart
             if move.journal_id.type in ['bank', 'cash']:
-                accounts = move.line_ids.mapped('account_id') or vals.get('account_id')
-                if accounts:
-                    account_id = (
-                        accounts
-                        if isinstance(accounts, int)
-                        else accounts[0].id
-                    )
-                    vals['ecofi_account_counterpart'] = account_id
+                account_id = move.journal_id.default_account_id.id
+                vals['ecofi_account_counterpart'] = account_id
         elif (
             len(self) == 2
             and 'full_reconcile_id' in vals
