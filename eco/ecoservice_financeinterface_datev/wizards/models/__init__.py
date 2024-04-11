@@ -3,3 +3,4 @@
 # pyright: reportUnusedImport=false
 
 from . import ecofi_move_migration
+from . import ecofi_set_account_counterpart

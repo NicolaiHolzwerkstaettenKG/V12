@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files in the root directory of this module for full details.
+-->
+
+<odoo>
+
+  <record id="view_ecofi_set_account_counterpart_form" model="ir.ui.view">
+    <field name="name">Set Counterpart of Account Moves</field>
+    <field name="model">ecofi.set.account.counterpart</field>
+    <field name="arch" type="xml">
+      <form>
+        <p>
+          This wizard helps you to set the counterpart of account moves. Please select the journals you want to migrate.
+        </p>
+
+        <group>
+          <field name="bank_journals"/>
+          <field name="cash_journals"/>
+        </group>
+
+        <footer>
+          <button name="action_set_account_counterpart"
+                  type="object"
+                  class="btn-primary"
+                  string="Set Account Counterpart"/>
+          <button string="Cancel"
+                  class="btn-secondary"
+                  special="cancel"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_ecofi_set_account_counterpart" model="ir.actions.act_window">
+    <field name="name">Set Counterpart of Account Moves</field>
+    <field name="res_model">ecofi.set.account.counterpart</field>
+    <field name="view_mode">form</field>
+    <field name="view_id" ref="view_ecofi_set_account_counterpart_form"/>
+    <field name="target">new</field>
+  </record>
+
+</odoo>
