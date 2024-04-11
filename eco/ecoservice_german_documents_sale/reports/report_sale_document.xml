@@ -161,7 +161,7 @@
           </div>
         </div>
 
-        <div t-if="o.signature" class="row mt32 ml16 mr16" name="signature">
+        <div t-if="o.signature" class="mt-4 ml64 mr4" name="signature">
           <div class="offset-8">
             <strong>Signature</strong>
           </div>
