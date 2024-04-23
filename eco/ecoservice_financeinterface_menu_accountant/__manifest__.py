@@ -5,7 +5,7 @@
     'name': 'Finance Interface Menu Accountant',
     'summary': 'Make the menu account_accountant (Enterprise module) compliant',
     'category': 'Accounting',
-    'version': '16.0.1.0.0',
+    'version': '16.0.1.0.1',
     'license': 'OPL-1',
     'application': False,
     'installable': True,
@@ -16,7 +16,7 @@
     'depends': [
         'account_accountant',
 
-        'ecoservice_financeinterface_datev',  # eco/finance-interface
+        'ecoservice_financeinterface',  # eco/finance-interface
     ],
     # Data
     'data': [
