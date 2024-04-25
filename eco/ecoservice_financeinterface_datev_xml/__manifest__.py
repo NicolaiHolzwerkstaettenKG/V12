@@ -4,7 +4,7 @@
     'name': 'Financeinterface CSV/XML connector',
     'summary': 'Attach documents to your CSV export via XML export.',
     'category': 'Accounting',
-    'version': '16.0.1.0.0',
+    'version': '16.0.1.0.1',
     'author': 'ecoservice GbR',
     'website': 'https://www.ecoservice.de',
     'license': 'OPL-1',
