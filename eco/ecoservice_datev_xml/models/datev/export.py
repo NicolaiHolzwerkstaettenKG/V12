@@ -113,6 +113,7 @@ class DatevExport(models.Model):
             )
 
             files = move.datev_attachments(exportdir=exportdir)
+            files.extend(self.add_expense_attachments(move, exportdir))
             if not files:
                 # Atleast 1 file is required
                 # https://apps.datev.de/help-center/documents/1007019
@@ -144,11 +145,8 @@ class DatevExport(models.Model):
         if self.type != 'xml_csv_extension':
             return
 
-        ecofi = self.env['ecofi'].sudo().search([('xml_export_id', '=', self.id)])
-        if not ecofi:
-            raise exceptions.UserError(_('Related CSV export not found.'))
-
-        if not ecofi.account_moves:
+        moves = self.moves()
+        if not moves:
             # No raise, extension might just be a non-invoice export
             return
 
@@ -157,18 +155,17 @@ class DatevExport(models.Model):
         os.makedirs(exportdir, exist_ok=True)
         documents = []
 
-        for move in ecofi.account_moves:
+        for move in moves:
             move.get_uuid4()
-            filename = f'{move.id}.xml'
-            filepath = f'{exportdir}/{filename}'
 
-            files = move.datev_attachments(exportdir=exportdir)
+            files: list = move.datev_attachments(exportdir=exportdir)
+            files.extend(self.add_expense_attachments(move, exportdir))
             if not files:
                 # Atleast 1 file is required
                 # https://apps.datev.de/help-center/documents/1007019
                 continue
-            extensions = [ExtensionFile(name=x) for x in files]
 
+            extensions = [ExtensionFile(name=x) for x in files]
             documents.append(Document(
                 description=Description40(move.display_name),
                 keywords=move.datev_keywords(),
@@ -210,3 +207,18 @@ class DatevExport(models.Model):
         if os.path.exists(zippath):
             os.remove(zippath)
         shutil.rmtree(exportdir, ignore_errors=True)
+
+    def add_expense_attachments(self, move, exportdir) -> list:
+        res = []
+        if not (move and exportdir and 'hr.expense.sheet' in self.env):
+            return res
+
+        expenses = self.env['hr.expense.sheet'].sudo()
+        expenses = expenses.search([('account_move_id', '=', move.id)])
+        for expense in expenses:
+            attach = expense.expense_line_ids.message_main_attachment_id
+            res.extend(move.datev_attachments(
+                exportdir=exportdir,
+                attachments=attach,
+            ))
+        return res

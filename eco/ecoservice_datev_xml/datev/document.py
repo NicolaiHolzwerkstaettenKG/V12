@@ -20,14 +20,18 @@ class Document(core.XsdComplexType):
     ) -> dict:
         result = {
             'description': {'$': description},
-            'keywords': {'$': keywords},
+        }
+        if keywords:
+            result.update({
+                'keywords': {'$': keywords},
+            })
+        result.update({
             'extension': extension,
             # 'repository': repository,
             '@type': type,
             '@processID': processID,
             '@guid': guid,
-
-        }
+        })
         Document.validate(result)
         return result
 
