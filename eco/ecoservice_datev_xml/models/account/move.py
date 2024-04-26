@@ -39,15 +39,24 @@ class AccountMove(models.Model):
             bp_account_no=AccountNumber(account.code),
         )
 
+    def get_conf_datev_doc_type(self, type_name, default):
+        config = self.env['ir.config_parameter'].sudo()
+        res = config.get_param(type_name, default)
+        try:
+            res = int(res)
+        except Exception:
+            res = None
+        return res
+
     def datev_document_type(self) -> int:
         odoo_types = {
-            'entry': None,
-            'out_invoice': 2,
-            'in_invoice': 1,
-            'out_refund': None,
-            'in_refund': None,
-            'out_receipt': None,
-            'in_receipt': None,
+            'entry': self.get_conf_datev_doc_type('datev_type.entry', None),
+            'out_invoice': self.get_conf_datev_doc_type('datev_type.out_invoice', '2'),
+            'in_invoice': self.get_conf_datev_doc_type('datev_type.in_invoice', '1'),
+            'out_refund': self.get_conf_datev_doc_type('datev_type.out_refund', None),
+            'in_refund': self.get_conf_datev_doc_type('datev_type.in_refund', None),
+            'out_receipt': self.get_conf_datev_doc_type('datev_type.out_receipt', None),
+            'in_receipt': self.get_conf_datev_doc_type('datev_type.in_receipt', None),
         }
         return odoo_types.get(self.move_type, None)
 
@@ -64,10 +73,21 @@ class AccountMove(models.Model):
         return InvoiceType(odoo_types.get(self.move_type, None))
 
     def datev_keywords(self):
+        name = self.partner_id.name
+        ref = self.partner_id.ref
+        if (
+            not name
+            and self.partner_id.type
+            and self.partner_id.type in ['invoice', 'delivery']
+            and self.partner_id.parent_id
+        ):
+            name = self.partner_id.parent_id.name
+            if not ref:
+                ref = self.partner_id.parent_id.ref
         return ', '.join(
             filter(None, [
-                self.partner_id.name,
-                self.partner_id.ref,
+                name,
+                ref,
             ]))
 
     def datev_extension_property(self):
