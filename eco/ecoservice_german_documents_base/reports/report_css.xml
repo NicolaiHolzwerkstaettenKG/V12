@@ -99,7 +99,7 @@ Always use report_css_* so that it's easily understandable what you do call.
     <t t-set="font" t-value="company and company.font or 'lato'"/>
 
     <style>
-      div.footer { margin-left:5px; font-family:<t t-esc="font"/>,sans-serif,"Segoe UI",Roboto,Arial; }
+      div.footer { font-family:<t t-esc="font"/>,sans-serif,"Segoe UI",Roboto,Arial; }
       div.footer .legal { width:auto; vertical-align: top; }
       div.footer td.legal span::after { content: "\A"; white-space: pre; }
       .footer .row { font-size: 11px;color:#707070 }
