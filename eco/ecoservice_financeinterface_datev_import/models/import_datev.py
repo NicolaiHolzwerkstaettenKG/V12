@@ -108,7 +108,7 @@ class ImportDatev(models.Model):
         input_file = io.StringIO(importcsv.decode(encoding=import_config['encoding']))
 
         if import_config['extended_header']:
-            input_file.readline()
+            datev_header = input_file.readline()
 
         importliste = csv.DictReader(
             input_file,
@@ -142,12 +142,21 @@ class ImportDatev(models.Model):
                                     import_struct[key]['decimalformat'][1], '.')
                                 )
                             elif import_struct[key]['type'] == 'date':
-                                val = datetime.strptime(
-                                    line[csv_name], import_struct[key]['dateformat']
-                                ).date()
-                                val = val.replace(
-                                    year=date.today().year
-                                )
+                                try:
+                                    val = datetime.strptime(
+                                        line[csv_name], import_struct[key]['dateformat']
+                                    ).date()
+                                    val = val.replace(
+                                        year=date.today().year
+                                    )
+                                except:  # noqa: E722
+                                    # for leap year
+                                    val = datetime.strptime(
+                                        line[csv_name] + str(
+                                            datetime.strptime(datev_header.split(';')[12], '%Y%m%d').year
+                                        ),
+                                        '%d%m%Y'
+                                    )
                             else:
                                 errorlist.append({
                                     'line': linecounter,
@@ -320,6 +329,13 @@ class ImportDatev(models.Model):
                 'required': True,
                 'decimalformat': ('.', ',')
             },
+            'kurs': {
+                'csv_name': ['Kurs'],
+                'csv_row': False,
+                'type': 'decimal',
+                'required': True,
+                'decimalformat': ('.', ',')
+            },
             'skonto': {
                 'csv_name': ['Skonto'],
                 'csv_row': False,
@@ -385,36 +401,45 @@ class ImportDatev(models.Model):
             'ecofi_account_counterpart': move['ecofi_account_counterpart'],
             'ecofi_tax_id': move.get('ecofi_tax_id', False),
             'amount_currency': move.get('amount_currency', False),
-            'currency_id': move.get('currency_id', False),
             'date_maturity': move.get('date_maturity', False),
             'quantity': 1.0,
             'datev_posting_key': move.get('datev_posting_key', ''),
             'product_id': False,
         }
+        currency_id = move.get('currency_id', False)
+        if currency_id:
+            move_line_dict.update({
+                'currency_id': currency_id,
+            })
         return move_line_dict
 
     def compute_currency(self, move_line, line, import_config):
-        cur_obj = self.env['res.currency']
         cur = False
-        if type(line['wkz']) == str and line['wkz'] != import_config['company_currency_id'].name:
+        if (type(line['wkz']) == int or str) and line['wkz'] != import_config['company_currency_id'].name:
             context = self.env.context.copy()
             context.update({'date': line['belegdatum'] or fields.Date.today()})
             if 'wkz' in line and line['wkz']:
-                cur = self.env['res.currency'].search([('name', '=', line['wkz'])])
+                if type(line['wkz']) == int:
+                    cur = self.env['res.currency'].search([('id', '=', line['wkz'])])
+                if type(line['wkz']) == str:
+                    cur = self.env['res.currency'].search([('name', '=', line['wkz'])])
             move_line['currency_id'] = cur[0].id if cur and cur[0] else cur
+
+            if line['kurs']:
+                move_line['debit'] = Decimal(
+                    str(
+                        float(move_line['debit']) / float(line['kurs'])
+                    ) if float(move_line['debit']) > 0 else 0
+                )
+
+                move_line['credit'] = Decimal(
+                    str(
+                        float(move_line['credit']) / float(line['kurs'])
+                    ) if float(move_line['credit']) > 0 else 0
+                )
+                move_line['amount_currency'] = move_line['debit'] - move_line['credit']
+        else:
             move_line['amount_currency'] = move_line['debit'] - move_line['credit']
-            move_line['debit'] = Decimal(str(
-                cur_obj.with_context(context).compute(
-                    float(move_line['debit']),
-                    import_config['company_currency_id'],
-                ),
-            ))
-            move_line['credit'] = Decimal(str(
-                cur_obj.with_context(context).compute(
-                    float(move_line['credit']),
-                    import_config['company_currency_id'],
-                ),
-            ))
         return move_line
 
     def create_main_lines(self, line, thismove, partner_id, import_config, import_struct, move_lines=None):
@@ -456,8 +481,6 @@ class ImportDatev(models.Model):
             'partner_id': partner_id,
             'ecofi_account_counterpart': line['gegenkonto_object'].id,
         }
-        if line['konto_object'].datev_automatic_account and not line.get('buschluessel'):
-            line['buschluessel'] = line['konto_object'].datev_tax_ids[0].l10n_de_datev_code or False
         if line.get('buschluessel') or line.get('konto_object') or line.get('gegenkonto_object'):
             # if not isinstance(line['buschluessel'], int):
             #     # We don't need the correction-key part of the booking key
@@ -467,14 +490,15 @@ class ImportDatev(models.Model):
                 import_config,
                 line
             )
-            for taxmove in taxmoves:
-                move_lines.append(
-                    self.compute_currency(
-                        taxmove,
-                        line,
-                        import_config
+            if line.get('buschluessel'):
+                for taxmove in taxmoves:
+                    move_lines.append(
+                        self.compute_currency(
+                            taxmove,
+                            line,
+                            import_config
+                        )
                     )
-                )
         gegenmove = self.compute_currency(
             gegenmove,
             line,
@@ -497,8 +521,6 @@ class ImportDatev(models.Model):
                 import_config
             )
         )
-
-        self.add_tax_to_lines(move_lines, line, tax_id)
         return move_lines
 
     def add_tax_to_lines(self, move_lines, line, tax_id):
@@ -512,8 +534,8 @@ class ImportDatev(models.Model):
         else:
             account = self.env['account.account'].search(
                 [
-                    ('code', '=', line['konto'])
-                ]
+                    ('code', '=', line['konto']),
+                ], limit=1
             )
             if account.datev_automatic_account and account.datev_tax_ids:
                 tax_id = account.datev_tax_ids
@@ -561,9 +583,9 @@ class ImportDatev(models.Model):
             # check konto or gegenkonto is not receivable or payable
             if not konto_obj_is_rec_or_pay or not gegenkonto_obj_is_rec_or_pay:
                 if konto_obj.datev_automatic_account and not tax_id:  # check konto automatic
-                    tax_id = konto_obj.datev_tax_ids and konto_obj.datev_tax_ids[0] or False
+                    tax_id = konto_obj.tax_ids[:1] or False
                 elif gegenkonto_obj.datev_automatic_account and not tax_id:  # check gegenkonto automatic
-                    tax_id = gegenkonto_obj.datev_tax_ids and gegenkonto_obj.datev_tax_ids[0] or False
+                    tax_id = gegenkonto_obj.tax_ids[:1] or False
                 elif line.get('buschluessel'):
                     if line['buschluessel'] in ['40', 'SD']:
                         mainmove['ecofi_bu'] = line['buschluessel']
@@ -574,6 +596,13 @@ class ImportDatev(models.Model):
                             [('l10n_de_datev_code', '=', int(line['buschluessel']))],
                             limit=1,
                         )
+                # check konto automatic
+                elif not konto_obj.datev_automatic_account and not tax_id and konto_obj.tax_ids:
+                    tax_id = konto_obj.tax_ids[:1] or False
+                # check gegenkonto automatic
+                elif not gegenkonto_obj.datev_automatic_account and not tax_id and konto_obj.tax_ids:
+                    tax_id = gegenkonto_obj.tax_ids[:1] or False
+
         total = float(mainmove['debit'] + mainmove['credit'])
 
         if tax_id:
@@ -695,7 +724,8 @@ class ImportDatev(models.Model):
                                     check_move_validity=False,
                                 ).create(move)
                             # catch up validity check after all lines are created
-                            thismove._check_balanced()
+                            container = {'records': thismove}
+                            thismove._check_balanced(container)
                             self.log_line.create({
                                 'parent_id': datev_import.id,
                                 'name': _('Line: {line} has been imported').format(
@@ -736,7 +766,7 @@ class ImportDatev(models.Model):
             error = False
             for move in this_import.account_moves.filtered(lambda r: r.state == 'draft'):
                 try:
-                    move.post()
+                    move.action_post()
                     self.log_line.create({
                         'parent_id': this_import.id,
                         'name': _('{name} booked successful.').format(name=move.name),
@@ -754,30 +784,3 @@ class ImportDatev(models.Model):
                     error = True
             this_import.state = 'booking_error' if error else 'booked'
         return True
-
-
-class ImportDatevLog(models.Model):
-    _name = 'import.datev.log'
-    _order = 'id desc'
-
-    name = fields.Text(string='Name')
-    parent_id = fields.Many2one(
-        comodel_name='import.datev',
-        string='Import',
-        ondelete='cascade'
-    )
-    date = fields.Datetime(
-        string='Time',
-        readonly=True,
-        default=lambda *a: fields.Datetime.today()
-    )
-    state = fields.Selection(
-        selection=[
-            ('info', 'Info'),
-            ('error', 'Error'),
-            ('standard', 'Ok')
-        ],
-        string='State',
-        readonly=True,
-        default='info'
-    )
