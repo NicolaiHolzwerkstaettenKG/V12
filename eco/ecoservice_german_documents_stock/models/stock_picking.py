@@ -12,7 +12,7 @@ class StockPicking(models.Model):
     signer_name = fields.Char(string='Signer Name', store=True, readonly=True, copy=False)
 
     # region Compute Methods
-    def _compute_date(self):
+    def _compute_dates(self):
         for rec in self:
             date = (
                 rec.date_done
@@ -58,3 +58,11 @@ class StockPicking(models.Model):
             self.write({'signing_date': current_date})
 
         return super()._attach_sign()
+
+    def get_signed_by(self):
+        related_sale_order = self.env['sale.order'].search([('name', '=', self.origin)], limit=1)
+        return related_sale_order.signed_by
+
+    def get_signature(self):
+        related_sale_order = self.env['sale.order'].search([('name', '=', self.origin)], limit=1)
+        return related_sale_order.signature
