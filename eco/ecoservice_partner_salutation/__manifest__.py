@@ -5,7 +5,7 @@
     'name': 'Partner Salutation',
     'summary': 'Adds a salutation to the partner title.',
     'category': 'Base',
-    'version': '16.0.1.0.0',
+    'version': '16.0.1.0.1',
     'license': 'OPL-1',
     'application': False,
     'installable': True,
