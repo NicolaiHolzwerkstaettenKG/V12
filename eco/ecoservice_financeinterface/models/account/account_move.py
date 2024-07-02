@@ -41,7 +41,7 @@ class AccountMove(models.Model):
         help='Enter the delivery period (e.g. month) or the delivery date here.'
     )
     delivery_date_exists = fields.Boolean(
-        compute='_compute_delivery_date_exists',
+        default=lambda self: self._is_module_installed(),
     )
     line_ids = fields.One2many(
         comodel_name='account.move.line',
@@ -116,12 +116,17 @@ class AccountMove(models.Model):
 
     # endregion
 
-    def _compute_delivery_date_exists(self):
-        is_installed = False
+    # check if ecoservice_german_documents_invoice is installed to avoid doubling of the field delivery_date
+    def _is_module_installed(self):
         modules = self.sudo().env['ir.module.module'].search([
             ('name', '=', 'ecoservice_german_documents_invoice'),
         ])
-        if modules and modules.state in ['installed']:
-            is_installed = True
-        for record in self:
-            record.delivery_date_exists = is_installed
+        return bool(modules and modules.state in ['installed'])
+
+    # method for the installation hooks in GD_invoice
+    def set_delivery_date_exists(self, exists):
+        self.search([
+            ('move_type', 'in', ['out_invoice', 'out_refund'])
+        ]).write({
+            'delivery_date_exists': exists,
+        })

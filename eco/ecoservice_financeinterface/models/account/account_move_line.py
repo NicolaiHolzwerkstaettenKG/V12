@@ -17,6 +17,7 @@ class AccountMoveLine(models.Model):
         comodel_name='account.tax',
         string='Move Tax',
     )
+    # the field will be deleted later because it is in the ecoservice_financeinterface_datev module
     ecofi_account_counterpart = fields.Many2one(
         string='Account Counterpart',
         comodel_name='account.account',

@@ -14,7 +14,6 @@
     <field name="arch" type="xml">
       <xpath expr="(//group)[5]" position="after">
         <group name="ecofi" string="Finance Interface">
-          <field name="ecofi_account_counterpart" groups="base.group_no_one"/>
           <field name="ecofi_tax_id"/>
         </group>
       </xpath>
@@ -28,7 +27,6 @@
     <field name="inherit_id" ref="account.view_move_line_tree"/>
     <field name="arch" type="xml">
       <field name="account_id" position="after">
-        <field name="ecofi_account_counterpart" groups="base.group_no_one"/>
         <field name="ecofi_tax_id"/>
       </field>
     </field>
