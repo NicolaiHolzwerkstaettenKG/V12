@@ -115,8 +115,23 @@ class Ecofi(models.Model):
         return ecofi_csv, log
 
     def ecofi_posted_moves(self, journal_ids):
+        sale_journals = []
+        journals_rest = []
+
+        for journal in journal_ids:
+            if journal.type == 'sale':
+                sale_journals.append(journal.id)
+            else:
+                journals_rest.append(journal.id)
+
         move_ids = self.env['account.move'].search([
-            ('journal_id', 'in', journal_ids.ids),
+            ('journal_id', 'in', sale_journals),
+            ('state', '=', 'posted'),
+            ('vorlauf_id', '=', False),
+            ('invoice_date', '>=', self.date_from),
+            ('invoice_date', '<=', self.date_to),
+        ]) + self.env['account.move'].search([
+            ('journal_id', 'in', journals_rest),
             ('state', '=', 'posted'),
             ('vorlauf_id', '=', False),
             ('date', '>=', self.date_from),
