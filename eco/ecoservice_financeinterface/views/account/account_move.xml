@@ -20,7 +20,6 @@
       </field>
 
       <xpath expr="//field[@name='line_ids']//field[@name='amount_currency']" position="before">
-        <field name="ecofi_account_counterpart" groups="base.group_no_one"/>
         <field name="ecofi_tax_id"/>
       </xpath>
 
