@@ -4,7 +4,7 @@
     # App Information
     'name': 'German Documents (reminder)',
     'summary': 'Designed German Documents for Odoo.',
-    'version': '16.0.1.1.0',
+    'version': '16.0.1.1.1',
     'category': 'Base',
     'license': 'OPL-1',
     # Author
