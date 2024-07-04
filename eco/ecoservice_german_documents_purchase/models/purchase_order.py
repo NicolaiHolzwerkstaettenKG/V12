@@ -40,41 +40,23 @@ class PurchaseOrder(models.Model):
 
         if self.partner_id:
             field_xml_list = []
-            if (
-                not self.purchase_rfq
-                or self.purchase_rfq == '<p><br></p>'
-            ):
-                field_xml_list.append((
-                    'purchase_rfq',
-                    'ecoservice_german_documents_purchase.purchase_rfq_text',
-                ))
 
-            if (
-                not self.purchase_rfq_bottom
-                or self.purchase_rfq_bottom == '<p><br></p>'
-            ):
-                field_xml_list.append((
-                    'purchase_rfq_bottom',
-                    'ecoservice_german_documents_purchase.purchase_rfq_text_bottom',
-                ))
-
-            if (
-                not self.purchase_confirmation
-                or self.purchase_confirmation == '<p><br></p>'
-            ):
-                field_xml_list.append((
-                    'purchase_confirmation',
-                    'ecoservice_german_documents_purchase.purchase_order_text',
-                ))
-
-            if (
-                not self.purchase_confirmation_bottom
-                or self.purchase_confirmation_bottom == '<p><br></p>'
-            ):
-                field_xml_list.append((
-                    'purchase_confirmation_bottom',
-                    'ecoservice_german_documents_purchase.purchase_order_text_bottom',
-                ))
+            field_xml_list.append((
+                'purchase_rfq',
+                'ecoservice_german_documents_purchase.purchase_rfq_text',
+            ))
+            field_xml_list.append((
+                'purchase_rfq_bottom',
+                'ecoservice_german_documents_purchase.purchase_rfq_text_bottom',
+            ))
+            field_xml_list.append((
+                'purchase_confirmation',
+                'ecoservice_german_documents_purchase.purchase_order_text',
+            ))
+            field_xml_list.append((
+                'purchase_confirmation_bottom',
+                'ecoservice_german_documents_purchase.purchase_order_text_bottom',
+            ))
 
             vals = self.env['text.template.config'].get_template_text(
                 self.partner_id.lang,
