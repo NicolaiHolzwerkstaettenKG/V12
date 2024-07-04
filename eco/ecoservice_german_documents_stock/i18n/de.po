@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0+e\n"
+"Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-26 10:00+0000\n"
-"PO-Revision-Date: 2021-02-26 10:00+0000\n"
+"POT-Creation-Date: 2024-06-07 08:00+0000\n"
+"PO-Revision-Date: 2024-06-07 08:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -156,3 +156,9 @@ msgstr "Wahr"
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_stock.report_table_base_stock
 msgid "UoM"
 msgstr "ME"
+
+#. module: ecoservice_german_documents_stock
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_stock.report_stock_document_delivery_note
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_stock.report_stock_document_picking_operation
+msgid "<span class=\"bold\">Sender Address:</span>"
+msgstr "<span class=\"bold\">Absenderadresse:</span>"

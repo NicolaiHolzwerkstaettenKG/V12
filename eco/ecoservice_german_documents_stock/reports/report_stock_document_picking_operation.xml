@@ -12,12 +12,31 @@
         <!-- Letterhead -->
         <div class="row address_row">
           <div class="col-6">
-            <t t-call="ecoservice_german_documents_base.letterhead_sender_address"/>
+            <t t-if="o.picking_type_id.code == 'incoming'">
+              <br/><br/><br/><br/><br/><br/><br/><br/><br/>
+              <span t-field="o.company_id"/>
+              <br/>
+              <span t-field="o.company_id.street"/>
+              <br/>
+              <span t-field="o.company_id.zip"/>
+              <span t-field="o.company_id.city"/>
+              <br/>
+              <span t-field="o.company_id.country_id"/>
+              <br/><br/><br/>
+            </t>
+            <t t-else="">
+              <t t-call="ecoservice_german_documents_base.letterhead_sender_address"/>
+            </t>
             <div t-if="o.move_ids and o.move_ids[0].partner_id">
               <t t-set="delivery_address" t-value="o.move_ids[0].partner_id"/>
               <t t-call="ecoservice_german_documents_stock.letterhead_receiver_address_drop_shipping"/> <!-- Drop Shipping -->
             </div>
             <div t-if="not (o.move_ids and o.move_ids[0].partner_id) and o.partner_id">
+              <t t-if="o.picking_type_id.code == 'incoming'">
+                <span class="bold">Sender Address:</span>
+              </t>
+              <!--Obwohl bei 'incoming' die Logik von sender address und receiver address umgekehrt wäre,
+              werden der Einfachheit halber die gleichen templates benutzt, wie bei den anderen auch-->
               <t t-call="ecoservice_german_documents_base.letterhead_receiver_address"/>
             </div>
             <div class="mt32 left" t-if="is_picking">
