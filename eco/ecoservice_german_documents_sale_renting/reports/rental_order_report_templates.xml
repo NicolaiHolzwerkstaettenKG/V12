@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files at the root directory for full details.
+-->
+<odoo>
+
+  <template id="report_rental_order_inherit" inherit_id="sale_renting.report_rental_order">
+    <xpath expr="//t[@t-call='sale_renting.report_rental_order_document']" position="attributes">
+      <attribute name="t-if">False</attribute>
+    </xpath>
+    <xpath expr="//t[@t-call='sale_renting.report_rental_order_document']" position="before">
+      <t t-set="o" t-value="doc" />
+      <t t-set="gd_active"
+        t-value="doc.sudo().company_id.external_report_layout_id.key == 'ecoservice_german_documents_base.external_layout_german_documents'" />
+      <t t-call="ecoservice_german_documents_sale_renting.report_rental_order_document_inherit"
+        t-lang="o.partner_id.get_lang()"
+        t-if="gd_active" />
+      <t t-call="sale_renting.report_rental_order_document"
+        t-lang="doc.partner_id.get_lang()"
+        t-else="" />
+    </xpath>
+  </template>
+
+  <template id="report_rental_order_document_inherit">
+    <t t-call="web.external_layout">
+      <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)" />
+      <div class="row address_row">
+        <div class="col-6">
+          <t t-call="ecoservice_german_documents_base.letterhead_sender_address"/>
+          <t t-call="ecoservice_german_documents_base.letterhead_receiver_address"/>
+        </div>
+        <div class="col-6">
+          <t t-call="ecoservice_german_documents_sale_renting.letterhead_reference_sale_renting"/>
+        </div>
+      </div>
+      <div class="page">
+        <div class="oe_structure"/>
+
+        <t t-call="ecoservice_german_documents_sale_renting.table_sale_renting"/>
+        <t t-call="ecoservice_german_documents_sale_renting.custom_area_sale_renting"/>
+        <!-- Css sytle-->
+        <t t-call="ecoservice_german_documents_base.report_css_body"/>
+        <t t-call="ecoservice_german_documents_sale_renting.report_css_body_rental_order"/>
+
+      </div>
+    </t>
+  </template>
+
+  <template id="letterhead_reference_sale_renting">
+    <div id="letterhead_reference" class="row">
+      <div>
+        <t t-set="client_order_ref"
+           t-value="o.name"/>
+          <div class="doc-type ml10">
+            <span>Pickup Receipt</span>
+          </div>
+
+        <!-- References about this document -->
+        <t name="reference_document"
+           t-call="ecoservice_german_documents_base.letterhead_reference_document"/>
+
+        <!-- Customer No. & VAT references -->
+        <t name="reference_customer_vat"
+           t-call="ecoservice_german_documents_base.letterhead_reference_customer_vat"/>
+
+        <!-- References about the case for the customer -->
+        <t name="reference_case"
+           t-call="ecoservice_german_documents_base.letterhead_reference_case"/>
+
+        <!-- References about our company for the customer -->
+        <t name="reference_contact"
+           t-call="ecoservice_german_documents_base.letterhead_reference_contact"/>
+
+        <!-- Details about our company -->
+        <t name="reference_company"
+           t-call="ecoservice_german_documents_base.letterhead_reference_company"/>
+      </div>
+    </div>
+  </template>
+
+  <template id="table_sale_renting">
+    <table class="table table-sm o_main_table" style="padding-left: 0">
+      <thead style="display: table-row-group">
+        <tr>
+          <th class="text-left th-border">Description</th>
+          <th class="text-left th-border">Pickup Date</th>
+          <th class="text-left th-border">Expected Return</th>
+          <th class="text-end th-border">Pickedup</th>
+          <th class="text-end th-border">Returned</th>
+        </tr>
+      </thead>
+        <tbody class="sale_tbody" t-if="doc.is_rental_order">
+          <t t-foreach="doc.order_line" t-as="line">
+            <tr t-if="line.qty_delivered > 0">
+              <td class="td-border"><span t-field="line.name"/></td>
+              <td class="text-left td-border"><span t-field="line.start_date" t-options='{"widget": "date"}'/></td>
+              <td class="text-left td-border"><span t-field="line.return_date" t-options='{"widget": "date"}'/></td>
+              <td class="text-end td-border"><span t-field="line.qty_delivered"/></td>
+              <td class="text-end td-border"><span t-field="line.qty_returned"/></td>
+            </tr>
+          </t>
+        </tbody>
+    </table>
+  </template>
+
+  <template id="custom_area_sale_renting">
+    <div id="custom_area" class="picking_operation">
+      <div class="row mt64">
+        <div class="col-5 mt32">
+          <div class="text-8 text-center"
+               style="border-top: 1px solid #cacaca;">
+            Date
+          </div>
+        </div>
+      </div>
+      <div class="row mt32">
+        <div class="col-5 mt16">
+          <div class="text-8 text-center"
+               style="border-top: 1px solid #cacaca;">
+            Receiver (block letters)
+          </div>
+        </div>
+      </div>
+      <div class="row mt32">
+        <div class="col-5 mt16">
+          <div class="text-8 text-center"
+               style="border-top: 1px solid #cacaca;">
+            Signature Receiver
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+</odoo>
