@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files at the root directory for full details.
+-->
+
+<odoo>
+
+  <template id="report_css_body_repair_order">
+    <style>
+      .ml10{ margin-left: 10px;}
+      .mb32{ margin-bottom: 32px;}
+    </style>
+  </template>
+
+</odoo>
