@@ -46,59 +46,31 @@ class SaleOrder(models.Model):
 
         if self.partner_id:
             field_xml_list = []
-            if (
-                not self.sale_quotation
-                or self.sale_quotation == '<p><br></p>'
-            ):
-                field_xml_list.append((
-                    'sale_quotation',
-                    'ecoservice_german_documents_sale.sale_quotation_text',
-                ))
 
-            if (
-                not self.sale_quotation_bottom
-                or self.sale_quotation_bottom == '<p><br></p>'
-            ):
-                field_xml_list.append((
-                    'sale_quotation_bottom',
-                    'ecoservice_german_documents_sale.sale_quotation_text_bottom',
-                ))
-
-            if (
-                not self.sale_confirmation
-                or self.sale_confirmation == '<p><br></p>'
-            ):
-                field_xml_list.append((
-                    'sale_confirmation',
-                    'ecoservice_german_documents_sale.sale_confirmation_text',
-                ))
-
-            if (
-                not self.sale_confirmation_bottom
-                or self.sale_confirmation_bottom == '<p><br></p>'
-            ):
-                field_xml_list.append((
-                    'sale_confirmation_bottom',
-                    'ecoservice_german_documents_sale.sale_confirmation_text_bottom',
-                ))
-
-            if (
-                not self.proforma_invoice
-                or self.proforma_invoice == '<p><br></p>'
-            ):
-                field_xml_list.append((
-                    'proforma_invoice',
-                    'ecoservice_german_documents_sale.proforma_invoice_text',
-                ))
-
-            if (
-                not self.proforma_invoice_bottom
-                or self.proforma_invoice_bottom == '<p><br></p>'
-            ):
-                field_xml_list.append((
-                    'proforma_invoice_bottom',
-                    'ecoservice_german_documents_sale.proforma_invoice_text_bottom',
-                ))
+            field_xml_list.append((
+                'sale_quotation',
+                'ecoservice_german_documents_sale.sale_quotation_text',
+            ))
+            field_xml_list.append((
+                'sale_quotation_bottom',
+                'ecoservice_german_documents_sale.sale_quotation_text_bottom',
+            ))
+            field_xml_list.append((
+                'sale_confirmation',
+                'ecoservice_german_documents_sale.sale_confirmation_text',
+            ))
+            field_xml_list.append((
+                'sale_confirmation_bottom',
+                'ecoservice_german_documents_sale.sale_confirmation_text_bottom',
+            ))
+            field_xml_list.append((
+                'proforma_invoice',
+                'ecoservice_german_documents_sale.proforma_invoice_text',
+            ))
+            field_xml_list.append((
+                'proforma_invoice_bottom',
+                'ecoservice_german_documents_sale.proforma_invoice_text_bottom',
+            ))
 
             vals = self.env['text.template.config'].get_template_text(
                 self.partner_id.lang,
@@ -157,10 +129,13 @@ class SaleOrder(models.Model):
         ]
 
     def get_qr_code_for_proforma_invoice(self):
+        qr_code = False
         is_proforma = self.env.context.get('proforma', False)
-        if self.invoice_ids and self.invoice_ids.display_qr_code and is_proforma:
-            return self.invoice_ids[0]._generate_qr_code()
-        return False
+        if self.invoice_ids and is_proforma:
+            for invoice in self.invoice_ids:
+                if not qr_code and invoice.display_qr_code:
+                    qr_code = invoice._generate_qr_code()
+        return qr_code
     # endregion
 
     @api.model
