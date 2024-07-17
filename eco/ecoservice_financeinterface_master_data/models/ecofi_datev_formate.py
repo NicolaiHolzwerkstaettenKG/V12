@@ -4,7 +4,7 @@
 import base64
 import csv
 import io
-
+from datetime import datetime
 from odoo import _, fields, models, modules
 from odoo.exceptions import UserError
 
@@ -36,23 +36,93 @@ class EcofiDatevFormate(models.Model):
 
     # endregion
 
+    def get_legal_datev_header(self, ecofi):
+        """
+        Get the required legal header for finance tax authorities.
+
+        See "DATEV Schnittstellen-Entwicklungsleitfaden" for details
+        """
+        if self.datev_type in ['account_receivable', 'account_payable']:
+            format_category = '16'
+            format_name = 'Debitoren/Kreditoren'
+            version_number = 5
+        else:
+            format_name = 'Zahlungsbedingungen'
+            format_category = '46'
+            version_number = 2
+
+        create_date = datetime.now().strftime('%Y%m%d%H%M%S000')
+
+        client_number_int = None
+        consultant_number_int = None
+        account_code_digits = None
+
+        if self.env['ir.module.module'].search_count([
+            ('name', '=', 'ecoservice_financeinterface_datev'),
+            ('state', '=', 'installed')
+        ]) > 0:
+
+            try:
+                client_number_int = int(self.env.company.l10n_de_datev_client_number)
+            except ValueError:
+                raise UserError(_('The client number must contain of numbers only!'))
+
+            try:
+                consultant_number_int = int(self.env.company.l10n_de_datev_consultant_number)
+            except ValueError:
+                raise UserError(_('The consultant number must contain of numbers only!'))
+
+            account_code_digits = self.env.company.account_code_digits
+
+        # Set the correct fiscal date
+        fiscal_year = datetime(year=datetime.now().year, month=1, day=1).strftime('%Y%m%d')
+
+        # Datetime-Format: JJJJMMTTHHMMSS | Trennzeichen: Semicolon
+        return [
+            'EXTF',  # External Format [length: 4, type: string] # noqa: E501
+            '700',  # DATEV Version Number [length: 3, type: int] # noqa: E501
+            format_category,  # Data-Category [length: 2, type: int] # noqa: E501
+            format_name,  # Formatname [length: X, type: string] # noqa: E501
+            version_number,  # Formatversion [length: 1, type: int] # noqa: E501
+            create_date,  # Creation date [type: datetime] # noqa: E501
+            '',  # Import date [type: datetime] # noqa: E501
+            'RE',  # Source [type: string] # noqa: E501
+            '',  # Exported by [length: X, type: string] # noqa: E501
+            '',  # Imported by [type: string] # noqa: E501
+            consultant_number_int,  # Consultant Number von [length: 7, type: int] # noqa: E501
+            client_number_int,  # Client number [length: 5, type: int] # noqa: E501
+            fiscal_year,  # Wirtschaftsjahresbeginn [type: datetime]  # noqa: E501
+            account_code_digits,  # Sachkontennummernlänge [length: 1, type: int] # noqa: E501
+            '',  # Date from [type: datetime] # noqa: E501
+            '',  # Date to [type: datetime] # noqa: E501
+            '',  # Description [length: 30, type: string] # noqa: E501
+            '',  # Diktatkürzel [length: 2, type: string] # noqa: E501
+            '',  # Booking type [length: 1, type: int] # noqa: E501
+            '',  # Rechnungslegungszweck [length: 2, type: int] # noqa: E501
+            '',  # Festschreibung [length: 1, type: int-bool] # noqa: E501
+            '',  # Currency [length: 3, type: string] # noqa: E501
+            '',  # Reserved [type: int] # noqa: E501
+            '',  # Derivatskennzeichen [type: string] # noqa: E501
+            '',  # Reserved [type: int] # noqa: E501
+            '',  # Reserved [type: int] # noqa: E501
+            '',  # SKR [type: string, z.B. 03] # noqa: E501
+            '',  # Branchen-lösung-Id [type: int] # noqa: E501
+            '',  # Reserved [type: int] # noqa: E501
+            '',  # Reserved [ype: int] # noqa: E501
+            '',  # Anwendungsinformation [length: 16, type: string] # noqa: E501
+        ]
+
     def get_csv_headline(self, columns):
         """
         Get the CSV lines for export.
         """
-
-        if 'export_all' not in self.env.context:
-            columns = columns.filtered('mako')
         return columns.mapped('feldname')
 
     def get_csv_columns(self, columns):
         """
         Get the CSV lines for export.
         """
-
-        if 'export_all' in self.env.context:
-            return columns
-        return columns.filtered('mako')
+        return columns
 
     def _get_account_type(self, account_type):
         """
@@ -123,7 +193,7 @@ class EcofiDatevFormate(models.Model):
         Generate the CSV File called by the Wizard.
         """
         buf = io.StringIO()
-        ecofi_csv = csv.writer(buf, delimiter=',', quotechar='"')
+        ecofi_csv = csv.writer(buf, delimiter=';', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
 
         for export in self:
             export_info = self.generate_export_csv(

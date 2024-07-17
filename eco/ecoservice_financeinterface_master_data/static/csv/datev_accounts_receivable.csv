@@ -6,7 +6,7 @@ ${partner.name},2,Name (Adressattyp Unternehmen),Text,50,0,50, , 
 ,4,Name (Adressattyp natürl. Person),Text,30,0,30, , 
 ,5,Vorname (Adressattyp natürl. Person),Text,30,0,30, , 
 ,6,Name (Adressattyp keine Angabe),Text,50,0,50, , 
-,7,Adressattyp,Text,1,0,1, ,"0= keine Angabe
+${partner.is_company},7,Adressattyp,Text,1,0,1, ,"0= keine Angabe
 1= natürliche Person
 2= Unternehmen
 Standardwert = Unternehmen"
@@ -28,7 +28,7 @@ PF = Postfach
 GK = Großkunde
 Wird die Adressart nicht übergeben, wird sie automatisch in Abhängigkeit zu den übergebenen Feldern (Straße oder Postfach) gesetzt."
 ${partner.street},16,Straße,Text,36,0,36, ,"Wird sowohl eine Straße als auch ein Postfach übergeben, werden beide Werte in den Datenbestand übernommen; auf der Visitenkarte in den Debitoren-/Kreditoren-Stammdaten wird die Postfachadresse angezeigt."
-,17,Postfach,Text,10,0,10, ,
+${partner.street2},17,Postfach,Text,10,0,10, ,
 ${partner.zip},18,Postleitzahl,Text,10,0,10, , 
 ${partner.city},19,Ort,Text,30,0,30, , 
 ${partner.country_id.code},20,Land,Text,2,0,2, ,ISO-Code beachten! (Dok.-Nr. 1080169)
@@ -44,7 +44,7 @@ ${partner.phone},29,Telefon,Text,60,0,60, ,Standard-Telefonnummer
 ,30,Bemerkung (Telefon),Text,40,0,40, , 
 ,31,Telefon Geschäftsleitung,Text,60,0,60, ,Geschäftsleitungs-Telefonnummer
 ,32,Bemerkung (Telefon GL),Text,40,0,40, , 
-,33,E-Mail,Text,60,0,60, , 
+${partner.email},33,E-Mail,Text,60,0,60, , 
 ,34,Bemerkung (E-Mail),Text,40,0,40, , 
 ,35,Internet,Text,60,0,60, , 
 ,36,Bemerkung (Internet),Text,40,0,40, , 
@@ -125,7 +125,7 @@ Nur eine Bankverbindung eines Debitoren/Kreditoren kann als Haupt-Bankverbindung
 ,96,Leerfeld,Zahl,3,0,3, , 
 ,97,Briefanrede,Text,100,0,100, , 
 ,98,Grußformel,Text,50,0,50, , 
-,99,Kundennummer,Text,15,0,15, ,Kann nicht geändert werden wenn zentralisierte Geschäftspartner verwendet werden.
+${partner.ref},99,Kundennummer,Text,15,0,15, ,Kann nicht geändert werden wenn zentralisierte Geschäftspartner verwendet werden.
 ,100,Steuernummer,Text,20,0,20, , 
 ,101,Sprache,Zahl,2,0,2, ,"1 = Deutsch
 4 = Französisch
@@ -145,7 +145,7 @@ Nur eine Bankverbindung eines Debitoren/Kreditoren kann als Haupt-Bankverbindung
 ,108,Kreditlimit (Debitor),Betrag,10,0,13, ,"Nur für Debitoren gültig
 Beispiel:
 1.123.123.123"
-${partner.property_payment_term_id.id},109,Zahlungsbedingung,Zahl,3,0,3, ,Eine gespeicherte Zahlungsbedingung kann hier einem Geschäftspartner zugeordnet werden.
+${partner.property_supplier_payment_term_id.id},109,Zahlungsbedingung,Zahl,3,0,3, ,Eine gespeicherte Zahlungsbedingung kann hier einem Geschäftspartner zugeordnet werden.
 ,110,Fälligkeit in Tagen (Debitor),Zahl,3,0,3, ,Nur für Debitoren gültig
 ,111,Skonto in Prozent (Debitor),Zahl,2,2,5, ,"Nur für Debitoren gültig
 Beispiel: 12,12"
@@ -323,3 +323,43 @@ Nur eine Bankverbindung eines Debitoren/Kreditoren kann als Haupt-Bankverbindung
 ,218,Bankverb 10 Gültig von,Datum,8,0,10,0,Format: TTMMJJJJ
 ,219,Bankverb 10 Gültig bis,Datum,8,0,10,0,Format: TTMMJJJJ
 ,220,Nummer Fremdsystem,Text,15,0,15,0,Achtung: Wird bei Verwendung zentralisierter Geschäftspartner von DATEV überschrieben.
+,221,Insolvent,Zahl,1,0,1,,"0 = nein
+1 = ja"
+,222,SEPA-Mandatsreferenz 1,Text,35,0,35,,Sie können im Feld Mandatsreferenz dem Geschäftspartner je Bank eine Mandatsreferenz eintragen
+,223,SEPA-Mandatsreferenz 2,Text,35,0,35,,
+,224,SEPA-Mandatsreferenz 3,Text,35,0,35,,
+,225,SEPA-Mandatsreferenz 4,Text,35,0,35,,
+,226,SEPA-Mandatsreferenz 5,Text,35,0,35,,
+,227,SEPA-Mandatsreferenz 6,Text,35,0,35,,
+,228,SEPA-Mandatsreferenz 7,Text,35,0,35,,
+,229,SEPA-Mandatsreferenz 8,Text,35,0,35,,
+,230,SEPA-Mandatsreferenz 9,Text,35,0,35,,
+,231,SEPA-Mandatsreferenz 10,Text,35,0,35,,
+,232,Verknüpftes OPOS-Konto	,Zahl,9,0,9,,
+,233,Mahnsperre bis,Datum,8,0,10,,Format: TTMMJJJJ
+,234,"Lastschriftsperre bis ",Datum,8,0,10,,Format: TTMMJJJJ
+,235,"Zahlungssperre bis ",Datum,8,0,10,,Format: TTMMJJJJ
+,236,"Gebührenberechnung ",Zahl,1,0,1,,0 = nein 1 = ja
+,237,"Mahngebühr 1 ",Zahl,2,2,5,,"Mahngebühren Angabe in Euro.
+Beispiel : 5,10"
+,238,"Mahngebühr 2 ",Zahl,2,2,5,,
+,239,"Mahngebühr 3 ",Zahl,2,2,5,,
+,240,"Pauschalenberechnung ",Zahl,1,0,1,,	0 = nein 1 = ja
+,241,"Verzugspauschale 1 ",Zahl,4,2,6,,"Verzugspauschale: Angabe in Euro.
+Beispiel: 10,50"
+,242,"Verzugspauschale 2 ",Zahl,4,2,6,,
+,243,"Verzugspauschale 3 ",Zahl,4,2,6,,
+,244,"Alternativer Suchname ",Text,50,0,50,,
+,245,Status,Zahl,1,0,1,,"0 = Aktiv
+1 = Inaktiv"
+,246,"Anschrift manuell geändert (Korrespondenzadresse) ",Zahl,1,0,1,,"0 = Nein
+1 = Ja"
+,247,"Anschrift individuell (Korrespondenzadresse) ",Text,306,0,306,,
+,248,"Anschrift manuell geändert (Rechnungsadresse) ",Zahl,1,0,1,,
+,249,"Anschrift individuell (Rechnungsadresse) ",Text,306,0,306,,
+,250,"Fristberechnung bei Debitor ",Zahl,1,0,1,,"0 = nein
+1 = ja"
+,251,"Mahnfrist 1 ",Zahl,3,0,3,,Mahnfristen in Tagen
+,252,"Mahnfrist 2 ",Zahl,3,0,3,,Mahnfristen in Tagen
+,253,"Mahnfrist 3 ",Zahl,3,0,3,,Mahnfristen in Tagen
+,254,"Letzte Frist ",Zahl,3,0,3,,Mahnfristen in Tagen
