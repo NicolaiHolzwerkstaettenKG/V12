@@ -98,6 +98,7 @@ class EcofiDatevFormateAccounts(models.Model):
             # TODO: refactor with specific exception
             except Exception:  # noqa: B902
                 domain = []
+            ecofi_csv.writerow(self.get_legal_datev_header(export.csv_spalten))
 
             ecofi_csv.writerow(self.get_csv_headline(export.csv_spalten))
 
@@ -115,16 +116,21 @@ class EcofiDatevFormateAccounts(models.Model):
                         continue
                     line = []
                     for column in csv_columns:
-                        reply = MakoTemplate(column.mako).render_unicode(  # nosec
+                        column_mako = str(column.mako) if not isinstance(column.mako, str) else column.mako
+                        reply = MakoTemplate(column_mako).render_unicode(  # nosec
                             account=account,
                             partner=partner,
                         )
-                        if not reply or reply == 'False':
+                        if (not reply or reply == 'False') and column_mako != '${partner.is_company}':
                             line.append('')
                             continue
 
                         converted_value = self.convert_value(column.typ, reply)
                         if converted_value['value']:
+                            converted_value['value'] = self.get_address_type(
+                                column_mako,
+                                converted_value['value']
+                            )
                             line.append(converted_value['value'])
                         else:
                             log.append(_(
@@ -142,3 +148,11 @@ class EcofiDatevFormateAccounts(models.Model):
 
             res['log'] += '\n'.join(log)
         return res
+
+    def get_address_type(self, mako, mako_value):
+        if mako == '${partner.is_company}':
+            if mako_value == 'False':
+                return '1'
+            else:
+                return '2'
+        return mako_value

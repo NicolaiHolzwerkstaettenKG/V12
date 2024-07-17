@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 14.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-21 12:29+0000\n"
-"PO-Revision-Date: 2021-04-21 12:29+0000\n"
+"POT-Creation-Date: 2024-07-16 10:16+0000\n"
+"PO-Revision-Date: 2024-07-16 10:16+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -371,3 +371,15 @@ msgstr ""
 #, python-format
 msgid "unspecified"
 msgstr ""
+
+#. module: ecoservice_financeinterface_master_data
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate.py:0
+#, python-format
+msgid "The client number must contain of numbers only!"
+msgstr "Die Mandanten-Nr. darf nur aus Zahlen bestehen!"
+
+#. module: ecoservice_financeinterface_master_data
+#: code:addons/ecoservice_financeinterface_master_data/models/ecofi_datev_formate.py:0
+#, python-format
+msgid "The consultant number must contain of numbers only!"
+msgstr "Die Berater-Nr. darf nur aus Zahlen bestehen!"

@@ -99,7 +99,7 @@ class EcofiDatevFormatePaymentTerms(models.Model):
         Fill the CSV Export.
         """
         res = super().generate_export_csv(export, ecofi_csv)
-        if export.datev_type == 'pterm':
+        if export.datev_type == 'payment_term':
             try:
                 domain = literal_eval(export.datev_domain)
             # noqa: B902 as unknown now what the initial purpose was
@@ -111,6 +111,7 @@ class EcofiDatevFormatePaymentTerms(models.Model):
                 domain,
                 order='id asc',
             )
+            ecofi_csv.writerow(self.get_legal_datev_header(export.csv_spalten))
 
             ecofi_csv.writerow(self.get_csv_headline(export.csv_spalten))
 
