@@ -48,3 +48,5 @@ ${paymentterm['netdays']},8,Fällig Tage,Zahl,3,,3,,Zeitdauer in Tagen
 ,29,Fällig Monat / Zeitraum 3,Text,1,,1,,"0 = Aktueller Monat
 1 = Nächster Monat
 2 = Übernächster Monat"
+,30,Leerfeld,Text,30,,30,,Wird von DATEV verwendet.
+,31,Verwendung,Zahl,1,,1,,Wird von DATEV verwendet.

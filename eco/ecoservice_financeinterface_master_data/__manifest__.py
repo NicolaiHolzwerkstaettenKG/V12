@@ -5,7 +5,7 @@
     'name': 'Finance Interface DATEV (Master Data Export)',
     'summary': 'Lets you export your accounting master data',
     'category': 'Accounting',
-    'version': '16.0.1.2.1',
+    'version': '16.0.1.2.2',
     'license': 'OPL-1',
     'application': False,
     'installable': True,
