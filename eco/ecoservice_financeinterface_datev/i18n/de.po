@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-12 11:11+0000\n"
-"PO-Revision-Date: 2024-03-12 11:11+0000\n"
+"POT-Creation-Date: 2024-07-03 11:09+0000\n"
+"PO-Revision-Date: 2024-07-03 11:09+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -24,6 +24,11 @@ msgstr ""
 #: model:ir.model,name:ecoservice_financeinterface_datev.model_account_account
 msgid "Account"
 msgstr "Konto"
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_account_move_line__ecofi_account_counterpart
+msgid "Account Counterpart"
+msgstr "Gegenkonto"
 
 #. module: ecoservice_financeinterface_datev
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_move_migration__accounts_are_configured

@@ -5,7 +5,7 @@
     'name': 'Finance Interface DATEV',
     'summary': 'Export of account moves to DATEV',
     'category': 'Accounting',
-    'version': '16.0.1.2.2',
+    'version': '16.0.1.2.10',
     'license': 'OPL-1',
     'application': True,
     'installable': True,
@@ -33,6 +33,7 @@
         'wizards/views/ecofi_set_account_counterpart.xml',
 
         'views/account/account_account.xml',
+        'views/account/account_move.xml',
         'views/account/account_move_line.xml',
         'views/account/account_tax.xml',
         'views/ecofi/ecofi.xml',
