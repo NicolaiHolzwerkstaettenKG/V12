@@ -3,24 +3,39 @@
 
 from collections import defaultdict
 
-from odoo import _, api, exceptions, models
+from odoo import _, api, exceptions, fields, models
 from odoo.exceptions import UserError
 
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
+    visible_account_counterpart = fields.Boolean(
+        compute='_set_visible_account_counterpart'
+    )
+
+    def _set_visible_account_counterpart(self):
+        if self.user_has_groups('base.group_no_one') or self.ecofi_manual:
+            self.visible_account_counterpart = True
+        else:
+            self.visible_account_counterpart = False
+
     @api.ecofi_validate('validate_account_counter_account')
     def _validate_account_counter_account(self):
         """Test if the move account counterparts are set correct."""
 
         # There is a possibility to post account moves w/o move lines
-        for move in self.filtered('line_ids'):
+        moves_to_validate = self.filtered('line_ids')
+        # Check if a move should get additional data before the check
+        moves_to_validate.line_ids.filtered(
+            lambda r: not r.ecofi_account_counterpart
+        ).move_id.set_main_account()
+        for move in moves_to_validate:
             count = 0
             result = {}
 
             for line in move.line_ids.filtered(
-                lambda l: l.display_type is False  # Skip sections and notes
+                lambda l: l.display_type not in ['line_section', 'line_note']  # Skip sections and notes
             ):
                 if not line.account_id or not line.ecofi_account_counterpart:
                     count += 1
@@ -67,9 +82,11 @@ class AccountMove(models.Model):
                 )
 
     def _post(self, soft=True):
-        result = super()._post(soft=soft)
         self.set_main_account()
         self.set_ecofi_tax_id()
+        result = super()._post(soft=soft)
+        # only if a new company account has been generated.
+        self.set_main_account()
         return result
 
     def button_draft(self):
@@ -95,13 +112,14 @@ class AccountMove(models.Model):
             b. m debit, 1 credit lines: the credit line account
             c. 1 debit, 1 credit lines: the first line account
         """
-        for move in self.filtered(lambda r: r.line_ids and not r.ecofi_manual):
+        for move in self.filtered(lambda r: r.line_ids):
             if not (
                 move._set_global_counter_account_from_journal()
                 or move._set_global_counter_account_from_lines()
                 or move._set_local_counter_account()
             ):
                 move.ecofi_to_check = True
+                move.ecofi_manual = True
 
     def _account_from_general(self):
         journal = self.journal_id
@@ -118,6 +136,12 @@ class AccountMove(models.Model):
 
     def _account_from_sale(self):
         return self.partner_id.property_account_receivable_id
+
+    def _account_from_bank(self):
+        return self.journal_id.default_account_id
+
+    def _account_from_cash(self):
+        return self.journal_id.default_account_id
 
     def _set_global_counter_account_from_journal(self) -> bool:
         fn_counter_account = getattr(

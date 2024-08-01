@@ -19,6 +19,11 @@ class AccountMoveLine(models.Model):
         ],
         string='Datev BU',
     )
+    ecofi_account_counterpart = fields.Many2one(
+        string='Account Counterpart',
+        comodel_name='account.account',
+        ondelete='restrict',
+    )
 
     # endregion
 
@@ -157,25 +162,17 @@ class AccountMoveLine(models.Model):
         return super().write(vals)
 
     def _set_account_counterpart(self, vals):
-        if (
-            'move_id' in vals
-            and 'ecofi_account_counterpart' not in vals
-        ):
-            move = self.env['account.move'].browse(vals['move_id'])
-            # most jounals got a fix account counterpart
-            # use the bank / cash default account as counterpart
-            if move.journal_id.type in ['bank', 'cash']:
-                account_id = move.journal_id.default_account_id.id
-                vals['ecofi_account_counterpart'] = account_id
-        elif (
-            len(self) == 2
-            and 'full_reconcile_id' in vals
-        ):
-            for move in self.mapped('move_id').filtered(
-                lambda r: len(r.line_ids.mapped('ecofi_account_counterpart')) > 1
-            ):
-                counter_account = move.line_ids.filtered(
-                    lambda r: r.credit > 0
-                ).account_id
-                if counter_account:
-                    move.line_ids.write({'ecofi_account_counterpart': counter_account[-1]})
+        if 'move_id' not in vals:
+            return vals
+
+        move = self.env['account.move'].browse(vals['move_id'])
+        fn_counterpart_account = getattr(
+            move,
+            f'_account_from_{move.journal_id.type}',
+            lambda *_: None,
+        )
+        counterpart_account = fn_counterpart_account()
+        if counterpart_account:
+            vals['ecofi_account_counterpart'] = counterpart_account.id
+
+        return vals

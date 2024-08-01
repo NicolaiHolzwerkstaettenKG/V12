@@ -274,7 +274,7 @@ class EcofiExportColumns(models.AbstractModel):
             '',  # BU 49 Hauptfunktionstyp
             '',  # BU 49 Hauptfunktionsnummer
             '',  # BU 49 Funktionsergänzung
-            '',  # Zusatzinformation - Art 1
+            datev_dict['Zusatzinformation - Art 1'] or '',
             datev_dict['ZusatzInhalt1'] or '',  # Zusatzinformation- Inhalt 1
             '',  # Zusatzinformation - Art 2
             '',  # Zusatzinformation- Inhalt 2
