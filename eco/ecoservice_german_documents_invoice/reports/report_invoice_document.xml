@@ -71,7 +71,7 @@
             Delivery date corresponds to <span class="bold" t-field="o.delivery_date" t-options="{'format': 'MMMM yyyy'}" />
           </div>
           <div class="col-12" t-else="">
-            Delivery date corresponds to invoice date.
+            The delivery date corresponds to the service date.
           </div>
         </div>
         <div class="row" t-if="o.payment_reference">
