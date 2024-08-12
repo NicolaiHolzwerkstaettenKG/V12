@@ -5,7 +5,7 @@
     'name': 'German Documents (Invoice)',
     'summary': 'Designed German Documents for Odoo.',
     'category': 'Base',
-    'version': '16.0.1.1.4',
+    'version': '16.0.1.1.8',
     'license': 'OPL-1',
     'application': False,
     'installable': True,
@@ -37,5 +37,6 @@
         'views/account_view.xml',
         'views/res_config_view.xml',
     ],
-
+    'post_init_hook': 'post_init_hook',
+    'uninstall_hook': 'uninstall_hook',
 }
