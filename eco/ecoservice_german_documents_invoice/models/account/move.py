@@ -133,41 +133,23 @@ class AccountMove(models.Model):
 
         if self.partner_id:
             field_xml_list = []
-            if (
-                not self.account_invoice
-                or self.account_invoice == '<p><br></p>'
-            ):
-                field_xml_list.append((
-                    'account_invoice',
-                    'ecoservice_german_documents_invoice.account_invoice_text',
-                ))
 
-            if (
-                not self.account_invoice_bottom
-                or self.account_invoice_bottom == '<p><br></p>'
-            ):
-                field_xml_list.append((
-                    'account_invoice_bottom',
-                    'ecoservice_german_documents_invoice.account_invoice_text_bottom',
-                ))
-
-            if (
-                not self.account_refund
-                or self.account_refund == '<p><br></p>'
-            ):
-                field_xml_list.append((
-                    'account_refund',
-                    'ecoservice_german_documents_invoice.account_refund_text',
-                ))
-
-            if (
-                not self.account_refund_bottom
-                or self.account_refund_bottom == '<p><br></p>'
-            ):
-                field_xml_list.append((
-                    'account_refund_bottom',
-                    'ecoservice_german_documents_invoice.account_refund_text_bottom',
-                ))
+            field_xml_list.append((
+                'account_invoice',
+                'ecoservice_german_documents_invoice.account_invoice_text',
+            ))
+            field_xml_list.append((
+                'account_invoice_bottom',
+                'ecoservice_german_documents_invoice.account_invoice_text_bottom',
+            ))
+            field_xml_list.append((
+                'account_refund',
+                'ecoservice_german_documents_invoice.account_refund_text',
+            ))
+            field_xml_list.append((
+                'account_refund_bottom',
+                'ecoservice_german_documents_invoice.account_refund_text_bottom',
+            ))
 
             vals = self.env['text.template.config'].get_template_text(
                 self.partner_id.lang,
