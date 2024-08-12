@@ -19,6 +19,11 @@
           <span t-field="o.partner_id.parent_id.name"/>
           <br/>
         </t>
+        <t t-else="">
+          <t t-if="o.partner_id.company_name">
+            <span t-field="o.partner_id.company_name"/>
+          </t>
+        </t>
         <t t-if="o.partner_id.name">
           <span t-if="o.partner_id.title.name == 'Herr'">Herrn</span>
           <span t-if="o.partner_id.title.name != 'Herr'"
@@ -188,7 +193,12 @@
 
   <template id="payment_terms">
     <t t-if="doc_model == 'account.move'">
-      <t t-set="payment_term_id" t-value="o.invoice_payment_term_id"/>
+      <t t-if="o.invoice_payment_term_id.display_on_invoice">
+        <t t-set="payment_term_id" t-value="o.invoice_payment_term_id"/>
+      </t>
+      <t t-else="">
+        <t t-set="payment_term_id" t-value="False"/>
+      </t>
     </t>
     <t t-else="">
       <t t-set="payment_term_id" t-value="o.payment_term_id"/>
