@@ -6,6 +6,7 @@ from odoo import fields, models
 
 class ImportDatevLog(models.Model):
     _name = 'import.datev.log'
+    _description = "Datev Import Log"
     _order = 'id desc'
 
     name = fields.Text(string='Name')
