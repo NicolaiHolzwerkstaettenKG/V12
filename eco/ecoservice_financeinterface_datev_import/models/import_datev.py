@@ -8,11 +8,12 @@ import traceback
 from datetime import date, datetime
 from decimal import Decimal
 
-from odoo import _, exceptions, fields, models
+from odoo import _, exceptions, fields, models, api
 
 
 class ImportDatev(models.Model):
     _name = 'import.datev'
+    _description = "Datev Import"
 
     name = fields.Char(
         readonly=True,
@@ -24,8 +25,15 @@ class ImportDatev(models.Model):
     company_id = fields.Many2one(
         comodel_name='res.company',
         string='Company',
-        required=True
+        required=True,
+        domain=lambda self: self._get_allowed_companies_domain()
     )
+
+    @api.model
+    def _get_allowed_companies_domain(self):
+        allowed_company_ids = self.env['res.company'].browse(self._context.get('allowed_company_ids', []))
+        return [('id', 'in', allowed_company_ids.ids)]
+
     datev_ascii_file = fields.Binary(string='DATEV ASCII File')
     datev_ascii_filename = fields.Char(string='DATEV ASCII Filename')
     journal_id = fields.Many2one(
@@ -665,14 +673,20 @@ class ImportDatev(models.Model):
                         if 'buchungstext' in line and line['buchungstext'] in import_struct['buchungstext']['skipon']:
                             continue
                         linecounter += 1
-                        line['gegenkonto_object'] = self.env['account.account'].search([
-                            ('code', '=', '{:04}'.format(int(line['gegenkonto']))),
-                            ('company_id', '=', self.env.user.company_id.id)
-                        ])
-                        line['konto_object'] = self.env['account.account'].search([
-                            ('code', '=', '{:04}'.format(int(line['konto']))),
-                            ('company_id', '=', self.env.user.company_id.id)
-                        ])
+                        try:
+                            line['gegenkonto_object'] = self.env['account.account'].search([
+                                ('code', '=', '{:04}'.format(int(line['gegenkonto']))),
+                                ('company_id', '=', self.company_id.id)
+                            ])
+                            line['konto_object'] = self.env['account.account'].search([
+                                ('code', '=', '{:04}'.format(int(line['konto']))),
+                                ('company_id', '=', self.company_id.id)
+                            ])
+                        except:  # noqa: E722
+                            raise exceptions.ValidationError(_(
+                                'You have an incorrect file format.'
+                                'Please change the Encoding field or upload a file with a correct format.'
+                            ))
                         if not line['konto_object']:
                             errorlist.append({
                                 'line': linecounter,
