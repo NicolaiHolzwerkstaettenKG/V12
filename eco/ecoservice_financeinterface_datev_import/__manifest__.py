@@ -4,7 +4,7 @@
 {
     'name': 'Financial Interface DATEV Import',
     'summary': 'This module allows you to import accounting entries.',
-    'version': '16.0.1.0.4',
+    'version': '16.0.1.0.8',
     'author': 'ecoservice',
     'website': 'https://ecoservice.de/shop/product/odoo-datev-export-53',
     'live_test_url': 'https://eco-finance-interface-13-0.test.ecoservice.de/',
