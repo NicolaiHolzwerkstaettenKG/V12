@@ -37,6 +37,11 @@ class Ecofi(models.Model):
         :param thismovename: Movename
         :param faelligkeit: Fälligkeit
         """
+        # Übersetzung des Journaltyps
+        journal_type_translation = dict(
+            move.journal_id._fields['type']._description_selection(self.env)
+        ).get(move.journal_id.type)
+
         export_date = move.date
         if move.invoice_date:
             export_date = move.invoice_date
@@ -70,7 +75,10 @@ class Ecofi(models.Model):
             else:
                 if move.payment_id.reconciled_invoice_ids:
                     datevdict['Buchungstext'] = datevdict['Beleg1']
-                    datevdict['Beleg1'] = move.payment_id.reconciled_invoice_ids.name
+                    invoice_names = []
+                    for reconciled_invoice_id in move.payment_id.reconciled_invoice_ids:
+                        invoice_names.append(reconciled_invoice_id.name)
+                    datevdict['Beleg1'] = ', '.join(invoice_names)
                 elif move.ref:
                     datevdict['Buchungstext'] = datevdict['Beleg1']
                     datevdict['Beleg1'] = move.ref
@@ -137,6 +145,10 @@ class Ecofi(models.Model):
                 ).replace('.', ',')
         if line.partner_id:
             datevdict['ZusatzInhalt1'] = line.partner_id.name
+
+        if datevdict.get('ZusatzInhalt1'):
+            datevdict['Zusatzinformation - Art 1'] = journal_type_translation or '-'
+
         # set values for Beleginfo to bill information
         if (
             (move.journal_id and move.journal_id.type in ['purchase'])
@@ -145,11 +157,22 @@ class Ecofi(models.Model):
             datevdict['BelegInfoArt1'] = 'Odoo Bill no'
             datevdict['BelegInfoInhalt1'] = line.move_id.name
 
+        # add code of analytic account to kost1 and kost2
+        datevdict = self._get_analytic_account_datev(datevdict, line)
+
         # delivery date
         if (
             self.env.user.company_id.export_delivery_date
+            and move.move_type == 'in_invoice'
+            and move.date
+        ):
+            datevdict['Leistungsdatum'] = move.date.strftime('%d%m%Y')
+
+        if (
+            self.env.user.company_id.export_delivery_date
+            and move.move_type == 'out_invoice'
             and move.delivery_date
-            and datevdict['Steuerperiode']
+
         ):
             datevdict['Leistungsdatum'] = move.delivery_date.strftime('%d%m%Y')
 
@@ -157,6 +180,21 @@ class Ecofi(models.Model):
         move, line, datevdict = self.set_beleglink(move, line, datevdict)
 
         return errorcount, partnererror, thislog, thismovename, datevdict
+
+    def _get_analytic_account_datev(self, datevdict, line):
+        code1 = code2 = ''
+        if 'analytic_distribution' in line and line.analytic_distribution:
+            a_dist = line.analytic_distribution
+            for k, v in sorted(a_dist.items(), key=lambda item: (-item[1], item[0])):
+                analytic_account = self.env['account.analytic.account'].browse(int(k))
+                if analytic_account.code:
+                    if not code1:
+                        code1 = analytic_account.code
+                    elif not code2:
+                        code2 = analytic_account.code
+        datevdict['Kost1'] = code1
+        datevdict['Kost2'] = code2
+        return datevdict
 
     def set_beleglink(self, move, line, datevdict):
         return move, line, datevdict
@@ -423,10 +461,12 @@ class Ecofi(models.Model):
         return move
 
     def _datev_grouping(self, grouped, line, s_h, turnover, datev_dict):
-        key = '{account_id}:{tax_id}:{s_h}'.format(
+        key = '{account_id}:{tax_id}:{s_h}:{kost1}:{kost2}'.format(
             account_id=line.account_id.id,
             tax_id=line.ecofi_tax_id.id,
             s_h=s_h,
+            kost1=datev_dict['Kost1'],
+            kost2=datev_dict['Kost2'],
         )
 
         if key not in grouped:
@@ -455,9 +495,11 @@ class Ecofi(models.Model):
         turnover,
         datev_dict
     ):
-        key = '{account_id}:{tax_id}'.format(
+        key = '{account_id}:{tax_id}:{kost1}:{kost2}'.format(
             account_id=line.account_id.id,
             tax_id=line.ecofi_tax_id.id,
+            kost1=datev_dict['Kost1'],
+            kost2=datev_dict['Kost2'],
         )
 
         if key not in grouped:
@@ -517,6 +559,7 @@ class Ecofi(models.Model):
             'Movename': kwargs.get('Movename', ''),
             'Auftragsnummer': kwargs.get('Auftragsnummer', ''),
             'ZusatzInhalt1': kwargs.get('ZusatzInhalt1', ''),
+            'Zusatzinformation - Art 1': kwargs.get('Zusatzinformation - Art 1', ''),
             'Festschreibung': kwargs.get('Festschreibung', ''),
             'Steuerperiode': kwargs.get('Steuerperiode', ''),
             'Leistungsdatum': kwargs.get('Leistungsdatum', ''),
