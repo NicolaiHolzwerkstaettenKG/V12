@@ -13,28 +13,28 @@
         <!-- Letterhead -->
         <div class="row address_row">
           <div class="col-6">
-            <t t-call="ecoservice_german_documents_base.letterhead_sender_address"/>
-            <t t-call="ecoservice_german_documents_base.letterhead_receiver_address"/>
+            <t t-call="ecoservice_german_documents_base.letterhead_sender_address" />
+            <t t-call="ecoservice_german_documents_base.letterhead_receiver_address" />
           </div>
           <div class="col-6">
-            <t t-call="ecoservice_german_documents_invoice.letterhead_reference"/>
+            <t t-call="ecoservice_german_documents_invoice.letterhead_reference" />
           </div>
         </div>
 
         <div id="custom_title"
              t-if="'account_invoice_title' in o and o.account_invoice_title">
           <h1 style="font-size: 14pt; font-weight:bold;">
-            <span t-field="o.account_invoice_title" name="invoice_title"/>
+            <span t-field="o.account_invoice_title" name="invoice_title" />
           </h1>
         </div>
 
         <!-- Salutation & Introduction -->
         <div id="letterhead_introduction" class="row mt16">
           <div t-if="doc_text" class="col-12" align="left">
-            <t t-call="ecoservice_german_documents_base.letter_salutation"/>
+            <t t-call="ecoservice_german_documents_base.letter_salutation" />
             <div style="margin-top:5px;">
               <!-- Render the HTML fields as a mako template to evaluate variables -->
-              <t t-raw="o.env['mail.template']._render_template(doc_text, o._name, o.ids)[o.id]"/>
+              <t t-raw="o.env['mail.template']._render_template(doc_text, o._name, o.ids)[o.id]" />
             </div>
           </div>
         </div>
@@ -42,66 +42,67 @@
         <!-- Tables -->
         <div class="row">
           <div class="col-12">
-            <t t-call="ecoservice_german_documents_invoice.report_table_base_invoice"/>
+            <t t-call="ecoservice_german_documents_invoice.report_table_base_invoice" />
           </div>
         </div>
 
         <!-- Summary of all tables -->
         <div id="tables_summary" class="row">
-          <t t-call="ecoservice_german_documents_base.final_amount_template"/>
+          <t t-call="ecoservice_german_documents_base.final_amount_template" />
         </div>
 
         <div id="lot_and_serialnumbers" class="row">
-          <t t-call="ecoservice_german_documents_invoice.lot_and_serialnumbers_template"/>
+          <t t-call="ecoservice_german_documents_invoice.lot_and_serialnumbers_template" />
         </div>
 
         <div t-if="doc_text_bottom" class="row mt16">
           <div class="col-12" align="left">
             <div>
               <!-- Render the HTML fields as a mako template to evaluate variables -->
-              <t t-raw="o.env['mail.template']._render_template(doc_text_bottom, o._name, o.ids)[o.id]"/>
+              <t
+                t-raw="o.env['mail.template']._render_template(doc_text_bottom, o._name, o.ids)[o.id]" />
             </div>
           </div>
         </div>
-        <br/>
-        <br/>
+        <br />
+        <br />
         <!-- Delivery Date -->
         <div class="row">
           <div class="col-12" t-if="o.delivery_date">
             Delivery date corresponds to <span class="bold" t-field="o.delivery_date" t-options="{'format': 'MMMM yyyy'}" />
           </div>
           <div class="col-12" t-else="">
-            The delivery date corresponds to the service date.
+            Delivery date corresponds to invoice date.
           </div>
         </div>
         <div class="row" t-if="o.payment_reference">
           <div class="col-12">
             Please use the following communication for your payment :
-            <span class="bold" t-field="o.payment_reference"/>
+            <span class="bold" t-field="o.payment_reference" />
           </div>
         </div>
         <!--Incoterms-->
         <t t-call="ecoservice_german_documents_base.incoterms"
            groups="sale_stock.group_display_incoterm">
-          <t t-set="incoterms_id" t-value="o.invoice_incoterm_id"/>
+          <t t-set="incoterms_id" t-value="o.invoice_incoterm_id" />
         </t>
         <!-- Shipping Address -->
         <div id="delivery_and_invoice_address">
           <t t-set="delivery_address_check"
-            t-value="o.company_id.delivery_address"/>
+            t-value="o.company_id.delivery_address" />
           <t t-set="customer_address_check"
-            t-value="o.get_value_customer_address()"/>
-          <t t-set="delivery_address" t-value="o.partner_shipping_id"/>
-          <t t-set="differing_shipping_address" t-value="o.partner_id != o.partner_shipping_id"/>
+            t-value="o.get_value_customer_address()" />
+          <t t-set="delivery_address" t-value="o.partner_shipping_id" />
+          <t t-set="differing_shipping_address" t-value="o.partner_id != o.partner_shipping_id" />
           <t t-if="differing_shipping_address and delivery_address_check and customer_address_check">
             <div class="row mt16" t-if="differing_shipping_address">
               <div class="col-4 font-weight-bold">
                 Shipping address:
               </div>
               <div class="col-8">
-                <t t-set="delivery_address" t-value="o.partner_shipping_id"/>
-                <t t-call="ecoservice_german_documents_base.delivery_address_snippet"/>
-                <br/>
+                <t t-set="delivery_address" t-value="o.partner_shipping_id" />
+                <t t-call="ecoservice_german_documents_base.delivery_address_snippet" />
+                <br />
               </div>
             </div>
           </t>
@@ -110,13 +111,46 @@
         <!-- Other customly needed fields -->
         <div id="note" t-if="o.narration" class="row mt16">
           <div class="col-12">
-            <span t-field="o.narration"/>
+            <span t-field="o.narration" />
           </div>
         </div>
 
         <!--Payment terms-->
         <t t-call="ecoservice_german_documents_base.payment_terms">
-          <t t-set="show_payment_terms_note" t-value="True"/>
+          <t t-set="show_payment_terms_note" t-value="True" />
+        </t>
+
+        <!--Payment terms table-->
+        <t t-set="payment_term_details" t-value="o.payment_term_details"/>
+        <t t-if="o.invoice_payment_term_id.display_on_invoice and payment_term_details">
+          <div t-if='o.show_payment_term_details' id="total_payment_term_details_table" class="row">
+            <div
+              t-attf-class="#{'col-7' if report_type != 'html' else 'col-sm-7 col-md-6'} mt-2 mb-2">
+              <table class="table table-sm" style="page-break-inside: avoid;">
+                <th class="border-black text-start">
+                  Due Date
+                </th>
+                <th class="border-black text-end">
+                  Amount Due
+                </th>
+                <th t-if="o.show_discount_details" class="border-black text-end">
+                  Discount
+                </th>
+                <t t-foreach="payment_term_details" t-as="term">
+                  <tr>
+                    <td t-esc="term.get('date')" class="text-start" />
+                    <td t-options='{"widget": "monetary", "display_currency": o.currency_id}'
+                      t-esc="term.get('amount')" class="text-end" />
+                    <td t-if="term.get('discount_date')" class="text-end">
+                      <span t-options='{"widget": "monetary", "display_currency": o.currency_id}'
+                        t-esc="term.get('discount_amount_currency')" /> if paid before <span
+                        t-esc="term.get('discount_date')" />
+                    </td>
+                  </tr>
+                </t>
+              </table>
+            </div>
+          </div>
         </t>
 
         <div id="fiscal_position"
