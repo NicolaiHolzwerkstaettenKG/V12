@@ -12,16 +12,30 @@ you can to this here by inherit or override.
 
   <template id="report_table_base_stock">
     <t t-set="has_barcode"
-       t-value="any(move_lines.product_id and move_lines.product_id.sudo().barcode or move_lines.package_id for move_lines in o.move_line_ids)"/>
+       t-value="any(line.product_id and line.product_id.sudo().barcode or line.package_id for line in o.move_line_ids)"/>
     <t t-set="has_serial_number"
        t-value="o.move_line_ids.filtered(lambda ml: ml.lot_id or ml.lot_name)"/>
     <t t-set="display_pos_no"
        t-value="o.company_id.report_table_position"/>
+    <t t-set="global_move_line_index" t-value="0"/>
+
+    <!-- Pre-filtered move lines -->
+    <t t-if="'bom_line_id' in o.move_line_ids.move_id">
+      <t t-set="move_lines_with_kits" t-value="o.move_line_ids.filtered(lambda l: l.move_id.bom_line_id and l.move_id.bom_line_id.bom_id.type == 'phantom')"/>
+      <t t-set="move_lines_without_kits" t-value="o.move_line_ids.filtered(lambda l: not l.move_id.bom_line_id or l.move_id.bom_line_id.bom_id.type != 'phantom')"/>
+    </t>
+    <t t-else="">
+      <t t-set="move_lines_with_kits" t-value="o.env['stock.move.line']"/>
+      <t t-set="move_lines_without_kits" t-value="o.move_line_ids"/>
+    </t>
+
+    <!-- Determine if there are kits or not -->
+    <t t-set="has_kits" t-value="move_lines_with_kits"/>
 
     <table class="table table-sm">
       <thead>
         <tr>
-          <th class="text-left" t-if="display_pos_no">
+          <th class="text-left" t-if="display_pos_no" style="width: 50px;">
             Pos
           </th>
           <th class="text-left">
@@ -48,6 +62,57 @@ you can to this here by inherit or override.
       </thead>
 
       <tbody>
+        <!-- Display kits if available -->
+        <t t-if="move_lines_with_kits">
+            <t t-foreach="move_lines_with_kits.mapped('move_id.bom_line_id.bom_id')" t-as="bom">
+                <tr class="bg-200 fw-bold o_line_section">
+                    <td colspan="99">
+                        <span t-esc="bom.product_id.display_name or bom.product_tmpl_id.display_name"/>
+                    </td>
+                </tr>
+                <t t-foreach="move_lines_with_kits.filtered(lambda l: l.move_id.bom_line_id.bom_id == bom)" t-as="move_line">
+                    <!-- Increment the global variable for each product line -->
+                    <t t-set="global_move_line_index" t-value="global_move_line_index + 1"/>
+                    <!-- Call the encapsulating template -->
+                    <t t-call="ecoservice_german_documents_stock.report_table_lines_stock_base">
+                        <t t-set="move_line_ids" t-value="[move_line]"/>
+                    </t>
+                </t>
+            </t>
+        </t>
+
+        <!-- Display header only if there are kits and non-kit products -->
+        <t t-if="has_kits and move_lines_without_kits">
+            <tr class="bg-200 fw-bold o_line_section">
+                <td colspan="99">
+                    <span>Products not associated with a kit</span>
+                </td>
+            </tr>
+        </t>
+
+        <!-- Display non-kit products -->
+        <t t-if="move_lines_without_kits">
+            <t t-foreach="move_lines_without_kits" t-as="move_line">
+                <!-- Increment the global variable for each product line -->
+                <t t-set="global_move_line_index" t-value="global_move_line_index + 1"/>
+                <!-- Call the encapsulating template for non-kit products -->
+                <t t-call="ecoservice_german_documents_stock.report_table_lines_stock_base">
+                    <t t-set="move_line_ids" t-value="[move_line]"/>
+                </t>
+            </t>
+        </t>
+      </tbody>
+    </table>
+  </template>
+
+  <template id="report_table_lines_stock_base">
+      <t t-set="has_barcode"
+          t-value="any(move_lines.product_id and move_lines.product_id.sudo().barcode or move_lines.package_id for move_lines in o.move_line_ids)"/>
+      <t t-set="has_serial_number"
+          t-value="o.move_line_ids.filtered(lambda ml: ml.lot_id or ml.lot_name)"/>
+      <t t-set="display_pos_no"
+          t-value="o.company_id.report_table_position"/>
+
         <t t-foreach="move_line_ids" t-as="move_line">
           <!-- Reset to not use descriptions of previous lines -->
           <t t-set="descriptions" t-value="[]"/>
@@ -133,8 +198,8 @@ you can to this here by inherit or override.
 
           <tr>
             <!--Index-->
-            <td class="text-left" t-if="display_pos_no">
-              <t t-esc="move_line_index+1"/>
+            <td class="text-left" t-if="display_pos_no" style="width: 50px;">
+              <t t-esc="global_move_line_index"/>
             </td>
 
             <!-- Product description -->
@@ -207,8 +272,6 @@ you can to this here by inherit or override.
             </t>
           </tr>
         </t>
-      </tbody>
-    </table>
   </template>
 
 </odoo>
