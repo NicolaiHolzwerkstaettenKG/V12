@@ -2,7 +2,10 @@
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 
 import datetime
+import logging
 from odoo import api, SUPERUSER_ID
+
+_logger = logging.getLogger(__name__)
 
 
 def migrate(cr, version):
@@ -21,4 +24,5 @@ def migrate(cr, version):
             account_codes.append(line.account_id.code)
         account_counterpart_code = move.line_ids[0].ecofi_account_counterpart.code or None
         if account_counterpart_code not in account_codes:
+            _logger.info('invoice name: %s', move.name)
             move.set_main_account()
