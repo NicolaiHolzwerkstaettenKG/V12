@@ -137,8 +137,8 @@ class AccountMove(models.Model):
     def _account_from_sale(self):
         return self.partner_id.property_account_receivable_id
 
-    def _account_from_bank(self):
-        return self.journal_id.default_account_id
+    # def _account_from_bank(self):
+    #     return self.journal_id.default_account_id
 
     def _account_from_cash(self):
         return self.journal_id.default_account_id
