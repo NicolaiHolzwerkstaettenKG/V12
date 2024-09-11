@@ -23,6 +23,8 @@ def migrate(cr, version):
         for line in move.line_ids:
             account_codes.append(line.account_id.code)
         account_counterpart_code = move.line_ids[0].ecofi_account_counterpart.code or None
+        if move.vorlauf_id:
+            continue
         if account_counterpart_code not in account_codes:
             _logger.info('invoice name: %s', move.name)
             move.set_main_account()
