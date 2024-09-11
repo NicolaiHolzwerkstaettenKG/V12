@@ -157,14 +157,15 @@ class AccountMoveLine(models.Model):
             self._set_account_counterpart(vals)
         lines = super().create(vals_list)
         # set account counterpart by bank validation.
-        if lines.move_id.posted_before:
-            account_counterpart = False
-            for line in lines:
-                if not line.ecofi_account_counterpart:
-                    account_counterpart = True
-                    break
-            if account_counterpart:
-                lines.move_id.set_main_account()
+        for move in lines.move_id:
+            if move.posted_before:
+                account_counterpart = False
+                for line in move.line_ids:
+                    if not line.ecofi_account_counterpart:
+                        account_counterpart = True
+                        break
+                if account_counterpart:
+                    move.set_main_account()
         return lines
 
     def write(self, vals):
