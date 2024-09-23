@@ -66,13 +66,55 @@
 
         <!-- References about our company for the customer -->
         <t name="reference_contact"
-           t-call="ecoservice_german_documents_base.letterhead_reference_contact"/>
+           t-call="ecoservice_german_documents_repair_order.letterhead_reference_contact"/>
 
         <!-- Details about our company -->
         <t name="reference_company"
            t-call="ecoservice_german_documents_base.letterhead_reference_company"/>
       </div>
     </div>
+  </template>
+  <template id="letterhead_reference_contact">
+    <t t-if="'user_id' in o"
+       t-set="your_contact"
+       t-value="o.with_context({'lang': o.partner_id.lang}).user_id.partner_id"/>
+    <t t-else=""
+       t-set="your_contact"
+       t-value="user.with_context({'lang': o.partner_id.lang}).partner_id"/>
+    <!--
+      <div> with table classes != <table>.
+      Just keep the table, it's safer with WK and limited space boxes.
+    -->
+    <table id="letterhead_reference_contact" class="full ptb-5">
+      <!-- Your Contact Line -->
+      <tr>
+        <td class="font-alt" style="max-width: 40px;">Your contact:</td>
+        <td>
+          <t t-if="your_contact.has_lastname()">
+            <span t-field="your_contact.firstname" />
+            <span t-field="your_contact.lastname" />
+          </t>
+          <span t-if="not your_contact.has_lastname()" t-field="your_contact.name" />
+        </td>
+      </tr>
+
+      <!-- Telephone Line -->
+      <tr t-if="your_contact.phone">
+        <td class="font-alt" style="max-width: 40px;">Telephone:</td>
+        <td>
+          <span t-field="your_contact.phone" />
+        </td>
+      </tr>
+
+      <!-- E-Mail Line -->
+      <tr t-if="your_contact.email">
+        <td class="font-alt" style="max-width: 40px;">E-Mail:</td>
+        <td>
+          <span t-field="your_contact.email" />
+        </td>
+      </tr>
+    </table>
+    <t t-call="ecoservice_german_documents_base.report_css_footer"/>
   </template>
 
   <template id="repair_order_some_information">
@@ -129,10 +171,11 @@
           <tr t-foreach="o.operations" t-as="line">
             <td>
               <p t-if="line.type == 'add'">
-                <i>(Add)</i>
                 <span t-field="line.name" />
               </p>
-              <p t-if="line.type == 'remove'">(<i>Remove</i>) <span t-field="line.name" /></p>
+              <p t-if="line.type == 'remove'">
+                <span t-field="line.name" />
+              </p>
             </td>
             <td class="text-end">
               <span t-field="line.product_uom_qty" />
