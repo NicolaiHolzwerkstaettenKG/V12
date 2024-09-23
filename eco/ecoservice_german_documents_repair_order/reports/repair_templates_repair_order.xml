@@ -88,7 +88,7 @@
     <table id="letterhead_reference_contact" class="full ptb-5">
       <!-- Your Contact Line -->
       <tr>
-        <td class="font-alt" style="max-width: 40px;">Your contact:</td>
+        <td class="col-3 font-alt">Your contact:</td>
         <td>
           <t t-if="your_contact.has_lastname()">
             <span t-field="your_contact.firstname" />
@@ -100,7 +100,7 @@
 
       <!-- Telephone Line -->
       <tr t-if="your_contact.phone">
-        <td class="font-alt" style="max-width: 40px;">Telephone:</td>
+        <td class="col-3 font-alt">Telephone:</td>
         <td>
           <span t-field="your_contact.phone" />
         </td>
@@ -108,7 +108,7 @@
 
       <!-- E-Mail Line -->
       <tr t-if="your_contact.email">
-        <td class="font-alt" style="max-width: 40px;">E-Mail:</td>
+        <td class="col-3 font-alt">E-Mail:</td>
         <td>
           <span t-field="your_contact.email" />
         </td>
