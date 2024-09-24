@@ -119,26 +119,26 @@
 
   <template id="repair_order_some_information">
     <div id="informations" class="row mt32 mb32">
-      <div t-if="o.product_id.name" class="col-3 bm-2">
+      <div t-if="o.product_id.name" class="col-2 bm-2">
         <strong>Product to Repair:</strong>
         <p t-field="o.product_id.name" class="m-0" />
       </div>
-      <div class="col-3 bm-2" groups="stock.group_production_lot">
+      <div class="col-2 bm-2" groups="stock.group_production_lot">
         <strong>Lot/Serial Number:</strong>
         <t t-if="o.lot_id">
           <span t-field="o.lot_id.name" />
         </t>
       </div>
-      <div t-if="o.guarantee_limit" class="col-3 bm-2">
+      <div t-if="o.guarantee_limit" class="col-2 bm-2">
         <strong>Warranty:</strong>
         <p t-field="o.guarantee_limit" class="m-0" />
       </div>
-      <div class="col-3 bm-2">
+      <div class="col-2 bm-2">
         <strong>Printing Date:</strong>
         <p t-esc="datetime.datetime.now().strftime('%Y-%m-%d')" t-options="{'widget': 'date'}"
           class="m-0" />
       </div>
-      <div class="col-3 bm-2">
+      <div class="col-2 bm-2">
         <strong>Ticket:</strong>
         <span t-if="o.ticket_id">
           <br/>

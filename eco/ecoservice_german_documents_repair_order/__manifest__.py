@@ -4,7 +4,7 @@
     # App Information
     'name': 'German Documents (Repair Order)',
     'summary': 'Designed German Documents for Odoo.',
-    'version': '16.0.1.0.1',
+    'version': '16.0.1.0.2',
     'category': 'Base',
     'license': 'OPL-1',
     # Author
