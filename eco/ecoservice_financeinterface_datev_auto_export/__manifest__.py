@@ -9,6 +9,7 @@
     'license': 'OPL-1',
     'application': True,
     'installable': True,
+    'price': 450.00,
     # Author
     'author': 'ecoservice',
     'website': 'https://ecoservice.de/',
