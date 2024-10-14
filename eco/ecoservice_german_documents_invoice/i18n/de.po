@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0+e\n"
+"Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-05 10:10+0000\n"
-"PO-Revision-Date: 2024-08-05 10:10+0000\n"
+"POT-Creation-Date: 2024-08-20 13:12+0000\n"
+"PO-Revision-Date: 2024-08-20 13:12+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -58,6 +58,38 @@ msgid "<span>SN/LN</span>"
 msgstr "<span>Chargen-/Seriennummer</span>"
 
 #. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
+msgid "Amount Due"
+msgstr "Fälliger Betrag"
+
+#. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.letterhead_reference_customer_shipping_vat
+msgid "Customer No."
+msgstr "Kundennummer"
+
+#. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.letterhead_reference_customer_shipping_vat
+msgid "Customer VAT-ID"
+msgstr "Kunden USt. IdNr."
+
+#. module: ecoservice_german_documents_invoice
+#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_res_company__delivery_address
+#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_res_config_settings__delivery_address
+msgid "Delivery Address "
+msgstr "Lieferadresse"
+
+#. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
+msgid "Delivery date corresponds to invoice date."
+msgstr "Das Lieferdatum entspricht dem Rechnungsdatum."
+
+#. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_table_base_invoice
+msgid "Discount"
+msgstr "Rabatt"
+
+#. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_translator_invoice
 msgid "Down payment invoice"
 msgstr "Anzahlungsrechnung"
@@ -66,6 +98,11 @@ msgstr "Anzahlungsrechnung"
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_translator_invoice_duplicate
 msgid "Down payment invoice (Duplicate)"
 msgstr "Anzahlungsrechnung (Duplikat)"
+
+#. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
+msgid "Due Date"
+msgstr "Fälligkeitsdatum"
 
 #. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_table_base_invoice
@@ -289,3 +326,8 @@ msgstr "Leistungszeitraum entspricht"
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
 msgid "The delivery date corresponds to the service date."
 msgstr "Das Lieferdatum entspricht dem Leistungsdatum."
+
+#. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
+msgid "if paid before"
+msgstr "wenn bezahlt vor"
