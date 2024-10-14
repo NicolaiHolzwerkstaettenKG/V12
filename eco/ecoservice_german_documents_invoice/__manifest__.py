@@ -5,7 +5,7 @@
     'name': 'German Documents (Invoice)',
     'summary': 'Designed German Documents for Odoo.',
     'category': 'Base',
-    'version': '16.0.1.1.9',
+    'version': '16.0.1.1.10',
     'license': 'OPL-1',
     'application': False,
     'installable': True,

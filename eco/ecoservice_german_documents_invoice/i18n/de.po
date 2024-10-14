@@ -63,6 +63,22 @@ msgid "Amount Due"
 msgstr "Fälliger Betrag"
 
 #. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.letterhead_reference_customer_shipping_vat
+msgid "Customer No."
+msgstr "Kundennummer"
+
+#. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.letterhead_reference_customer_shipping_vat
+msgid "Customer VAT-ID"
+msgstr "Kunden USt. IdNr."
+
+#. module: ecoservice_german_documents_invoice
+#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_res_company__delivery_address
+#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_res_config_settings__delivery_address
+msgid "Delivery Address "
+msgstr "Lieferadresse"
+
+#. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_table_base_invoice
 msgid "Discount"
