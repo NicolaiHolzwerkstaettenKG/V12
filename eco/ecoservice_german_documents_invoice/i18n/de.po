@@ -80,6 +80,11 @@ msgstr "Lieferadresse"
 
 #. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
+msgid "Delivery date corresponds to invoice date."
+msgstr "Das Lieferdatum entspricht dem Rechnungsdatum."
+
+#. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_table_base_invoice
 msgid "Discount"
 msgstr "Rabatt"
