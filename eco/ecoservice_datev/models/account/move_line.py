@@ -10,7 +10,6 @@ class AccountMoveLine(models.Model):
     datev_export = fields.Many2one(related='move_id.datev_export')
 
     def write(self, vals):
-        self.datev_legal_revision_security(vals)
         return super().write(vals)
 
     def datev_legal_revision_security(self, vals={}):
