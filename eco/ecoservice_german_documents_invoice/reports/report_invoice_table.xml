@@ -112,7 +112,7 @@ you can to this here by inherit or override.
             <!--Note-->
             <t t-if="line.display_type == 'line_note'">
               <td t-att-colspan="colspan">
-                <span t-field="line.name"/>
+                <span t-esc="line.html_name()" t-options="{'widget': 'html'}"/>
               </td>
             </t>
           </tr>
