@@ -9,9 +9,6 @@ class AccountMoveLine(models.Model):
 
     # region Fields
 
-    datev_export_value = fields.Monetary(
-        string='Export value',
-    )
     datev_posting_key = fields.Selection(
         selection=[
             ('40', '40'),
