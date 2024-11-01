@@ -106,6 +106,8 @@ class Ecofi(models.Model):
                     .replace('</p>', '')
                     .replace('<br/>', '')
                     .replace('<br>', '')
+                    .replace('[', '(')
+                    .replace(']', ')')
             )
 
             if datevdict.get('Buchungstext'):
@@ -461,9 +463,18 @@ class Ecofi(models.Model):
         )
 
         if line.name != '/' and grouped.get(key, {}).get('Buchungstext'):
+            line_name = (
+                line.name
+                    .replace('<p>', '')
+                    .replace('</p>', '')
+                    .replace('<br/>', '')
+                    .replace('<br>', '')
+                    .replace('[', '(')
+                    .replace(']', ')')
+            )
             grouped[key]['Buchungstext'] = '{bu_text}, {nbu_text}'.format(
                 bu_text=grouped[key]['Buchungstext'],
-                nbu_text=line.name,
+                nbu_text=line_name,
             )
 
     def _datev_grouping_combined(
@@ -505,9 +516,18 @@ class Ecofi(models.Model):
         )
 
         if line.name != '/' and grouped.get(key, {}).get('Buchungstext'):
+            line_name = (
+                line.name
+                    .replace('<p>', '')
+                    .replace('</p>', '')
+                    .replace('<br/>', '')
+                    .replace('<br>', '')
+                    .replace('[', '(')
+                    .replace(']', ')')
+            )
             grouped[key]['Buchungstext'] = '{bu_text}, {nbu_text}'.format(
                 bu_text=grouped[key]['Buchungstext'],
-                nbu_text=line.name,
+                nbu_text=line_name,
             )
 
     @staticmethod
