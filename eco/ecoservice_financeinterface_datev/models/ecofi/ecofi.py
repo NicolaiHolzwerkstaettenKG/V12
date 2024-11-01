@@ -453,7 +453,7 @@ class Ecofi(models.Model):
             return
 
         grp_turnover = Decimal(grouped[key]['Umsatz'].replace(',', '.'))
-        new_turnover = Decimal(turnover.replace(',', '.'))
+        new_turnover = Decimal(str(turnover).replace(',', '.'))
         grp_turnover += new_turnover
 
         grouped[key]['Umsatz'], _ = self.format_umsatz(
@@ -486,7 +486,7 @@ class Ecofi(models.Model):
             return
 
         grp_turnover = Decimal(grouped[key]['Umsatz'].replace(',', '.'))
-        new_turnover = Decimal(turnover.replace(',', '.'))
+        new_turnover = Decimal(str(turnover).replace(',', '.'))
 
         if grouped[key]['Sollhaben'] != s_h:
             new_turnover = -new_turnover
