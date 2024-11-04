@@ -587,11 +587,13 @@ class Ecofi(models.Model):
             )
 
         if normalized_dict.get('Beleg1'):
+            beleg1 = normalized_dict['Beleg1']
+
             normalized_dict['Beleg1'] = '{}'.format(
                 re.sub(
-                    '[^{}]'.format(Ecofi._get_valid_chars()),
+                    r'[^0-9A-Za-z$&%*+\-/]',
                     '',
-                    normalized_dict['Beleg1'],
+                    beleg1,
                 ).replace('.', ''),
             )[-36:]
 
