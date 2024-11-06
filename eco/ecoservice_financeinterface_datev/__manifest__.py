@@ -5,7 +5,7 @@
     'name': 'Finance Interface DATEV',
     'summary': 'Export of account moves to DATEV',
     'category': 'Accounting',
-    'version': '16.0.1.3.3',
+    'version': '16.0.1.3.4',
     'license': 'OPL-1',
     'application': True,
     'installable': True,

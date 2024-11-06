@@ -462,7 +462,7 @@ class Ecofi(models.Model):
             Decimal(str(grp_turnover)),
         )
 
-        if line.name != '/' and grouped.get(key, {}).get('Buchungstext'):
+        if isinstance(line.name, str) and line.name != '/' and grouped.get(key, {}).get('Buchungstext'):
             line_name = (
                 line.name
                     .replace('<p>', '')
@@ -515,7 +515,7 @@ class Ecofi(models.Model):
             Decimal(str(grp_turnover)),
         )
 
-        if line.name != '/' and grouped.get(key, {}).get('Buchungstext'):
+        if isinstance(line.name, str) and line.name != '/' and grouped.get(key, {}).get('Buchungstext'):
             line_name = (
                 line.name
                     .replace('<p>', '')
