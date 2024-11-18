@@ -118,25 +118,11 @@ class Ecofi(models.Model):
             else:
                 datevdict['Buchungstext'] = line_name
 
-            if move.partner_id:
-                datevdict['EulandUSTID'] = ''
-                if move.partner_id.country_id:
-                    datevdict['EulandUSTID'] = move.partner_id.country_id.code
-        if line.account_id.datev_vat_handover:
-            if move.partner_id:
-                if move.partner_id.vat:
-                    datevdict['EulandUSTID'] = move.partner_id.vat
-            if 'EulandUSTID' in datevdict and datevdict['EulandUSTID'] == '':
-                errorcount += 1
-                partnererror.append(move.partner_id.id)
-                thislog = '{log} {name} {text} \n'.format(
-                    log=thislog,
-                    name=thismovename,
-                    text=_(
-                        'Error! No sales tax identification number stored'
-                        ' in the partner!',
-                    ),
-                )
+            datevdict = self.set_country_code(
+                datevdict=datevdict,
+                move=move,
+                line=line,
+            )
             if line.ecofi_tax_id:
                 datevdict['EUSteuer'] = str(
                     line.ecofi_tax_id.amount
@@ -175,6 +161,26 @@ class Ecofi(models.Model):
         # beleglink
         move, line, datevdict = self.set_beleglink(move, line, datevdict)
         return errorcount, partnererror, thislog, thismovename, datevdict
+
+    def set_country_code(self, datevdict, move, line):
+        datevdict['EulandUSTID'] = ''
+        if not move.partner_id:
+            return datevdict
+
+        if move.partner_id.country_id:
+            datevdict['EulandUSTID'] = move.partner_id.country_id.code
+
+        if line.account_id.datev_vat_handover:
+            if move.partner_id.vat:
+                datevdict['EulandUSTID'] = move.partner_id.vat
+
+        # Task 110088: Handle exceptions from ISO-Code 3166
+        if datevdict['EulandUSTID'] == 'GR':
+            datevdict['EulandUSTID'] = 'EL'
+        elif datevdict['EulandUSTID'] == 'IE':
+            datevdict['EulandUSTID'] = 'XI'
+
+        return datevdict
 
     def _get_analytic_account_datev(self, datevdict, line):
         code1 = code2 = ''
