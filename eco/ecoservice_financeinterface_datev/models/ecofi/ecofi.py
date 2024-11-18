@@ -118,15 +118,17 @@ class Ecofi(models.Model):
             else:
                 datevdict['Buchungstext'] = line_name
 
-            datevdict = self.set_country_code(
-                datevdict=datevdict,
-                move=move,
-                line=line,
-            )
-            if line.ecofi_tax_id:
-                datevdict['EUSteuer'] = str(
-                    line.ecofi_tax_id.amount
-                ).replace('.', ',')
+        datevdict = self.set_country_code(
+            datevdict=datevdict,
+            move=move,
+            line=line,
+        )
+
+        if line.account_id.datev_vat_handover and line.ecofi_tax_id:
+            datevdict['EUSteuer'] = str(
+                line.ecofi_tax_id.amount
+            ).replace('.', ',')
+
         if line.partner_id:
             datevdict['ZusatzInhalt1'] = line.partner_id.name
 
