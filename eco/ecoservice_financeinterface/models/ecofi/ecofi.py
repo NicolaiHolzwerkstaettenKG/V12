@@ -115,27 +115,40 @@ class Ecofi(models.Model):
         return ecofi_csv, log
 
     def ecofi_posted_moves(self, journal_ids):
-        sale_journals = []
-        journals_rest = []
+        move_ids = self.env['account.move'].sudo()
 
-        for journal in journal_ids:
-            if journal.type == 'sale':
-                sale_journals.append(journal.id)
-            else:
-                journals_rest.append(journal.id)
-
-        move_ids = self.env['account.move'].search([
-            ('journal_id', 'in', sale_journals),
+        # 110111: Get invoices based on the invoice date only.
+        move_ids += move_ids.search([
+            ('journal_id', 'in', journal_ids.ids),
             ('state', '=', 'posted'),
             ('vorlauf_id', '=', False),
             ('invoice_date', '>=', self.date_from),
             ('invoice_date', '<=', self.date_to),
-        ]) + self.env['account.move'].search([
-            ('journal_id', 'in', journals_rest),
+            ('move_type', 'in', (
+                'out_invoice',
+                'out_refund',
+                'out_receipt',
+                'in_invoice',
+                'in_refund',
+                'in_receipt',
+            )),
+        ])
+
+        # 110111: Get non-invoices based on the accounting date only.
+        move_ids += move_ids.search([
+            ('journal_id', 'in', journal_ids.ids),
             ('state', '=', 'posted'),
             ('vorlauf_id', '=', False),
             ('date', '>=', self.date_from),
             ('date', '<=', self.date_to),
+            ('move_type', 'not in', (
+                'out_invoice',
+                'out_refund',
+                'out_receipt',
+                'in_invoice',
+                'in_refund',
+                'in_receipt',
+            )),
         ])
 
         account_moves = self.env['account.move']
