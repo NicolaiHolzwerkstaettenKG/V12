@@ -314,6 +314,7 @@ class Ecofi(models.Model):
                 if line.datev_posting_key == '40':
                     buschluessel = '40'
                 else:
+                    line_tax = line.get_tax()
                     if line.price_total:
                         # Wird durch Odoo nur bei Rechnungen gesetzt.
                         # Rechnen mit Steuerbeträgen und Prozentwerten führt
@@ -321,8 +322,14 @@ class Ecofi(models.Model):
                         # z.B. line.total_tax_amount() -> 3.1899999999999977
                         # Daher line.price_total oder line.price_subtotal
                         line_total = line.price_total
+                    else:
+                        # Odoo selbst gibt uns keine informationen zum Brutto
+                        # der Zeile. Fallback aufs selber berechnen.
+                        # Problem: Rundungsfehler und Odoos Feature zum
+                        # Editieren der gezahlten Steuer
+                        tax_multiplier = 1 + (Decimal(line_tax.amount) / 100)
+                        line_total = line_total * tax_multiplier
 
-                    line_tax = line.get_tax()
                     if (
                         not line.account_id.datev_automatic_account
                         and line_tax
