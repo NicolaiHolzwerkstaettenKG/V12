@@ -47,7 +47,7 @@
         </div>
 
         <!-- Summary of all tables -->
-        <div id="tables_summary" class="row">
+        <div id="tables_summary" class="row" style="page-break-inside: avoid;">
           <t t-call="ecoservice_german_documents_base.final_amount_template"/>
         </div>
 
@@ -66,7 +66,7 @@
           <t t-set="differing_shipping_address" t-value="o.partner_id != o.partner_shipping_id"/>
           <t t-if="differing_invoice_address or differing_shipping_address">
             <t t-if="o.partner_shipping_id == o.partner_invoice_id">
-              <div class="row mt16">
+              <div class="row mt16" style="page-break-inside: avoid;">
                 <div class="col-4 bold">
                   Invoicing and shipping address:
                 </div>
@@ -76,7 +76,9 @@
               </div>
             </t>
             <t t-else="">
-              <div class="row mt16" t-if="differing_invoice_address">
+              <div class="row mt16"
+                   t-if="differing_invoice_address"
+                   style="page-break-inside: avoid;">
                 <div class="col-4 bold">
                   Invoicing address:
                 </div>
@@ -85,7 +87,9 @@
                 </div>
               </div>
 
-              <div class="row mt16" t-if="differing_shipping_address">
+              <div class="row mt16"
+                   t-if="differing_shipping_address"
+                   style="page-break-inside: avoid;">
                 <div class="col-4 bold">
                   Shipping address:
                 </div>
@@ -108,7 +112,10 @@
         </div>
 
         <!--Expiration Date:-->
-        <div id="validity_date" t-if="'validity_date' in o" class="row mt16">
+        <div id="validity_date"
+             t-if="'validity_date' in o"
+             class="row mt16"
+             style="page-break-inside: avoid;">
           <t t-if="o.validity_date and o.state in ['draft', 'sent']">
             <div class="col-4" style="font-weight: bold">
               Expiration Date:
@@ -120,7 +127,7 @@
         </div>
 
         <!-- Other customly needed fields -->
-        <div id="note" t-if="o.note" class="row mt16">
+        <div id="note" t-if="o.note" class="row mt16" style="page-break-inside: avoid;">
           <div class="col-12">
             <span t-field="o.note"/>
           </div>
@@ -128,7 +135,7 @@
 
         <!-- QR-Code on the Proforma invoice. -->
         <t t-set="qr_code" t-value="o.get_qr_code_for_proforma_invoice()" />
-        <div t-if="qr_code" id="qrcode" class="row mt16">
+        <div t-if="qr_code" id="qrcode" class="row mt16" style="page-break-inside: avoid;">
           <div class="col-12">
             <p>
               <strong class="text-center">Scan me with your banking app.</strong>
@@ -152,7 +159,8 @@
         </t>
 
         <div class="row mt16" id="fiscal_position_remark"
-             t-if="o.fiscal_position_id and o.fiscal_position_id.sudo().note">
+             t-if="o.fiscal_position_id and o.fiscal_position_id.sudo().note"
+             style="page-break-inside: avoid;">
           <div class="col-4" style="font-weight:bold">
             Fiscal Position Remark:
           </div>
@@ -161,7 +169,10 @@
           </div>
         </div>
 
-        <div t-if="o.signature" class="mt-4 ml64 mr4" name="signature">
+        <div t-if="o.signature"
+             class="mt-4 ml64 mr4"
+             name="signature"
+             style="page-break-inside: avoid;">
           <div class="offset-8">
             <strong>Signature</strong>
           </div>
