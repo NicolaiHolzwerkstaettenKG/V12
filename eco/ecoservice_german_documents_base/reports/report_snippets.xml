@@ -199,7 +199,7 @@
       <t t-set="payment_term_id" t-value="o.payment_term_id"/>
     </t>
     <div id="payment_terms" t-if="payment_term_id">
-      <div class="row mt16">
+      <div class="row mt16" style="page-break-inside: avoid;">
         <div class="col-4 bold">
           Terms of payment:
         </div>
@@ -212,7 +212,7 @@
   </template>
 
   <template id="delivery_address_snippet">
-    <div id="delivery_address">
+    <div id="delivery_address" style="page-break-inside: avoid;">
       <t t-if="delivery_address">
         <t t-if="delivery_address.parent_id">
           <span t-field="delivery_address.parent_id"/>
@@ -239,7 +239,10 @@
   </template>
 
   <template id="incoterms">
-    <div id="incoterms" class="row mt16" t-if="incoterms_id">
+    <div id="incoterms"
+         class="row mt16"
+         t-if="incoterms_id"
+         style="page-break-inside: avoid;">
       <div class="col-4 bold">
         Incoterms:
       </div>
