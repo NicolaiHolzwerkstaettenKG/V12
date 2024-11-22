@@ -15,3 +15,7 @@ class AccountInvoiceLine(models.Model):
             lambda line: line.is_downpayment
         )
         return not self.quantity < 0 and downpayment_line
+
+    def html_name(self) -> str:
+        # 109592: Fix note fields line breaks not shown in invoice reports
+        return self.name.replace('\n', '<br/>')
