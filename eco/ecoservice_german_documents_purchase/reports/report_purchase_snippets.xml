@@ -45,13 +45,15 @@
       style="border-top: 0.1em solid #C0C0C0;"
       t-if="partner_ref or partner_vat">
 
-      <div class="col-3 ptb-5 pl-15" t-if="partner_ref">
+      <div class="col-3 ptb-5 pl-15" t-if="partner_ref" style="page-break-inside: avoid;">
         <div class="span font-alt no-wrap">Supplier No.</div>
         <br/>
         <span class="col-9 ptb-5" t-esc="partner_ref"/>
       </div>
 
-      <div t-attf-class="col-6 ptb-5 #{ partner_ref and 'text-right' }" t-if="partner_vat">
+      <div t-attf-class="col-6 ptb-5 #{ partner_ref and 'text-right' }"
+           t-if="partner_vat"
+           style="page-break-inside: avoid;">
         <div class="span font-alt no-wrap pl-15">Supplier VAT-ID</div>
         <br/>
         <span class="no-wrap pl-15" t-esc="partner_vat"/>
