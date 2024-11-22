@@ -58,7 +58,7 @@
 
           <!--Backorder-->
           <div id="backorder_text">
-            <div class="row" t-if="o.backorder_id">
+            <div class="row" t-if="o.backorder_id" style="page-break-inside: avoid;">
               <div class="col-12 mt8">
                 This shipment is a backorder of
                 <t t-esc="o.backorder_id.name"/>
@@ -68,7 +68,7 @@
 
             <div class="row"
                  t-if="o.backorder_ids and o.backorder_ids.filtered(lambda x: x.state not in ('done', 'cancel'))">
-              <div class="col-12 mt8">
+              <div class="col-12 mt8" style="page-break-inside: avoid;">
                 All items couldn't be shipped at once. The remaining ones will be shipped as soon as they become
                 available.
               </div>
@@ -77,7 +77,10 @@
 
           <t t-set="signature" t-value="o.get_signature()"/>
           <t t-set="signed_by" t-value="o.get_signed_by()"/>
-          <div t-if="signature" class="mt-4 ml64 mr4" name="signature">
+          <div t-if="signature"
+               class="mt-4 ml64 mr4"
+               name="signature"
+               style="page-break-inside: avoid;">
             <div class="offset-8">
               <strong>Signature</strong>
             </div>
@@ -93,7 +96,7 @@
           <t t-if="not signature">
             <div id="custom_area" class="picking_operation" style="page-break-inside:avoid">
               <div class="row mt16">
-                <div class="col-5 mt32">
+                <div class="col-5 mt32" style="page-break-inside: avoid;">
                   <div t-if="o.signing_date" class="text-center">
                     <t t-esc="o.signing_date.strftime('%d.%m.%Y')"/>
                   </div>
@@ -104,7 +107,7 @@
                 </div>
               </div>
               <div class="row mt16">
-                <div class="col-5 mt16">
+                <div class="col-5 mt16" style="page-break-inside: avoid;">
                   <div t-if="o.signer_name" class="text-center">
                     <t t-esc="o.signer_name"/>
                   </div>
@@ -114,7 +117,7 @@
                 </div>
               </div>
               <div class="row mt16">
-                <div class="col-5">
+                <div class="col-5" style="page-break-inside: avoid;">
                   <div t-if="o.signature" name="signature">
                     <img t-att-src="image_data_uri(o.signature)" style="max-height: 4cm; max-width: 8cm; margin-left: 0.5cm"/>
                     <div class="text-8 text-center" style="border-top: 1px solid #cacaca; position: relative; top: -1cm;">

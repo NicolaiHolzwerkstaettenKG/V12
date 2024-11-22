@@ -12,16 +12,30 @@ you can to this here by inherit or override.
 
   <template id="report_table_base_stock">
     <t t-set="has_barcode"
-       t-value="any(move_lines.product_id and move_lines.product_id.sudo().barcode or move_lines.package_id for move_lines in o.move_line_ids)"/>
+       t-value="any(line.product_id and line.product_id.sudo().barcode or line.package_id for line in o.move_line_ids)"/>
     <t t-set="has_serial_number"
        t-value="o.move_line_ids.filtered(lambda ml: ml.lot_id or ml.lot_name)"/>
     <t t-set="display_pos_no"
        t-value="o.company_id.report_table_position"/>
+    <t t-set="global_move_line_index" t-value="0"/>
+
+    <!-- Pre-filtered move lines -->
+    <t t-if="'bom_line_id' in o.move_line_ids.move_id">
+      <t t-set="move_lines_with_kits" t-value="o.move_line_ids.filtered(lambda l: l.move_id.bom_line_id and l.move_id.bom_line_id.bom_id.type == 'phantom')"/>
+      <t t-set="move_lines_without_kits" t-value="o.move_line_ids.filtered(lambda l: not l.move_id.bom_line_id or l.move_id.bom_line_id.bom_id.type != 'phantom')"/>
+    </t>
+    <t t-else="">
+      <t t-set="move_lines_with_kits" t-value="o.env['stock.move.line']"/>
+      <t t-set="move_lines_without_kits" t-value="o.move_line_ids"/>
+    </t>
+
+    <!-- Determine if there are kits or not -->
+    <t t-set="has_kits" t-value="move_lines_with_kits"/>
 
     <table class="table table-sm">
       <thead>
         <tr>
-          <th class="text-left" t-if="display_pos_no">
+          <th class="text-left" t-if="display_pos_no" style="width: 50px;">
             Pos
           </th>
           <th class="text-left">
@@ -48,8 +62,60 @@ you can to this here by inherit or override.
       </thead>
 
       <tbody>
-        <t t-foreach="move_line_ids" t-as="move_line">
+        <!-- Display kits if available -->
+        <t t-if="move_lines_with_kits">
+            <t t-foreach="move_lines_with_kits.mapped('move_id.bom_line_id.bom_id')" t-as="bom">
+                <tr class="bg-200 fw-bold o_line_section">
+                    <td colspan="99">
+                        <span t-esc="bom.product_id.display_name or bom.product_tmpl_id.display_name"/>
+                    </td>
+                </tr>
+                <t t-foreach="move_lines_with_kits.filtered(lambda l: l.move_id.bom_line_id.bom_id == bom)" t-as="move_line">
+                    <!-- Increment the global variable for each product line -->
+                    <t t-set="global_move_line_index" t-value="global_move_line_index + 1"/>
+                    <!-- Call the encapsulating template -->
+                    <t t-call="ecoservice_german_documents_stock.report_table_lines_stock_base">
+                        <t t-set="move_line_ids" t-value="[move_line]"/>
+                    </t>
+                </t>
+            </t>
+        </t>
 
+        <!-- Display header only if there are kits and non-kit products -->
+        <t t-if="has_kits and move_lines_without_kits">
+            <tr class="bg-200 fw-bold o_line_section">
+                <td colspan="99">
+                    <span>Products not associated with a kit</span>
+                </td>
+            </tr>
+        </t>
+
+        <!-- Display non-kit products -->
+        <t t-if="move_lines_without_kits">
+            <t t-foreach="move_lines_without_kits" t-as="move_line">
+                <!-- Increment the global variable for each product line -->
+                <t t-set="global_move_line_index" t-value="global_move_line_index + 1"/>
+                <!-- Call the encapsulating template for non-kit products -->
+                <t t-call="ecoservice_german_documents_stock.report_table_lines_stock_base">
+                    <t t-set="move_line_ids" t-value="[move_line]"/>
+                </t>
+            </t>
+        </t>
+      </tbody>
+    </table>
+  </template>
+
+  <template id="report_table_lines_stock_base">
+      <t t-set="has_barcode"
+          t-value="any(move_lines.product_id and move_lines.product_id.sudo().barcode or move_lines.package_id for move_lines in o.move_line_ids)"/>
+      <t t-set="has_serial_number"
+          t-value="o.move_line_ids.filtered(lambda ml: ml.lot_id or ml.lot_name)"/>
+      <t t-set="display_pos_no"
+          t-value="o.company_id.report_table_position"/>
+
+        <t t-foreach="move_line_ids" t-as="move_line">
+          <!-- Reset to not use descriptions of previous lines -->
+          <t t-set="descriptions" t-value="[]"/>
           <t t-set="descriptions"
              t-if="o.picking_type_code == 'outgoing' and move_line.product_id.sudo().description_pickingout"
              t-value="move_line.product_id.sudo().description_pickingout.rstrip().split('\n')"/>
@@ -57,59 +123,89 @@ you can to this here by inherit or override.
              t-if="o.picking_type_code == 'incoming' and move_line.product_id.sudo().description_pickingin"
              t-value="move_line.product_id.sudo().description_pickingin.rstrip().split('\n')"/>
 
+          <!-- Save start value to reset later -->
+          <t t-set="description_start_value" t-value="description"/>
+          <!-- Only used if the description is bool False -->
+          <t t-if="not description and description != ''">
+            <t t-set="description" t-value="move_line.move_id.description_picking"/>
+          </t>
+          <!-- Make sure that the description is a string -->
+          <t t-if="not description or description.strip() == ''">
+            <t t-set="description" t-value="''"/>
+          </t>
+          <!-- Remove doubled description part -->
+          <t t-if="descriptions and description.startswith(descriptions[0].strip())">
+            <t t-set="description" t-value="description.replace(descriptions[0].strip(), '').strip()"/>
+          </t>
+          <!--
+            search in the descriptions for the product
+            remove the product from descriptions if needed (it will be added later again)
+          -->
+          <t t-set="use_product_display_name" t-value="True"/>
+          <t t-if="descriptions and descriptions[0].startswith(move_line.product_id.name)">
+            <t t-set="use_product_display_name" t-value="False"/>
+            <t t-set="tmp_descr" t-value="descriptions[0].replace(move_line.product_id.name, '', 1)"/>
+            <t t-set="descriptions" t-value="descriptions[1:]"/>
+            <t t-if="tmp_descr.strip()">
+              <t t-set="descriptions" t-value="[tmp_descr] + descriptions"/>
+            </t>
+          </t>
+          <t t-if="descriptions and descriptions[0].startswith(move_line.product_id.display_name)">
+            <t t-set="tmp_descr" t-value="descriptions[0].replace(move_line.product_id.display_name, '', 1)"/>
+            <t t-set="descriptions" t-value="descriptions[1:]"/>
+            <t t-if="tmp_descr.strip()">
+              <t t-set="descriptions" t-value="[tmp_descr] + descriptions"/>
+            </t>
+          </t>
+          <!-- If an description part exists add it to the descriptions list -->
+          <t t-if="description.strip()">
+            <t t-set="descriptions" t-value="description.strip().split('\n') + descriptions"/>
+            <t t-set="description" t-value="''"/>
+          </t>
+          <!--
+            search in the descriptions for the product (AGAIN after the description block was added)
+            remove the product from descriptions if needed (it will be added later again)
+          -->
+          <t t-set="use_product_display_name" t-value="True"/>
+          <t t-if="descriptions and descriptions[0].startswith(move_line.product_id.name)">
+            <t t-set="use_product_display_name" t-value="False"/>
+            <t t-set="tmp_descr" t-value="descriptions[0].replace(move_line.product_id.name, '', 1)"/>
+            <t t-set="descriptions" t-value="descriptions[1:]"/>
+            <t t-if="tmp_descr.strip()">
+              <t t-set="descriptions" t-value="[tmp_descr] + descriptions"/>
+            </t>
+          </t>
+          <t t-if="descriptions and descriptions[0].startswith(move_line.product_id.display_name)">
+            <t t-set="tmp_descr" t-value="descriptions[0].replace(move_line.product_id.display_name, '', 1)"/>
+            <t t-set="descriptions" t-value="descriptions[1:]"/>
+            <t t-if="tmp_descr.strip()">
+              <t t-set="descriptions" t-value="[tmp_descr] + descriptions"/>
+            </t>
+          </t>
+          <!-- add the product name again (after the description was added) -->
+          <t t-if="use_product_display_name and move_line.product_id">
+            <t t-set="p_name" t-value="move_line.product_id.display_name"/>
+          </t>
+          <t t-elif="move_line.product_id">
+            <t t-set="p_name" t-value="move_line.product_id.name"/>
+          </t>
+          <t t-elif="move_line.package_id">
+            <t t-set="p_name" t-value="move_line.package_id.display_name"/>
+          </t>
+          <t t-set="descriptions" t-value="[p_name] + descriptions"/>
+          <!-- reset description to its start value (see comment above) -->
+          <t t-set="description" t-value="description_start_value"/>
+
           <tr>
             <!--Index-->
-            <td class="text-left" t-if="display_pos_no">
-              <t t-esc="move_line_index+1"/>
+            <td class="text-left" t-if="display_pos_no" style="width: 50px;">
+              <t t-esc="global_move_line_index"/>
             </td>
 
             <!-- Product description -->
-            <!--
-              save description start value. In Odoo Standard the code is called in a sub template
-              and the variable scope is bound to the template. We are using the code in a loop and
-              need to save the incoming value and reset description to it after using it
-            -->
-            <t t-set="description_start_value" t-value="description"/>
             <td class="text-left">
-              <!-- Odoo Standard -->
-              <!--don't print product_id if sales description is set (already contains product name)-->
-              <t t-if="not o.origin">
-                <span t-field="move_line.product_id"/>
-                <!-- <span t-field="o.origin"/> -->
-              </t>
-
-              <t t-if="not description and description != ''">
-                <t t-set="description" t-value="move_line.move_id.description_picking"/>
-              </t>
-
-              <t t-if="description !='' and description != move_line.product_id.name">
-                <t t-if="not o.origin">
-                  <br/>
-                </t>
-
-                <t t-set="description_list" t-value="description.strip().split('\n')"/>
-                <t t-if="descriptions != description_list">
-                  <span t-esc="description_list[0]"/>
-                  <t t-foreach="description_list" t-as="description_item">
-                    <t t-if="description_item_index > 0">
-                      <br/>
-                      <span t-esc="description_item"/>
-                    </t>
-                  </t>
-                </t>
-              </t>
-
-              <!-- End Odoo Standard -->
-              <!-- reset description to its start value (see comment above) -->
-              <t t-set="description" t-value="description_start_value"/>
-
               <span t-esc="descriptions[0]" t-if="descriptions"
                     style="margin-top: 8px"/>
-
-              <t t-if="not move_line.product_id and move_line.package_id">
-                <br/>
-                <span t-field="move_line.package_id"/>
-              </t>
             </td>
 
             <!--Barcode-->
@@ -153,13 +249,13 @@ you can to this here by inherit or override.
               <span t-field="move_line.location_id"/>
             </td>
           </tr>
-          <tr t-foreach="descriptions" t-as="description">
-            <t t-if="description_index > 0">
+          <tr t-foreach="descriptions" t-as="descr">
+            <t t-if="descr_index > 0">
               <td class="no-mbp" t-if="display_pos_no">
                 &amp;nbsp;
               </td>
               <td align="left" class="no-bp">
-                <span t-esc="description.rstrip()"/>
+                <span t-esc="descr.rstrip()"/>
               </td>
               <td class="no-mbp" t-if="has_barcode and is_picking">
                 &amp;nbsp;
@@ -176,8 +272,6 @@ you can to this here by inherit or override.
             </t>
           </tr>
         </t>
-      </tbody>
-    </table>
   </template>
 
 </odoo>
