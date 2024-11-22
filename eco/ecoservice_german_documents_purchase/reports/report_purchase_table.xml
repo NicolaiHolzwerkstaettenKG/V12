@@ -94,7 +94,7 @@ you can to this here by inherit or override.
 
             <!--Section-->
             <t t-if="line.display_type == 'line_section'">
-              <td colspan="99" id="section">
+              <td colspan="99" id="section" style="page-break-inside: avoid;">
                 <span t-field="line.name"/>
               </td>
               <t t-set="current_section" t-value="line"/>
@@ -103,14 +103,14 @@ you can to this here by inherit or override.
 
             <!--Note-->
             <t t-if="line.display_type == 'line_note'">
-              <td colspan="99" id="note">
+              <td colspan="99" id="note" style="page-break-inside: avoid;">
                 <span t-field="line.name"/>
               </td>
             </t>
           </tr>
           <t t-if="current_section and (line_last or o.order_line[line_index+1].display_type == 'line_section')">
             <tr class="is-subtotal text-right">
-              <td colspan="99" id="subtotal">
+              <td colspan="99" id="subtotal" style="page-break-inside: avoid;">
                 <strong class="mr16">Subtotal</strong>
                 <span t-esc="current_subtotal"
                       t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
