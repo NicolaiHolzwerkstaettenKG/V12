@@ -62,10 +62,10 @@
         </div>
 
         <!-- Other customly needed fields -->
-        <div id="custom_area" class="delivery_note"/>
+        <div id="custom_area" class="delivery_note" style="page-break-inside: avoid;"/>
 
         <!--Note-->
-        <div class="row mt32">
+        <div class="row mt32" style="page-break-inside: avoid;">
           <span t-field="o.note"/>
         </div>
 
