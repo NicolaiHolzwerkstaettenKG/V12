@@ -47,11 +47,11 @@
         </div>
 
         <!-- Summary of all tables -->
-        <div id="tables_summary" class="row">
+        <div id="tables_summary" class="row" style="page-break-inside: avoid;">
           <t t-call="ecoservice_german_documents_base.final_amount_template" />
         </div>
 
-        <div id="lot_and_serialnumbers" class="row">
+        <div id="lot_and_serialnumbers" class="row" style="page-break-inside: avoid;">
           <t t-call="ecoservice_german_documents_invoice.lot_and_serialnumbers_template" />
         </div>
 
@@ -67,7 +67,7 @@
         <br />
         <br />
         <!-- Delivery Date -->
-        <div class="row">
+        <div class="row" style="page-break-inside: avoid;">
           <div class="col-12" t-if="o.delivery_date">
             Delivery date corresponds to <span class="bold" t-field="o.delivery_date" t-options="{'format': 'MMMM yyyy'}" />
           </div>
@@ -95,7 +95,9 @@
           <t t-set="delivery_address" t-value="o.partner_shipping_id" />
           <t t-set="differing_shipping_address" t-value="o.partner_id != o.partner_shipping_id" />
           <t t-if="differing_shipping_address and delivery_address_check and customer_address_check">
-            <div class="row mt16" t-if="differing_shipping_address">
+            <div class="row mt16"
+                 t-if="differing_shipping_address"
+                 style="page-break-inside: avoid;">
               <div class="col-4 font-weight-bold">
                 Shipping address:
               </div>
@@ -110,7 +112,7 @@
 
         <!-- Other customly needed fields -->
         <div id="note" t-if="o.narration" class="row mt16">
-          <div class="col-12">
+          <div class="col-12" style="page-break-inside: avoid;">
             <span t-field="o.narration" />
           </div>
         </div>
@@ -125,7 +127,7 @@
         <t t-if="o.invoice_payment_term_id.display_on_invoice and payment_term_details">
           <div t-if='o.show_payment_term_details' id="total_payment_term_details_table" class="row">
             <div
-              t-attf-class="#{'col-7' if report_type != 'html' else 'col-sm-7 col-md-6'} mt-2 mb-2">
+              t-attf-class="#{'col-7' if report_type != 'html' else 'col-sm-7 col-md-6'} mt-2 mb-2" style="page-break-inside: avoid;">
               <table class="table table-sm" style="page-break-inside: avoid;">
                 <th class="border-black text-start">
                   Due Date
@@ -155,7 +157,8 @@
 
         <div id="fiscal_position"
              t-if="o.fiscal_position_id and o.fiscal_position_id.note"
-             class="row mt16">
+             class="row mt16"
+             style="page-break-inside: avoid;">
           <div class="col-12">
             <span t-field="o.fiscal_position_id.note"/>
           </div>
@@ -163,7 +166,7 @@
 
         <t t-set="qr_code" t-value="o._generate_qr_code() if o.display_qr_code else False"/>
         <div t-if="qr_code" id="qrcode" class="row mt16">
-          <div class="col-12">
+          <div class="col-12" style="page-break-inside: avoid;">
             <p>
               <strong class="text-center">Scan me with your banking app.</strong>
               <br/>
