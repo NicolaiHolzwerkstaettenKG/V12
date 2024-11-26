@@ -114,7 +114,8 @@ class AccountMove(models.Model):
         """
         for move in self.filtered(lambda r: r.line_ids):
             if not (
-                move._set_global_counter_account_from_journal()
+                move._set_payment_counter_account_from_settings()
+                or move._set_global_counter_account_from_journal()
                 or move._set_global_counter_account_from_lines()
                 or move._set_local_counter_account()
             ):
@@ -143,6 +144,32 @@ class AccountMove(models.Model):
 
     def _account_from_cash(self):
         return self.journal_id.default_account_id
+
+    def _set_payment_counter_account_from_settings(self) -> bool:
+        payments = (
+            self.payment_id
+            or (
+                self.statement_line_id
+                and self.statement_line_id.payment_ids
+            )
+        )
+        if not payments:
+            return False
+
+        payment_types = payments.mapped('payment_type')
+        company = self.company_id
+        counter = False
+        if 'outbound' in payment_types:
+            counter = company.account_journal_payment_credit_account_id
+        elif 'inbound' in payment_types:
+            counter = company.account_journal_payment_debit_account_id
+
+        if not counter:
+            # Get counter account by another way.
+            return False
+
+        self.line_ids.ecofi_account_counterpart = counter
+        return True
 
     def _set_global_counter_account_from_journal(self) -> bool:
         fn_counter_account = getattr(
