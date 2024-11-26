@@ -296,9 +296,8 @@ class Ecofi(models.Model):
 
             # line.balance = debit (soll) - credit (haben)
             sollhaben = 'h' if line.balance < 0 else 's'
-            line_total = (
-                Decimal(str(line.amount_currency))
-                if currency else line.balance
+            line_total = Decimal(
+                line.amount_currency if currency else line.balance
             )
             buschluessel = ''
             if export_method == 'gross':
@@ -321,7 +320,7 @@ class Ecofi(models.Model):
                         # schnell zu Cent-Rundungsfehlern.
                         # z.B. line.total_tax_amount() -> 3.1899999999999977
                         # Daher line.price_total oder line.price_subtotal
-                        line_total = line.price_total
+                        line_total = Decimal(line.price_total)
                     else:
                         # Odoo selbst gibt uns keine informationen zum Brutto
                         # der Zeile. Fallback aufs selber berechnen.
