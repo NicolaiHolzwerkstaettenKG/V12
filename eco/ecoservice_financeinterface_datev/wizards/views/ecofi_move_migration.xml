@@ -19,7 +19,8 @@
         </p>
 
         <group>
-          <field name="migrate_all_companies"/>
+          <field name="migrate_all_journal_item_from"/>
+          <field name="migrate_all_journal_item_to"/>
           <field name="taxes_are_configured"/>
           <field name="accounts_are_configured"/>
         </group>

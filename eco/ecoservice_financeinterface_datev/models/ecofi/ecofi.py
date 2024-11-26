@@ -1,19 +1,14 @@
 # Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 
-import json
 import re
 from decimal import Decimal
-
 from odoo import _, api, models
 
 
 class Ecofi(models.Model):
     _name = 'ecofi'
-    _inherit = [
-        'ecofi',
-        'ecofi.export.columns',
-    ]
+    _inherit = ['ecofi', 'ecofi.export.columns']
 
     def field_config(  # noqa: C901
         self,
@@ -26,6 +21,7 @@ class Ecofi(models.Model):
         faelligkeit,
         datevdict,
     ):
+
         """
         Generate the values for the different Datev columns.
 
@@ -110,6 +106,8 @@ class Ecofi(models.Model):
                     .replace('</p>', '')
                     .replace('<br/>', '')
                     .replace('<br>', '')
+                    .replace('[', '(')
+                    .replace(']', ')')
             )
 
             if datevdict.get('Buchungstext'):
@@ -120,29 +118,17 @@ class Ecofi(models.Model):
             else:
                 datevdict['Buchungstext'] = line_name
 
-            if move.partner_id:
-                datevdict['EulandUSTID'] = ''
-                if move.partner_id.country_id:
-                    datevdict['EulandUSTID'] = move.partner_id.country_id.code
-        if line.account_id.datev_vat_handover:
-            if move.partner_id:
-                if move.partner_id.vat:
-                    datevdict['EulandUSTID'] = move.partner_id.vat
-            if 'EulandUSTID' in datevdict and datevdict['EulandUSTID'] == '':
-                errorcount += 1
-                partnererror.append(move.partner_id.id)
-                thislog = '{log} {name} {text} \n'.format(
-                    log=thislog,
-                    name=thismovename,
-                    text=_(
-                        'Error! No sales tax identification number stored'
-                        ' in the partner!',
-                    ),
-                )
-            if line.ecofi_tax_id:
-                datevdict['EUSteuer'] = str(
-                    line.ecofi_tax_id.amount
-                ).replace('.', ',')
+        datevdict = self.set_country_code(
+            datevdict=datevdict,
+            move=move,
+            line=line,
+        )
+
+        if line.account_id.datev_vat_handover and line.ecofi_tax_id:
+            datevdict['EUSteuer'] = str(
+                line.ecofi_tax_id.amount
+            ).replace('.', ',')
+
         if line.partner_id:
             datevdict['ZusatzInhalt1'] = line.partner_id.name
 
@@ -167,19 +153,36 @@ class Ecofi(models.Model):
             and move.date
         ):
             datevdict['Leistungsdatum'] = move.date.strftime('%d%m%Y')
-
         if (
             self.env.user.company_id.export_delivery_date
             and move.move_type == 'out_invoice'
             and move.delivery_date
-
         ):
             datevdict['Leistungsdatum'] = move.delivery_date.strftime('%d%m%Y')
 
         # beleglink
         move, line, datevdict = self.set_beleglink(move, line, datevdict)
-
         return errorcount, partnererror, thislog, thismovename, datevdict
+
+    def set_country_code(self, datevdict, move, line):
+        datevdict['EulandUSTID'] = ''
+        if not move.partner_id:
+            return datevdict
+
+        if move.partner_id.country_id:
+            datevdict['EulandUSTID'] = move.partner_id.country_id.code
+
+        if line.account_id.datev_vat_handover:
+            if move.partner_id.vat:
+                datevdict['EulandUSTID'] = move.partner_id.vat
+
+        # Task 110088: Handle exceptions from ISO-Code 3166
+        if datevdict['EulandUSTID'] == 'GR':
+            datevdict['EulandUSTID'] = 'EL'
+        elif datevdict['EulandUSTID'] == 'IE':
+            datevdict['EulandUSTID'] = 'XI'
+
+        return datevdict
 
     def _get_analytic_account_datev(self, datevdict, line):
         code1 = code2 = ''
@@ -268,8 +271,6 @@ class Ecofi(models.Model):
                 self.get_legal_datev_header(move.vorlauf_id)
             )
 
-        tax_mapping_json = self.env['ir.config_parameter'].sudo().get_param('ecoservice_fi.tax_map', False)
-        tax_mapping = json.loads(tax_mapping_json) if tax_mapping_json else {}
         faelligkeit = False
         move_tax_lines = 0
         grouped_line = {}
@@ -292,10 +293,11 @@ class Ecofi(models.Model):
                 not self.env.context.get('datev_ignore_currency')
                 and bool(line.amount_currency)
             )
-            line_total = (
-                Decimal(str(line.amount_currency))
-                if currency else
-                Decimal(str(line.debit)) - Decimal(str(line.credit))
+
+            # line.balance = debit (soll) - credit (haben)
+            sollhaben = 'h' if line.balance < 0 else 's'
+            line_total = Decimal(
+                line.amount_currency if currency else line.balance
             )
             buschluessel = ''
             if export_method == 'gross':
@@ -307,46 +309,39 @@ class Ecofi(models.Model):
                 ):
                     move_tax_lines += 1
                     continue
+
                 if line.datev_posting_key == '40':
                     buschluessel = '40'
                 else:
-                    linetax = line.get_tax()
-                    tax_multiplicator = (
-                        Decimal(str(1.0 + (tax_mapping.get(str(linetax.id), linetax.amount) / 100)))
-                    )
-                    gross_value = Decimal(line_total * tax_multiplicator)
-                    line_total = Decimal(str(gross_value))
+                    line_tax = line.get_tax()
+                    if line.price_total:
+                        # Wird durch Odoo nur bei Rechnungen gesetzt.
+                        # Rechnen mit Steuerbeträgen und Prozentwerten führt
+                        # schnell zu Cent-Rundungsfehlern.
+                        # z.B. line.total_tax_amount() -> 3.1899999999999977
+                        # Daher line.price_total oder line.price_subtotal
+                        line_total = Decimal(line.price_total)
+                    else:
+                        # Odoo selbst gibt uns keine informationen zum Brutto
+                        # der Zeile. Fallback aufs selber berechnen.
+                        # Problem: Rundungsfehler und Odoos Feature zum
+                        # Editieren der gezahlten Steuer
+                        tax_multiplier = 1 + (Decimal(line_tax.amount) / 100)
+                        line_total = line_total * tax_multiplier
 
                     if (
                         not line.account_id.datev_automatic_account
-                        and linetax
+                        and line_tax
                     ):
-                        buschluessel = str(linetax.l10n_de_datev_code)
+                        buschluessel = str(line_tax.l10n_de_datev_code)
 
-            # Ugly as fuck, but a rounding error is uglier
             if rounding_method == 'round_per_line':
-                line_total = Decimal(str(
-                    round(Decimal(str(
-                        line_total
-                    )), 2)
-                ))
+                line_total = round(line_total, 2)
 
-            # Fixes rounding mistakes
-            if line.datev_export_value:
-                # Ugly as fuck, but a rounding error is uglier
-                # Deprecated??
-                umsatz = self.format_umsatz(
-                    Decimal(str(round(
-                        Decimal(str(line.datev_export_value)), 2),
-                    ))
-                )[0]
-
-            umsatz = str(-line_total) if line_total < 0 else str(line_total)
-            sollhaben = 's' if line_total > 0 else 'h'
-
+            umsatz = -line_total if line_total < 0 else line_total
             datevdict = {
                 'Sollhaben': sollhaben,
-                'Umsatz': umsatz,
+                'Umsatz': str(umsatz),
                 'Gegenkonto': datevgegenkonto,
                 'Konto': datevkonto or '',
                 'Buschluessel': buschluessel,
@@ -474,17 +469,26 @@ class Ecofi(models.Model):
             return
 
         grp_turnover = Decimal(grouped[key]['Umsatz'].replace(',', '.'))
-        new_turnover = Decimal(turnover.replace(',', '.'))
+        new_turnover = Decimal(str(turnover).replace(',', '.'))
         grp_turnover += new_turnover
 
         grouped[key]['Umsatz'], _ = self.format_umsatz(
             Decimal(str(grp_turnover)),
         )
 
-        if line.name != '/' and grouped.get(key, {}).get('Buchungstext'):
+        if isinstance(line.name, str) and line.name != '/' and grouped.get(key, {}).get('Buchungstext'):
+            line_name = (
+                line.name
+                    .replace('<p>', '')
+                    .replace('</p>', '')
+                    .replace('<br/>', '')
+                    .replace('<br>', '')
+                    .replace('[', '(')
+                    .replace(']', ')')
+            )
             grouped[key]['Buchungstext'] = '{bu_text}, {nbu_text}'.format(
                 bu_text=grouped[key]['Buchungstext'],
-                nbu_text=line.name,
+                nbu_text=line_name,
             )
 
     def _datev_grouping_combined(
@@ -507,7 +511,7 @@ class Ecofi(models.Model):
             return
 
         grp_turnover = Decimal(grouped[key]['Umsatz'].replace(',', '.'))
-        new_turnover = Decimal(turnover.replace(',', '.'))
+        new_turnover = Decimal(str(turnover).replace(',', '.'))
 
         if grouped[key]['Sollhaben'] != s_h:
             new_turnover = -new_turnover
@@ -525,10 +529,19 @@ class Ecofi(models.Model):
             Decimal(str(grp_turnover)),
         )
 
-        if line.name != '/' and grouped.get(key, {}).get('Buchungstext'):
+        if isinstance(line.name, str) and line.name != '/' and grouped.get(key, {}).get('Buchungstext'):
+            line_name = (
+                line.name
+                    .replace('<p>', '')
+                    .replace('</p>', '')
+                    .replace('<br/>', '')
+                    .replace('<br>', '')
+                    .replace('[', '(')
+                    .replace(']', ')')
+            )
             grouped[key]['Buchungstext'] = '{bu_text}, {nbu_text}'.format(
                 bu_text=grouped[key]['Buchungstext'],
-                nbu_text=line.name,
+                nbu_text=line_name,
             )
 
     @staticmethod
@@ -588,11 +601,13 @@ class Ecofi(models.Model):
             )
 
         if normalized_dict.get('Beleg1'):
+            beleg1 = normalized_dict['Beleg1']
+
             normalized_dict['Beleg1'] = '{}'.format(
                 re.sub(
-                    '[^{}]'.format(Ecofi._get_valid_chars()),
+                    r'[^0-9A-Za-z$&%*+\-/]',
                     '',
-                    normalized_dict['Beleg1'],
+                    beleg1,
                 ).replace('.', ''),
             )[-36:]
 
@@ -621,54 +636,6 @@ class Ecofi(models.Model):
         return super(Ecofi, self.with_context(
             datev_ignore_currency=self.env.company.datev_ignore_currency,
         )).ecofi_buchungen(journal_ids, date_from, date_to)
-
-    @api.model
-    def set_up_initial_tax_mapping(self):
-        if not self.env['ir.config_parameter'].sudo().get_param('ecoservice_fi.tax_map', False):
-            external_ids = [
-                # SKR03
-                'l10n_de_skr03.1_tax_eu_19_purchase_skr03',
-                'l10n_de_skr03.1_tax_eu_19_purchase_no_vst_skr03',
-                'l10n_de_skr03.1_tax_eu_7_purchase_no_vst_skr03',
-                'l10n_de_skr03.1_tax_eu_19_purchase_goods_skr03',
-                'l10n_de_skr03.1_tax_import_19_and_payable_skr03',
-                'l10n_de_skr03.1_tax_import_7_and_payable_skr03',
-                'l10n_de_skr03.1_tax_eu_7_purchase_goods_skr03',
-                'l10n_de_skr03.1_tax_ust_vst_19_purchase_13b_bau_skr03',
-                'l10n_de_skr03.1_tax_eu_car_purchase_skr03',
-                'l10n_de_skr03.1_tax_ust_vst_7_purchase_13b_bau_skr03',
-                'l10n_de_skr03.1_tax_vst_ust_19_purchase_13b_mobil_skr03',
-                'l10n_de_skr03.1_tax_eu_7_purchase_skr03',
-                'l10n_de_skr03.1_tax_vst_ust_19_purchase_13b_werk_ausland_skr03',
-                'l10n_de_skr03.1_tax_vst_ust_7_purchase_13b_werk_ausland_skr03',
-                'l10n_de_skr03.1_tax_vst_ust_19_purchase_13a_auslagerung_skr03',
-                'l10n_de_skr03.1_tax_vst_ust_7_purchase_13a_auslagerung_skr03',
-                'l10n_de_skr03.1_tax_vst_ust_19_purchase_3eck_last_skr03',
-                # SKR04
-                'l10n_de_skr04.1_tax_eu_19_purchase_skr04',
-                'l10n_de_skr04.1_tax_eu_19_purchase_no_vst_skr04',
-                'l10n_de_skr04.1_tax_eu_7_purchase_no_vst_skr04',
-                'l10n_de_skr04.1_tax_eu_19_purchase_goods_skr04',
-                'l10n_de_skr04.1_tax_import_19_and_payable_skr04',
-                'l10n_de_skr04.1_tax_import_7_and_payable_skr04',
-                'l10n_de_skr04.1_tax_eu_7_purchase_goods_skr04',
-                'l10n_de_skr04.1_tax_ust_vst_19_purchase_13b_bau_skr04',
-                'l10n_de_skr04.1_tax_eu_car_purchase_skr04',
-                'l10n_de_skr04.1_tax_ust_vst_7_purchase_13b_bau_skr04',
-                'l10n_de_skr04.1_tax_vst_ust_19_purchase_13b_mobil_skr04',
-                'l10n_de_skr04.1_tax_eu_7_purchase_skr04',
-                'l10n_de_skr04.1_tax_vst_ust_19_purchase_3eck_last_skr04',
-                'l10n_de_skr04.1_tax_vst_ust_19_purchase_13b_werk_ausland_skr04',
-                'l10n_de_skr04.1_tax_vst_ust_7_purchase_13b_werk_ausland_skr04',
-                'l10n_de_skr04.1_tax_vst_ust_19_purchase_13a_auslagerung_skr04',
-                'l10n_de_skr04.1_tax_vst_ust_7_purchase_13a_auslagerung_skr04',
-            ]
-
-            taxes_to_map = [self.env.ref(tax_ref, raise_if_not_found=False) for tax_ref in external_ids]
-
-            mapping = {str(key.id): 0.0 for key in taxes_to_map if key}
-
-            self.env['ir.config_parameter'].sudo().set_param('ecoservice_fi.tax_map', json.dumps(mapping))
 
     @staticmethod
     def _get_valid_chars(additional_chars=None):
