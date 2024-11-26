@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-03 11:09+0000\n"
-"PO-Revision-Date: 2024-07-03 11:09+0000\n"
+"POT-Creation-Date: 2024-09-18 10:16+0000\n"
+"PO-Revision-Date: 2024-09-18 10:16+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -217,11 +217,6 @@ msgid "Export method"
 msgstr "Exportmethode"
 
 #. module: ecoservice_financeinterface_datev
-#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_account_move_line__datev_export_value
-msgid "Export value"
-msgstr "Exportwert"
-
-#. module: ecoservice_financeinterface_datev
 #: model:ir.model,name:ecoservice_financeinterface_datev.model_account_fiscal_position
 msgid "Fiscal Position"
 msgstr "Steuerposition"
@@ -249,13 +244,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev.view_ecoservice_finance_interface_datev_configuration
 msgid "If enabled the delivery date from an invoice will be exported"
 msgstr "Wenn gesetzt, wird der Leistungszeitraum mit exportiert"
-
-#. module: ecoservice_financeinterface_datev
-#: model:ir.model.fields,help:ecoservice_financeinterface_datev.field_ecofi_move_migration__migrate_all_companies
-msgid "If not set only the moves of the current company will be migrated."
-msgstr ""
-"Wenn nicht gesetzt werden nur die Buchungssätze des aktuellen Unternehmens "
-"migriert."
 
 #. module: ecoservice_financeinterface_datev
 #: model:ir.model.fields,help:ecoservice_financeinterface_datev.field_res_company__datev_ignore_currency
@@ -325,14 +313,19 @@ msgid "Length of analytic G/L account numbers"
 msgstr "Sachkontenlänge"
 
 #. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_move_migration__migrate_all_journal_item_from
+msgid "Migrate All Journal Item From"
+msgstr "Migriere alle Buchungssätze von"
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_move_migration__migrate_all_journal_item_to
+msgid "Migrate All Journal Item To"
+msgstr "Migriere alle Buchungssätze zu"
+
+#. module: ecoservice_financeinterface_datev
 #: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev.view_ecofi_move_migration_form
 msgid "Migrate Moves"
 msgstr "Migriere Buchungssätze"
-
-#. module: ecoservice_financeinterface_datev
-#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_move_migration__migrate_all_companies
-msgid "Migrate account moves of all companies"
-msgstr "Migriere Buchungssätze für alle Unternehmen"
 
 #. module: ecoservice_financeinterface_datev
 #: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev.view_ecoservice_finance_interface_datev_configuration
@@ -523,6 +516,13 @@ msgstr "Die Migration wurde für diese Unternehmen erfolgreich abgeschlossen:"
 
 #. module: ecoservice_financeinterface_datev
 #. odoo-python
+#: code:addons/ecoservice_financeinterface_datev/models/ecofi/ecofi_export_columns.py:0
+#, python-format
+msgid "The period to be exported must be in the same year."
+msgstr "Der exportierte Zeitraum muss im selben Jahr liegen."
+
+#. module: ecoservice_financeinterface_datev
+#. odoo-python
 #: code:addons/ecoservice_financeinterface_datev/models/account/account_account.py:0
 #, python-format
 msgid ""
@@ -547,8 +547,9 @@ msgid ""
 "This wizard helps you to set the counterpart of account moves. Please select"
 " the journals you want to migrate."
 msgstr ""
-"Dieser Wizard hilft Ihnen, die Gegenkonten von Kontobewegungen festzulegen."
-" Bitte wählen Sie die zu migrierenden Journale aus."
+"Dieser Wizard hilft Ihnen, die Gegenkonten von Kontobewegungen festzulegen. "
+"Bitte wählen Sie die zu migrierenden Journale aus."
+
 #. module: ecoservice_financeinterface_datev
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_move_migration__to_check_counter
 msgid "To Check Counter"
@@ -626,6 +627,13 @@ msgstr ""
 "benötigt."
 
 #. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_account_bank_statement_line__visible_account_counterpart
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_account_move__visible_account_counterpart
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_account_payment__visible_account_counterpart
+msgid "Visible Account Counterpart"
+msgstr ""
+
+#. module: ecoservice_financeinterface_datev
 #: model:ir.model,name:ecoservice_financeinterface_datev.model_ecofi_set_account_counterpart
 msgid "Wizard to set the account counterpart for move lines"
 msgstr "Wizard, um das Gegenkonto für Buchungszeilen zu setzen"
@@ -657,6 +665,15 @@ msgid "gross"
 msgstr "Brutto"
 
 #. module: ecoservice_financeinterface_datev
+#. odoo-python
+#: code:addons/ecoservice_financeinterface_datev/wizards/models/ecofi_move_migration.py:0
+#, python-format
+msgid ""
+"migrate all journal item from date is greater or equal then migrate all "
+"journal item to date"
+msgstr "Migration aller Buchungssätze von Datum ist größer oder gleich als Migration aller Buchungssätze zu Datum."
+
+#. module: ecoservice_financeinterface_datev
 #: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev.view_ecofi_move_migration_result_form
 msgid ""
 "moves the counter account could not be set automatically.\n"
@@ -672,6 +689,20 @@ msgstr "Netto"
 
 #. module: ecoservice_financeinterface_datev
 #. odoo-python
+#: code:addons/ecoservice_financeinterface_datev/wizards/models/ecofi_move_migration.py:0
+#, python-format
+msgid "please set also migrate all journal item from date"
+msgstr "Bitte stelle auch die Migration aller Journaleinträge von Datum"
+
+#. module: ecoservice_financeinterface_datev
+#. odoo-python
+#: code:addons/ecoservice_financeinterface_datev/wizards/models/ecofi_move_migration.py:0
+#, python-format
+msgid "please set also migrate all journal item to date"
+msgstr "Bitte stelle auch die Migration aller Journaleinträge zu Datum"
+
+#. module: ecoservice_financeinterface_datev
+#. odoo-python
 #: code:addons/ecoservice_financeinterface_datev/models/account/account_move.py:0
 #, python-format
 msgid ""
@@ -680,10 +711,3 @@ msgid ""
 msgstr ""
 "{count} Zeilen in Buchungssatz {move_name} ({move_id}) haben nicht beide "
 "Konten, Konto und Gegenkonto, gesetzt!"
-
-#. module: ecoservice_financeinterface_datev
-#. odoo-python
-#: code:addons/ecoservice_financeinterface_datev/models/ecofi/ecofi_export_columns.py:0
-#, python-format
-msgid "The period to be exported must be in the same year."
-msgstr "Der exportierte Zeitraum muss im selben Jahr liegen."

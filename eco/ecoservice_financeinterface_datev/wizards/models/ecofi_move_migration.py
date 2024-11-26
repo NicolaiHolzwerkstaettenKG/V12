@@ -10,11 +10,9 @@ class EcofiMoveMigration(models.TransientModel):
         'Wizard to set the taxes and counter accounts for the DATEV export'
     )
 
-    migrate_all_companies = fields.Boolean(
-        string='Migrate account moves of all companies',
-        help='If not set only the moves of the current company will'
-             ' be migrated.',
-    )
+    migrate_all_journal_item_from = fields.Date()
+    migrate_all_journal_item_to = fields.Date()
+
     taxes_are_configured = fields.Boolean(
         required=True,
         help='Check this if you have configured the taxes with the correct tax'
@@ -35,6 +33,21 @@ class EcofiMoveMigration(models.TransientModel):
     to_check_counter = fields.Integer()
 
     def action_migrate(self):
+        date_from = self.migrate_all_journal_item_from
+        date_to = self.migrate_all_journal_item_to
+
+        if not date_from and date_to:
+            raise exceptions.UserError(_(
+                "please set also migrate all journal item from date"
+            ))
+        if date_from and not date_to:
+            raise exceptions.UserError(_(
+                "please set also migrate all journal item to date"
+            ))
+        if date_from and date_to:
+            if date_from >= date_to:
+                self.raise_user_error_from_date_to_date()
+
         if not (self.taxes_are_configured and self.accounts_are_configured):
             raise exceptions.UserError(_(
                 "Both Checkboxes 'Taxes are configured' and 'Accounts are"
@@ -43,15 +56,21 @@ class EcofiMoveMigration(models.TransientModel):
 
         sesu = self.sudo().with_context(logs={'to_check_counter': 0})
 
-        companies = sesu._get_companies_with_skr()
-        if not self.migrate_all_companies:
-            companies &= self.env.company
+        companies = sesu._get_companies_with_skr() + self.env.company
 
         if not companies:
             return
 
-        sesu._migrate_accounts(companies)
-        sesu._migrate_taxes(companies)
+        sesu._migrate_accounts(
+            companies,
+            date_from,
+            date_to,
+        )
+        sesu._migrate_taxes(
+            companies,
+            date_from,
+            date_to
+        )
 
         return sesu._show_result(companies)
 
@@ -72,7 +91,7 @@ class EcofiMoveMigration(models.TransientModel):
 
         return [skr.id for skr in [skr03, skr04] if skr]
 
-    def _migrate_accounts(self, companies):
+    def _migrate_accounts(self, companies, date_from, date_to):
         journals = self.env['account.journal'].search([
             ('company_id', 'in', companies.ids),
         ])
@@ -81,49 +100,99 @@ class EcofiMoveMigration(models.TransientModel):
             getattr(
                 self.with_company(journal.company_id),
                 handle_fn
-            )(journal)
+            )(journal, date_from, date_to)
 
-    def _migrate_taxes(self, companies):
+    def _migrate_taxes(self, companies, date_from, date_to):
         accounts_with_taxes = self.env['account.account'].search([
             ('datev_tax_ids', '!=', False),
             ('company_id', 'in', companies.ids),
         ])
         for account in accounts_with_taxes.with_context(active_test=False):
-            move_lines = self.env['account.move.line'].search([
-                ('account_id', '=', account.id),
-                ('move_id.state', '=', 'posted'),
-            ])
+            if date_from and date_to:
+                move_lines = self.env['account.move.line'].search([
+                    ('account_id', '=', account.id),
+                    ('move_id.state', '=', 'posted'),
+                    ('date', '>=', date_from),
+                    ('date', '<=', date_to),
+                ])
+            else:
+                move_lines = self.env['account.move.line'].search([
+                    ('account_id', '=', account.id),
+                    ('move_id.state', '=', 'posted'),
+                ])
+
+            move_lines = move_lines.filtered(
+                lambda r:
+                not r.move_id.vorlauf_id
+                and not getattr(r.move_id, 'datev_export')
+                and not getattr(r, 'datev_export')
+            )
             move_lines.write({
                 'ecofi_tax_id': account.datev_tax_ids[0].id,
             })
-
-        lines_with_taxes = self.env['account.move.line'].search([
-            ('tax_ids', '!=', False),
-            ('ecofi_tax_id', '=', False),
-            ('company_id', 'in', companies.ids),
-            ('move_id.state', '=', 'posted'),
-        ])
+        if date_from and date_to:
+            lines_with_taxes = self.env['account.move.line'].search([
+                ('tax_ids', '!=', False),
+                ('ecofi_tax_id', '=', False),
+                ('company_id', 'in', companies.ids),
+                ('move_id.state', '=', 'posted'),
+                ('date', '>=', date_from),
+                ('date', '<=', date_to),
+            ])
+        else:
+            lines_with_taxes = self.env['account.move.line'].search([
+                ('tax_ids', '!=', False),
+                ('ecofi_tax_id', '=', False),
+                ('company_id', 'in', companies.ids),
+                ('move_id.state', '=', 'posted'),
+            ])
+        lines_with_taxes = lines_with_taxes.filtered(
+            lambda r:
+            not r.move_id.vorlauf_id
+            and not getattr(r.move_id, 'datev_export')
+            and not getattr(r, 'datev_export')
+        )
         for line in lines_with_taxes.with_context(active_test=False):
             line.ecofi_tax_id = line.tax_ids[0]
 
-    def _handle_journal_sale(self, journal):
-        self._set_counter_account_from_invoice(journal)
+    def _handle_journal_sale(self, journal, date_from, date_to):
+        self._set_counter_account_from_invoice(journal, date_from, date_to)
 
-    def _handle_journal_purchase(self, journal):
-        self._set_counter_account_from_invoice(journal)
+    def _handle_journal_purchase(self, journal, date_from, date_to):
+        self._set_counter_account_from_invoice(journal, date_from, date_to)
 
-    def _handle_journal_cash(self, journal):
-        self._set_counter_account_from_journal(journal)
+    def _handle_journal_cash(self, journal, date_from, date_to):
+        self._set_counter_account_from_journal(journal, date_from, date_to)
 
-    def _handle_journal_bank(self, journal):
-        self._set_counter_account_from_journal(journal)
+    def _handle_journal_bank(self, journal, date_from, date_to):
+        self._set_counter_account_from_journal(journal, date_from, date_to)
 
-    def _handle_journal_general(self, journal):
-        moves = self.env['account.move'].search([
-            ('journal_id', '=', journal.id),
-            ('state', '=', 'posted'),
-        ])
+    def _handle_journal_general(self, journal, date_from, date_to):
+        if date_from and date_to:
+            moves = self.env['account.move'].search([
+                ('journal_id', '=', journal.id),
+                ('date', '>=', date_from),
+                ('date', '<=', date_to),
+                ('state', '=', 'posted'),
+            ])
+        else:
+            moves = self.env['account.move'].search([
+                ('journal_id', '=', journal.id),
+                ('state', '=', 'posted'),
+            ])
         for move in moves:
+            move_datev_export = getattr(move, 'datev_export')
+            if move.vorlauf_id or move_datev_export:
+                continue
+            skip_invoice = False
+            for line_id in move.line_ids:
+                move_line_datev_export = getattr(line_id, 'datev_export')
+                if move_line_datev_export:
+                    skip_invoice = True
+                    break
+            if skip_invoice:
+                continue
+
             # Fewer than two move lines? This is not valid according to
             # Double-Entry Accounting
             if len(move.line_ids) < 2:
@@ -132,7 +201,7 @@ class EcofiMoveMigration(models.TransientModel):
                     'ecofi_to_check': True,
                 })
 
-            # If the move hast more than two lines we can check for the
+            # If the move has more than two lines we can check for the
             # amount of credit and debit accounts.
             # We could also check for the special case of exactly two move lines
             # but that would be more code with doubtful performance improvements
@@ -165,29 +234,76 @@ class EcofiMoveMigration(models.TransientModel):
                         'ecofi_to_check': True,
                     })
 
-    def _set_counter_account_from_journal(self, journal):
-        account = self.env.company.account_journal_payment_debit_account_id
-        moves = self.env['account.move'].search([
-            ('journal_id', '=', journal.id),
-            ('state', '=', 'posted'),
-        ])
-        moves.mapped('line_ids').write({
-            'ecofi_account_counterpart': account.id,
-        })
+    def _set_counter_account_from_journal(self, journal, date_from, date_to):
+        if date_from and date_to:
+            moves = self.env['account.move'].search([
+                ('journal_id', '=', journal.id),
+                ('date', '>=', date_from),
+                ('date', '<=', date_to),
+                ('state', '=', 'posted'),
+            ])
+        else:
+            moves = self.env['account.move'].search([
+                ('journal_id', '=', journal.id),
+                ('state', '=', 'posted'),
+            ])
+        for move in moves:
+            move_datev_export = getattr(move, 'datev_export')
+            if move.vorlauf_id or move_datev_export:
+                continue
+            skip_invoice = False
+            for line_id in move.line_ids:
+                move_line_datev_export = getattr(line_id, 'datev_export')
+                if move_line_datev_export:
+                    skip_invoice = True
+                    break
+            if skip_invoice:
+                continue
+            move.set_main_account()
 
-    def _set_counter_account_from_invoice(self, journal):
-        invoices = self.env['account.move'].search([
-            ('journal_id', '=', journal.id),
-            ('state', '=', 'posted'),
-        ])
+    def _set_counter_account_from_invoice(self, journal, date_from, date_to):
+        if date_from and date_to:
+            invoices = self.env['account.move'].search([
+                ('journal_id', '=', journal.id),
+                ('date', '>=', date_from),
+                ('date', '<=', date_to),
+                ('state', '=', 'posted'),
+            ])
+        else:
+            invoices = self.env['account.move'].search([
+                ('journal_id', '=', journal.id),
+                ('state', '=', 'posted'),
+            ])
         if journal.type == 'sale':
             for invoice in invoices:
+                move_datev_export = getattr(invoice, 'datev_export')
+                if invoice.vorlauf_id or move_datev_export:
+                    continue
+                skip_invoice = False
+                for line_id in invoice.line_ids:
+                    move_line_datev_export = getattr(line_id, 'datev_export')
+                    if move_line_datev_export:
+                        skip_invoice = True
+                        break
+                if skip_invoice:
+                    continue
                 invoice.mapped('line_ids').write({
                     'ecofi_account_counterpart':
                         invoice.partner_id.property_account_receivable_id.id,
                 })
         else:
             for invoice in invoices:
+                move_datev_export = getattr(invoice, 'datev_export')
+                if invoice.vorlauf_id or move_datev_export:
+                    continue
+                skip_invoice = False
+                for line_id in invoice.line_ids:
+                    move_line_datev_export = getattr(line_id, 'datev_export')
+                    if move_line_datev_export:
+                        skip_invoice = True
+                        break
+                if skip_invoice:
+                    continue
                 invoice.mapped('line_ids').write({
                     'ecofi_account_counterpart':
                         invoice.partner_id.property_account_payable_id.id,
@@ -207,3 +323,8 @@ class EcofiMoveMigration(models.TransientModel):
         }
 
         return action
+
+    def raise_user_error_from_date_to_date(self):
+        raise exceptions.UserError(_(
+            'migrate all journal item from date is greater or equal then migrate all journal item to date'
+        ))
