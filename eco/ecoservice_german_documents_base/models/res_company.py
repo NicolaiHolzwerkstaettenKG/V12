@@ -40,7 +40,7 @@ class ResCompany(models.Model):
                 ('bank_id', '!=', False),
                 ('show_bank_data_invoice', '=', True),
             ],
-            limit=2,
+            limit=4,
         )
 
         if not journals:

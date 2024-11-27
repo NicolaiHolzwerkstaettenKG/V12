@@ -28,6 +28,9 @@ msgid ""
 "                  <span>on</span>\n"
 "                  &amp;nbsp;"
 msgstr ""
+"&amp;nbsp;\n"
+"                  <span>auf</span>\n"
+"                  &amp;nbsp;"
 
 #. module: ecoservice_german_documents_base
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_base.external_layout_footer
