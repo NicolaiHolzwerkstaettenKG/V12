@@ -67,7 +67,7 @@ For everything else please use the report_snippets.xml!
   <template id="external_layout_footer">
     <div t-set="footer_image" t-value="company.get_footer_as_image()"/>
     <div class="footer">
-      <div class="row doc_ref_page_number company_legal_banks" style="margin-bottom: 5px;">
+      <div class="row doc_ref_page_number company_legal_banks" style="margin-bottom: 2px;">
         <table style="width:100%; margin:0px 0px 0px 0px;">
           <tr>
             <td class="doc_ref" style="width: 50%;">
@@ -84,11 +84,11 @@ For everything else please use the report_snippets.xml!
         </table>
       </div>
       <div t-if="not footer_image" class="row">
-        <table style="width:100%; margin-top:5px;">
+        <table style="width:100%;">
           <tr>
             <!-- Display company information -->
-            <td class="company_info">
-              <div class="font-alt" style="width:auto; float:left;">
+            <td class="company_info" style="width:25%;">
+              <div class="font-alt" style="float:left;">
                 <span class="company_name" t-field="company.name"/>
                 <br/>
                 <span t-field="company.street"/>
@@ -125,7 +125,7 @@ For everything else please use the report_snippets.xml!
             </td>
 
             <!-- Display legal information -->
-            <td class="legal">
+            <td class="legal" style="width: 25%;">
               <div class="font-alt" style="float:left;">
                 <span t-if="company.chief_executive_officer"
                       t-field="company.chief_executive_officer"
@@ -149,21 +149,21 @@ For everything else please use the report_snippets.xml!
               it breaks the odoo way of doing ;)
             -->
             <t t-set="banks" t-value="company.get_bank_accounts()"/>
-            <td t-foreach="banks"
+            <td id="bank" style="width:50%; vertical-align: top; display: flex; flex-wrap: wrap;">
+              <t t-foreach="banks"
                 t-as="bank"
-                t-if="bank_index &lt; 2"
-                class="bank"
-                style="width:auto;vertical-align: top;">
-              <div class="font-alt" style="float:left;">
-                <span t-field="bank.bank_id.name" class="bank_name bold"/>
-                <br/>
-                IBAN:&#160;
-                <span t-field="bank.bank_acc_number"/>
-                <br/>
-                BIC:&#160;
-                <span t-field="bank.bank_id.bic"/>
-                <br/>
-              </div>
+                t-if="bank_index &lt; 4">
+                <div class="font-alt" style="float:left; width: 200px;">
+                  <span t-field="bank.bank_id.name" class="bank_name bold"/>
+                  <br/>
+                  IBAN:&#160;
+                  <span t-field="bank.bank_acc_number"/>
+                  <br/>
+                  BIC:&#160;
+                  <span t-field="bank.bank_id.bic"/>
+                  <br/>
+                </div>
+              </t>
             </td>
           </tr>
         </table>
