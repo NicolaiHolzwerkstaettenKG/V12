@@ -258,6 +258,7 @@ class Ecofi(models.Model):
             sum_export_lines = Decimal('0.00')
             for move_booking in bookingdict['move_bookings']:
                 sum_export_lines += Decimal(move_booking[0].replace(',', '.'))
+                move_booking[13] = self._safe_booking_text(move_booking[13])
                 bookingdict['buchungen'].append(move_booking)
 
         output = io.StringIO()
@@ -284,3 +285,16 @@ class Ecofi(models.Model):
         output.close()
 
         return vorlauf_id
+
+    def _safe_booking_text(self, text: str) -> str:
+        return (
+            text
+            .replace('<p>', '')
+            .replace('</p>', '')
+            .replace('<br/>', '')
+            .replace('<br>', '')
+            .replace('\n', ', ')
+            .replace('\r', '')
+            .replace('[', '(')
+            .replace(']', ')')
+        )
