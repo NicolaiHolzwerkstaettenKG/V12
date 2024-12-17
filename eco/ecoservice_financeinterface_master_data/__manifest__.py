@@ -10,9 +10,11 @@
     'application': False,
     'installable': True,
     # Author
-    'author': 'ecoservice',
+    'author': 'ecoservice GbR',
     'website': 'https://ecoservice.de/shop/product/odoo-datev-export-53',
     # Odoo Apps Store
+    'price': 450.00,
+    'currency': 'EUR',
     'support': 'financeinterface@ecoservice.de',
     # Dependencies
     'depends': [
