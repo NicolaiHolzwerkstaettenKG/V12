@@ -15,6 +15,7 @@
         'base',
         'account',
         'ecoservice_financeinterface',
+        'ecoservice_financeinterface_datev',
     ],
     'data': [
         'security/ir.model.access.csv',
