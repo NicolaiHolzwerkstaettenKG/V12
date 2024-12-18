@@ -2,7 +2,7 @@
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 {
     # App Information
-    'name': 'Auto Datev Export',
+    'name': 'Auto DATEV Export',
     'summary': 'Generate CSV files and send them via mail based on a time interval.',
     'category': 'Accounting',
     'version': '16.0.1.0.1',
@@ -10,8 +10,9 @@
     'application': True,
     'installable': True,
     'price': 450.00,
+    'currency': 'EUR',
     # Author
-    'author': 'ecoservice',
+    'author': 'ecoservice GbR',
     'website': 'https://ecoservice.de/',
     # Odoo Apps Store
     'support': 'financeinterface@ecoservice.de',
