@@ -1,7 +1,7 @@
 # Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 {
-    'name': 'DATEV XML',
+    'name': 'DATEV Document Transfer',
     'summary': 'DATEV XML interface in accordance with offical docs.',
     'category': 'Accounting',
     'version': '16.0.1.1.1',
