@@ -13,7 +13,7 @@
     'author': 'ecoservice',
     'website': 'https://www.ecoservice.de',
     # Odoo Apps Store
-    'price': 250.00,
+    'price': 0.00,
     'currency': 'EUR',
     # Dependencies
     'depends': [
