@@ -2,7 +2,7 @@
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 {
     # App Information
-    'name': 'ecoservice: Partner Account',
+    'name': 'Debtor & Creditor Numbers',
     'summary': 'New debit and credit account following a sequence per company for partner.',
     'category': 'Accounting',
     'version': '16.0.1.1.0',
@@ -14,7 +14,7 @@
     'maintainer': 'ecoservice GbR',
     'website': 'https://ecoservice.de/en_US/shop/product/automatic-debit-and-credit-number-49',
     # Odoo Apps Store
-    'price': 630.00,
+    'price': 650.00,
     'currency': 'EUR',
     'images': [
         'images/paracc_configuration.png',
