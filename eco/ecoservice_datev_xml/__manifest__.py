@@ -12,6 +12,8 @@
     'application': True,
     'installable': True,
     'support': 'datev@ecoservice.de',
+    'price': 800.00,
+    'currency': 'EUR',
     'images': [],
     'external_dependencies': {
         'python': ['xmlschema'],
