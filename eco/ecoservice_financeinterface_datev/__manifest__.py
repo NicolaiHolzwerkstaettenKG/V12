@@ -2,7 +2,7 @@
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 {
     # App Information
-    'name': 'Finance Interface DATEV',
+    'name': 'DATEV Export',
     'summary': 'Export of account moves to DATEV',
     'category': 'Accounting',
     'version': '16.0.1.3.9',
