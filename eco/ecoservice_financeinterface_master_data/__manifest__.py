@@ -2,7 +2,7 @@
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 {
     # App Information
-    'name': 'Finance Interface DATEV (Master Data Export)',
+    'name': 'DATEV Masterdata',
     'summary': 'Lets you export your accounting master data',
     'category': 'Accounting',
     'version': '16.0.1.2.2',
@@ -13,7 +13,7 @@
     'author': 'ecoservice GbR',
     'website': 'https://ecoservice.de/shop/product/odoo-datev-export-53',
     # Odoo Apps Store
-    'price': 450.00,
+    'price': 550.00,
     'currency': 'EUR',
     'support': 'financeinterface@ecoservice.de',
     # Dependencies
