@@ -2,7 +2,7 @@
 # See COPYRIGHT and LICENSE at the root directory of this module for full copyright and licensing details.
 
 {
-    'name': 'Financial Interface DATEV Import',
+    'name': 'DATEV Import',
     'summary': 'This module allows you to import accounting entries.',
     'version': '16.0.1.0.8',
     'author': 'ecoservice',
