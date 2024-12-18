@@ -12,7 +12,7 @@
     'application': True,
     'installable': True,
     'support': 'datev@ecoservice.de',
-    'price': 800.00,
+    'price': 0.00,
     'currency': 'EUR',
     'images': [],
     'depends': [
