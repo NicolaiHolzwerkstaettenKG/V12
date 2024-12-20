@@ -12,6 +12,7 @@
     # Author
     'author': 'ecoservice GbR',
     'website': 'https://ecoservice.de/shop/product/odoo-datev-export-53',
+    'live_test_url': 'https://www.ecoservice.de/odoo-demo',
     # Odoo Apps Store
     'price': 550.00,
     'currency': 'EUR',
