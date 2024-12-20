@@ -4,13 +4,19 @@
 {
     'name': 'DATEV Import',
     'summary': 'This module allows you to import accounting entries.',
-    'version': '16.0.1.0.8',
+    'version': '16.0.1.0.9',
     'author': 'ecoservice',
     'website': 'https://ecoservice.de/shop/product/odoo-datev-export-53',
     'live_test_url': 'https://eco-finance-interface-13-0.test.ecoservice.de/',
     'support': 'financeinterface@ecoservice.de',
     'license': 'OPL-1',
     'category': 'Accounting',
+    # Odoo Apps Store
+    'price': 650.00,
+    'currency': 'EUR',
+    'images': [
+        'images/main_screenshot.gif',
+    ],
     'depends': [
         'base',
         'account',
