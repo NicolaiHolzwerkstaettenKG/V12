@@ -13,7 +13,7 @@
     'author': 'ecoservice GbR',
     'website': 'https://ecoservice.de/shop/product/odoo-datev-export-53',
     # Odoo Apps Store
-    #'live_test_url': 'https://eco-finance-interface-14-0.test.ecoservice.de/',
+    'live_test_url': 'https://www.ecoservice.de/odoo-demo',
     'price': 650.00,
     'currency': 'EUR',
     'support': 'financeinterface@ecoservice.de',
