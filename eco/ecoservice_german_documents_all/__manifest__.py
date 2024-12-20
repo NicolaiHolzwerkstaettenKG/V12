@@ -5,7 +5,7 @@
     'name': 'German Documents',
     'summary': 'Designed German Documents for Odoo.',
     'category': 'Base',
-    'version': '16.0.1.0.1',
+    'version': '16.0.1.0.2',
     'license': 'OPL-1',
     'application': True,
     'installable': True,
@@ -18,7 +18,7 @@
     # 'live_test_url': 'https://eco-german-documents-13-0.test.ecoservice.de/',
     'support': 'deutsche-dokumente@ecoservice.de',
     'images': [
-        'images/main_screenshot.png',
+        'images/main_screenshot.gif',
     ],
     # Dependencies
     'depends': [
