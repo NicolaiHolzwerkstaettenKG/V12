@@ -17,6 +17,7 @@
     'images': [
         'images/main_screenshot.png',
     ],
+    'live_test_url': 'https://www.ecoservice.de/odoo-demo',
     # Dependencies
     'depends': [
         # odoo
