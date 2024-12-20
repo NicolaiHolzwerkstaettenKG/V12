@@ -13,7 +13,8 @@
     'currency': 'EUR',
     # Author
     'author': 'ecoservice GbR',
-    'website': 'https://ecoservice.de/',
+    'website': 'https://www.ecoservice.de/shop/auto-datev-export-138',
+    'live_test_url': 'https://www.ecoservice.de/odoo-demo',
     # Odoo Apps Store
     'support': 'financeinterface@ecoservice.de',
     # Dependencies
