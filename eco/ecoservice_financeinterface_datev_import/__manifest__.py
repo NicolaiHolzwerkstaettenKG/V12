@@ -7,7 +7,7 @@
     'version': '16.0.1.0.9',
     'author': 'ecoservice',
     'website': 'https://ecoservice.de/shop/product/odoo-datev-export-53',
-    'live_test_url': 'https://eco-finance-interface-13-0.test.ecoservice.de/',
+    'live_test_url': 'https://www.ecoservice.de/odoo-demo',
     'support': 'financeinterface@ecoservice.de',
     'license': 'OPL-1',
     'category': 'Accounting',
