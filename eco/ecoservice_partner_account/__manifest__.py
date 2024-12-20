@@ -19,6 +19,7 @@
     'images': [
         'images/paracc_configuration.png',
     ],
+    'live_test_url': 'https://www.ecoservice.de/odoo-demo',
     # Dependencies
     'depends': [
         'base',
