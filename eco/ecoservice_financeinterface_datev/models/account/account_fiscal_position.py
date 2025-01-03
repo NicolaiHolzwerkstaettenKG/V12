@@ -32,17 +32,18 @@ class AccountFiscalPosition(models.Model):
 
         return super().write(vals)
 
-    @api.model_create_single
-    def create(self, vals):  # pyright: reportIncompatibleMethodOverride=false
-        if vals.get('vat_required'):
-            destination_accounts = self._get_destination_accounts(
-                vals.get('account_ids'),
-            )
-            if destination_accounts:
-                destination_accounts.write({
-                    'datev_vat_handover': True,
-                })
-        return super().create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('vat_required'):
+                destination_accounts = self._get_destination_accounts(
+                    vals.get('account_ids'),
+                )
+                if destination_accounts:
+                    destination_accounts.write({
+                        'datev_vat_handover': True,
+                    })
+        return super().create(vals_list)
 
     # endregion
 

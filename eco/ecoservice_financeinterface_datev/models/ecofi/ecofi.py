@@ -3,7 +3,7 @@
 
 import re
 from decimal import Decimal
-from odoo import _, api, models
+from odoo import api, models
 
 
 class Ecofi(models.Model):
