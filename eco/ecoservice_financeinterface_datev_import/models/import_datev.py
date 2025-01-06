@@ -600,8 +600,12 @@ class ImportDatev(models.Model):
                         mainmove['ecofi_tax_id'] = konto_obj.datev_tax_ids and konto_obj.datev_tax_ids[0].id or False
                         tax_id = None
                     else:
+                        try:
+                            buschluessel = int(line['busschluessel'])
+                        except KeyError:
+                            buschluessel = 0
                         tax_id = self.env['account.tax'].search(
-                            [('l10n_de_datev_code', '=', int(line['buschluessel']))],
+                            [('l10n_de_datev_code', '=', buschluessel)],
                             limit=1,
                         )
                 # check konto automatic
