@@ -15,7 +15,7 @@
     # Odoo Apps Store
     'price': 650.00,
     'currency': 'EUR',
-    # 'live_test_url': 'https://eco-german-documents-13-0.test.ecoservice.de/',
+    'live_test_url': 'https://www.ecoservice.de/odoo-demo',
     'support': 'deutsche-dokumente@ecoservice.de',
     'images': [
         'images/main_screenshot.gif',
