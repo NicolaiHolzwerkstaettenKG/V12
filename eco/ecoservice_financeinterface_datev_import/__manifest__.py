@@ -4,7 +4,7 @@
 {
     'name': 'DATEV Import',
     'summary': 'This module allows you to import accounting entries.',
-    'version': '16.0.1.0.10',
+    'version': '16.0.1.0.11',
     'author': 'ecoservice',
     'website': 'https://ecoservice.de/shop/product/odoo-datev-export-53',
     'live_test_url': 'https://www.ecoservice.de/odoo-demo',
@@ -25,6 +25,7 @@
     ],
     'data': [
         'security/ir.model.access.csv',
+        'security/record_rules.xml',
         'data/import_datev_sequence.xml',
         'views/account_account.xml',
         'views/import_datev.xml',

@@ -26,6 +26,7 @@ class ImportDatev(models.Model):
         comodel_name='res.company',
         string='Company',
         required=True,
+        default=lambda self: self.env.company,
         domain=lambda self: self._get_allowed_companies_domain()
     )
 
@@ -433,7 +434,7 @@ class ImportDatev(models.Model):
                     cur = self.env['res.currency'].search([('name', '=', line['wkz'])])
             move_line['currency_id'] = cur[0].id if cur and cur[0] else cur
 
-            if line['kurs']:
+            if line.get('kurs', False):
                 move_line['debit'] = Decimal(
                     str(
                         float(move_line['debit']) / float(line['kurs'])
@@ -469,23 +470,13 @@ class ImportDatev(models.Model):
         else:
             debit = Decimal('0.0')
             credit = line.get('umsatz', Decimal('0.0'))
-        gegenmove = {
-            'credit': debit,
-            'debit': credit,
-            'account_id': line['gegenkonto_object'].id,
-            'date': line['belegdatum'],
-            'move_id': thismove,
-            'name': 'Gegenbuchung',
-            'partner_id': partner_id,
-            'ecofi_account_counterpart': line['gegenkonto_object'].id,
-        }
         mainmove = {
             'credit': credit,
             'debit': debit,
             'account_id': line['konto_object'].id,
             'date': line['belegdatum'],
             'move_id': thismove,
-            'name': 'Buchung',
+            'name': line['buchungstext'],
             'partner_id': partner_id,
             'ecofi_account_counterpart': line['gegenkonto_object'].id,
         }
@@ -507,21 +498,10 @@ class ImportDatev(models.Model):
                             import_config
                         )
                     )
-        gegenmove = self.compute_currency(
-            gegenmove,
-            line,
-            import_config
-        )
         mainmove = self.compute_currency(
             mainmove,
             line,
             import_config
-        )
-        move_lines.append(
-            self.create_move_line_dict(
-                gegenmove,
-                import_config
-            )
         )
         move_lines.append(
             self.create_move_line_dict(

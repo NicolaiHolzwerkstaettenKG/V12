@@ -33,7 +33,7 @@
               </group>
             </group>
 
-            <group>
+            <group groups='base.group_no_one'>
               <field name="config_delimiter" class="oe_inline" attrs="{'readonly': [('state','!=', 'draft')]}"/>
               <field name="config_quotechar" class="oe_inline" attrs="{'readonly': [('state','!=', 'draft')]}"/>
               <field name="config_extended_datev_header" class="oe_inline" attrs="{'readonly': [('state','!=', 'draft')]}"/>
