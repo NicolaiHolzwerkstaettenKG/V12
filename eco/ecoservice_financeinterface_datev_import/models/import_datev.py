@@ -470,6 +470,16 @@ class ImportDatev(models.Model):
         else:
             debit = Decimal('0.0')
             credit = line.get('umsatz', Decimal('0.0'))
+        gegenmove = {
+            'credit': debit,
+            'debit': credit,
+            'account_id': line['gegenkonto_object'].id,
+            'date': line['belegdatum'],
+            'move_id': thismove,
+            'name': line['buchungstext'],
+            'partner_id': partner_id,
+            'ecofi_account_counterpart': line['gegenkonto_object'].id,
+        }
         mainmove = {
             'credit': credit,
             'debit': debit,
@@ -498,6 +508,11 @@ class ImportDatev(models.Model):
                             import_config
                         )
                     )
+        gegenmove = self.compute_currency(
+            gegenmove,
+            line,
+            import_config
+        )
         mainmove = self.compute_currency(
             mainmove,
             line,
@@ -506,6 +521,12 @@ class ImportDatev(models.Model):
         move_lines.append(
             self.create_move_line_dict(
                 mainmove,
+                import_config
+            )
+        )
+        move_lines.append(
+            self.create_move_line_dict(
+                gegenmove,
                 import_config
             )
         )
