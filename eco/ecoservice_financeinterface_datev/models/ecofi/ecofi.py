@@ -596,7 +596,7 @@ class Ecofi(models.Model):
         normalized_dict['Sollhaben'] = normalized_dict['Sollhaben'].upper()
 
         if normalized_dict.get('Buchungstext'):
-            normalized_dict['Buchungstext'] = '{:.60}'.format(
+            normalized_dict['Buchungstext'] = '{:.59}'.format(
                 normalized_dict['Buchungstext'],
             )
 
