@@ -447,8 +447,8 @@ class ImportDatev(models.Model):
                     ) if float(move_line['credit']) > 0 else 0
                 )
                 move_line['amount_currency'] = move_line['debit'] - move_line['credit']
-        else:
-            move_line['amount_currency'] = move_line['debit'] - move_line['credit']
+            else:
+                move_line['amount_currency'] = move_line['debit'] - move_line['credit']
         return move_line
 
     def create_main_lines(self, line, thismove, partner_id, import_config, import_struct, move_lines=None):
