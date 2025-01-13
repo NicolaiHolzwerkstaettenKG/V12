@@ -49,7 +49,16 @@ class Ecofi(models.Model):
         xml_export.unlink()
         return res
 
-    def ecofi_buchungen(self, journal_ids, date_from, date_to):
-        vid = super().ecofi_buchungen(journal_ids, date_from, date_to)
-        vid.export_csv_xml(journal_ids)
-        return vid
+    def ecofi_buchungen(self, journal_ids, date_from, date_to, to_export):
+        if to_export == 'csv_export':
+            vid = super().ecofi_buchungen(journal_ids, date_from, date_to)
+            return vid
+        elif to_export == 'csv_and_beleg_export':
+            vid = super().ecofi_buchungen(journal_ids, date_from, date_to)
+            vid.export_csv_xml(journal_ids)
+            return vid
+        else:
+            vid = super().ecofi_buchungen(journal_ids, date_from, date_to)
+            vid.export_csv_xml(journal_ids)
+            vid.unlink()
+            return
