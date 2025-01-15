@@ -188,7 +188,8 @@ class ImportDatev(models.Model):
                 if val:
                     spaltenvalues[key] = val
             data_list.append(spaltenvalues)
-        return data_list, errorlist
+        ref = datev_header.split(';')[16].strip('"')
+        return data_list, errorlist, ref
 
     def unlink(self):
         """
@@ -369,7 +370,9 @@ class ImportDatev(models.Model):
         }
         return import_config, import_struct
 
-    def create_account_move(self, datev_import, import_config, line, linecounter, move_id=False, manual=False):
+    def create_account_move(
+            self, datev_import, import_config, line, linecounter, move_id=False, manual=False, title=None
+    ):
         """
         Create the move for the import line.
 
@@ -381,7 +384,10 @@ class ImportDatev(models.Model):
         partner_id = self.get_partner(line)
 
         if not move_id:
-            ref = ', '.join([x for x in [line.get('beleg1'), line.get('beleg2')] if x])
+            if title:
+                ref = title
+            else:
+                ref = ', '.join([x for x in [line.get('beleg1'), line.get('beleg2')] if x])
             move = {
                 'import_datev': datev_import.id,
                 'ref': ref,
@@ -665,7 +671,7 @@ class ImportDatev(models.Model):
             })
             if datev_import.datev_ascii_file:
                 importcsv = base64.decodebytes(datev_import.datev_ascii_file)
-                vorlauf, errorlist = self.convert_value(
+                vorlauf, errorlist, ref = self.convert_value(
                     importcsv,
                     import_config,
                     import_struct,
@@ -724,7 +730,8 @@ class ImportDatev(models.Model):
                                 line,
                                 linecounter,
                                 move_id=thismove,
-                                manual=manual
+                                manual=manual,
+                                title=ref
                             )
                             move_lines = self.create_main_lines(
                                 line,
