@@ -8,7 +8,7 @@ import traceback
 from datetime import date, datetime
 from decimal import Decimal
 
-from odoo import _, exceptions, fields, models, api
+from odoo import _, api, exceptions, fields, models
 
 
 class ImportDatev(models.Model):
@@ -82,6 +82,11 @@ class ImportDatev(models.Model):
         ],
         default='cp1252',
     )
+
+    @api.onchange('datev_ascii_filename')
+    def _onchange_datev_ascii_filename(self):
+        if self.datev_ascii_filename:
+            self.description = self.datev_ascii_filename
 
     def _lookup_erpvalue(self, field_config, value):
         """
