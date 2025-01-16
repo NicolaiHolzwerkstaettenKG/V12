@@ -108,6 +108,7 @@ class Ecofi(models.Model):
                     .replace('<br>', '')
                     .replace('[', '(')
                     .replace(']', ')')
+                    .replace('\t', ' ')
             )
 
             if datevdict.get('Buchungstext'):
@@ -485,6 +486,7 @@ class Ecofi(models.Model):
                     .replace('<br>', '')
                     .replace('[', '(')
                     .replace(']', ')')
+                    .replace('\t', ' ')
             )
             grouped[key]['Buchungstext'] = '{bu_text}, {nbu_text}'.format(
                 bu_text=grouped[key]['Buchungstext'],
@@ -538,6 +540,7 @@ class Ecofi(models.Model):
                     .replace('<br>', '')
                     .replace('[', '(')
                     .replace(']', ')')
+                    .replace('\t', ' ')
             )
             grouped[key]['Buchungstext'] = '{bu_text}, {nbu_text}'.format(
                 bu_text=grouped[key]['Buchungstext'],
@@ -596,7 +599,7 @@ class Ecofi(models.Model):
         normalized_dict['Sollhaben'] = normalized_dict['Sollhaben'].upper()
 
         if normalized_dict.get('Buchungstext'):
-            normalized_dict['Buchungstext'] = '{:.59}'.format(
+            normalized_dict['Buchungstext'] = '{:.55}'.format(
                 normalized_dict['Buchungstext'],
             )
 
