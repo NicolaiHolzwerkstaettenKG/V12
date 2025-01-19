@@ -49,7 +49,10 @@ class Ecofi(models.Model):
         xml_export.unlink()
         return res
 
-    def ecofi_buchungen(self, journal_ids, date_from, date_to, to_export):
+    def ecofi_buchungen(self, journal_ids, date_from, date_to, to_export=False):
+        if not to_export:
+            wizard = self.env['export.ecofi']
+            to_export = wizard._fields['to_export'].default(wizard)
         if to_export == 'csv_export':
             vid = super().ecofi_buchungen(journal_ids, date_from, date_to)
             return vid

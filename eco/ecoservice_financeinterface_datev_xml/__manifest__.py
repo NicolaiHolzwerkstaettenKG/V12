@@ -4,7 +4,7 @@
     'name': 'Financeinterface CSV/XML connector',
     'summary': 'Attach documents to your CSV export via XML export.',
     'category': 'Accounting',
-    'version': '16.0.1.1.1',
+    'version': '16.0.1.1.2',
     'author': 'ecoservice GbR',
     'website': 'https://www.ecoservice.de/shop/datev-belegtransfer-197',
     'live_test_url': 'https://www.ecoservice.de/odoo-demo',
