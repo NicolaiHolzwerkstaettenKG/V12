@@ -117,7 +117,7 @@ For everything else please use the report_snippets.xml!
                   <tr t-if="company.website">
                     <td>Website: &#160;</td>
                     <td>
-                      <span t-field="company.website"/>
+                        <span t-esc="company.website.replace('http://', '').replace('https://', '')"/>
                     </td>
                   </tr>
                 </table>
