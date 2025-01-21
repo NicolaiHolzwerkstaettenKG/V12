@@ -12,6 +12,7 @@
     # Author
     'author': 'ecoservice',
     'website': 'https://www.ecoservice.de',
+    'live_test_url': 'https://www.ecoservice.de/odoo-demo',
     'images': [
         'images/main_screenshot.gif',
     ],
