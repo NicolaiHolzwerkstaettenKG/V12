@@ -5,13 +5,16 @@
     'name': 'Partner Salutation',
     'summary': 'Adds a salutation to the partner title.',
     'category': 'Base',
-    'version': '16.0.1.0.1',
+    'version': '16.0.1.0.2',
     'license': 'OPL-1',
     'application': False,
     'installable': True,
     # Author
     'author': 'ecoservice',
     'website': 'https://www.ecoservice.de',
+    'images': [
+        'images/main_screenshot.gif',
+    ],
     # Odoo Apps Store
     'price': 0.00,
     'currency': 'EUR',
