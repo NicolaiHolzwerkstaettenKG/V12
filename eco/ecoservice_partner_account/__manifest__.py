@@ -12,14 +12,14 @@
     # Author
     'author': 'ecoservice GbR',
     'maintainer': 'ecoservice GbR',
-    'website': 'https://ecoservice.de/en_US/shop/product/automatic-debit-and-credit-number-49',
+    'website': 'https://www.ecoservice.de/shop/debitoren-kreditorennummern-177',
+    'live_test_url': 'https://www.ecoservice.de/odoo-demo',
     # Odoo Apps Store
     'price': 650.00,
     'currency': 'EUR',
     'images': [
-        'images/paracc_configuration.png',
+        'images/main_screenshot.gif',
     ],
-    'live_test_url': 'https://www.ecoservice.de/odoo-demo',
     # Dependencies
     'depends': [
         'base',
