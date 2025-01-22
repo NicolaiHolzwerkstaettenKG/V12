@@ -5,7 +5,7 @@
     'name': 'Auto DATEV Export',
     'summary': 'Generate CSV files and send them via mail based on a time interval.',
     'category': 'Accounting',
-    'version': '16.0.1.0.1',
+    'version': '16.0.1.0.2',
     'license': 'OPL-1',
     'application': True,
     'installable': True,
@@ -17,6 +17,9 @@
     'live_test_url': 'https://www.ecoservice.de/odoo-demo',
     # Odoo Apps Store
     'support': 'financeinterface@ecoservice.de',
+    'images': [
+        'images/main_screenshot.gif',
+    ],
     # Dependencies
     'depends': [
         'ecoservice_financeinterface',  # eco/finace-interface
