@@ -131,7 +131,14 @@ class AccountMove(models.Model):
         # While changing partner: change the text according to partner's language
         # and do not reset this if text is written manually
 
-        if self.partner_id:
+        if (
+            self.partner_id
+            and (
+                not self.move_type
+                or self.move_type != 'entry'
+                or self.company_id.use_template_text_on_entries
+            )
+        ):
             field_xml_list = []
 
             field_xml_list.append((

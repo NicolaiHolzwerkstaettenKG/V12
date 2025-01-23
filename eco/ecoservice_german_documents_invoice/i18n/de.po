@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-20 13:12+0000\n"
-"PO-Revision-Date: 2024-08-20 13:12+0000\n"
+"POT-Creation-Date: 2025-01-23 15:23+0000\n"
+"PO-Revision-Date: 2025-01-23 15:23+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -27,6 +27,21 @@ msgid "'Invoice'"
 msgstr ""
 
 #. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.lot_and_serialnumbers_template
+msgid "<span>Product</span>"
+msgstr "<span>Produkt</span>"
+
+#. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.lot_and_serialnumbers_template
+msgid "<span>Quantity</span>"
+msgstr "<span>Menge</span>"
+
+#. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.lot_and_serialnumbers_template
+msgid "<span>SN/LN</span>"
+msgstr "<span>Chargen-/Seriennummer</span>"
+
+#. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_table_base_invoice
 msgid "<strong class=\"mr16\">Subtotal</strong>"
 msgstr "<strong class=\"mr16\">Zwischensumme</strong>"
@@ -43,24 +58,19 @@ msgstr ""
 "            <br/>"
 
 #. module: ecoservice_german_documents_invoice
-#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.lot_and_serialnumbers_template
-msgid "<span>Product</span>"
-msgstr "<span>Produkt</span>"
-
-#. module: ecoservice_german_documents_invoice
-#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.lot_and_serialnumbers_template
-msgid "<span>Quantity</span>"
-msgstr "<span>Menge</span>"
-
-#. module: ecoservice_german_documents_invoice
-#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.lot_and_serialnumbers_template
-msgid "<span>SN/LN</span>"
-msgstr "<span>Chargen-/Seriennummer</span>"
-
-#. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
 msgid "Amount Due"
 msgstr "Fälliger Betrag"
+
+#. module: ecoservice_german_documents_invoice
+#: model:ir.model,name:ecoservice_german_documents_invoice.model_res_company
+msgid "Companies"
+msgstr "Unternehmen"
+
+#. module: ecoservice_german_documents_invoice
+#: model:ir.model,name:ecoservice_german_documents_invoice.model_res_config_settings
+msgid "Config Settings"
+msgstr "Konfigurationseinstellungen"
 
 #. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.letterhead_reference_customer_shipping_vat
@@ -79,9 +89,26 @@ msgid "Delivery Address "
 msgstr "Lieferadresse"
 
 #. module: ecoservice_german_documents_invoice
+#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_bank_statement_line__delivery_date
+#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_move__delivery_date
+#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_payment__delivery_date
+msgid "Delivery Date"
+msgstr "Leistungszeitraum"
+
+#. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
+msgid "Delivery date corresponds to"
+msgstr "Leistungszeitraum entspricht"
+
+#. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
 msgid "Delivery date corresponds to invoice date."
 msgstr "Das Lieferdatum entspricht dem Rechnungsdatum."
+
+#. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_table_base_invoice
+msgid "Description"
+msgstr "Beschreibung"
 
 #. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
@@ -105,22 +132,6 @@ msgid "Due Date"
 msgstr "Fälligkeitsdatum"
 
 #. module: ecoservice_german_documents_invoice
-#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_table_base_invoice
-msgid "Description"
-msgstr "Beschreibung"
-
-#. module: ecoservice_german_documents_invoice
-#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_table_base_invoice
-msgid "Discount"
-msgstr "Rabatt"
-
-#. module: ecoservice_german_documents_invoice
-#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_move__display_name
-#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_move_line__display_name
-msgid "Display Name"
-msgstr "Anzeigename"
-
-#. module: ecoservice_german_documents_invoice
 #: model:ir.actions.report,name:ecoservice_german_documents_invoice.report_invoice_duplicate_report
 msgid "Duplicate"
 msgstr "Duplikat"
@@ -131,12 +142,24 @@ msgid "Duplicate Letter Paper"
 msgstr "Duplikat (Briefpapier)"
 
 #. module: ecoservice_german_documents_invoice
-#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_move__id
-#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_move_line__id
-msgid "ID"
+#: model:ir.model.fields,help:ecoservice_german_documents_invoice.field_account_bank_statement_line__amount_by_group
+#: model:ir.model.fields,help:ecoservice_german_documents_invoice.field_account_move__amount_by_group
+#: model:ir.model.fields,help:ecoservice_german_documents_invoice.field_account_payment__amount_by_group
+msgid "Edit Tax amounts if you encounter rounding issues."
 msgstr ""
+"Bearbeiten Sie die Steuerbeträge, falls Sie auf Rundungsprobleme stoßen."
 
 #. module: ecoservice_german_documents_invoice
+#: model:ir.model.fields,help:ecoservice_german_documents_invoice.field_account_bank_statement_line__delivery_date
+#: model:ir.model.fields,help:ecoservice_german_documents_invoice.field_account_move__delivery_date
+#: model:ir.model.fields,help:ecoservice_german_documents_invoice.field_account_payment__delivery_date
+msgid "Enter the delivery period (e.g. month) or the delivery date here."
+msgstr ""
+"Geben Sie hier den Leistungszeitraum (z. B. Monat) oder das Leistungsdatum "
+"an."
+
+#. module: ecoservice_german_documents_invoice
+#. odoo-python
 #: code:addons/ecoservice_german_documents_invoice/models/account/move.py:0
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_translator_invoice
 #, python-format
@@ -185,12 +208,7 @@ msgid "Journal Item"
 msgstr "Buchungszeile"
 
 #. module: ecoservice_german_documents_invoice
-#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_move____last_update
-#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_move_line____last_update
-msgid "Last Modified on"
-msgstr "Zuletzt geändert am"
-
-#. module: ecoservice_german_documents_invoice
+#. odoo-python
 #: code:addons/ecoservice_german_documents_invoice/models/account/move.py:0
 #, python-format
 msgid "Only invoices could be printed."
@@ -222,6 +240,7 @@ msgid "Reference:"
 msgstr "Referenz:"
 
 #. module: ecoservice_german_documents_invoice
+#. odoo-python
 #: code:addons/ecoservice_german_documents_invoice/models/account/move.py:0
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_translator_invoice
 #, python-format
@@ -250,11 +269,6 @@ msgid "Refund (Top)"
 msgstr "Rechnungskorrektur (Oben)"
 
 #. module: ecoservice_german_documents_invoice
-#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
-msgid "Shipping address:"
-msgstr "Lieferadresse:"
-
-#. module: ecoservice_german_documents_invoice
 #: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_move__report_compute_date
 #: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_move_line__report_compute_date
 msgid "Report Compute Date"
@@ -267,9 +281,21 @@ msgid "Report Line Index"
 msgstr ""
 
 #. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
+msgid "Shipping address:"
+msgstr "Lieferadresse:"
+
+#. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.invoice_letterhead_reference_case
 msgid "Source Document:"
 msgstr "Referenzbeleg:"
+
+#. module: ecoservice_german_documents_invoice
+#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_bank_statement_line__amount_by_group
+#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_move__amount_by_group
+#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_payment__amount_by_group
+msgid "Tax amount by group"
+msgstr ""
 
 #. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_table_base_invoice
@@ -304,28 +330,9 @@ msgid "UoM"
 msgstr "ME"
 
 #. module: ecoservice_german_documents_invoice
-#: model:ir.model.fields,help:ecoservice_german_documents_invoice.field_account_bank_statement_line__delivery_date
-#: model:ir.model.fields,help:ecoservice_german_documents_invoice.field_account_move__delivery_date
-#: model:ir.model.fields,help:ecoservice_german_documents_invoice.field_account_payment__delivery_date
-msgid "Enter the delivery period (e.g. month) or the delivery date here."
-msgstr "Geben Sie hier den Leistungszeitraum (z. B. Monat) oder das Leistungsdatum an."
-
-#. module: ecoservice_german_documents_invoice
-#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_bank_statement_line__delivery_date
-#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_move__delivery_date
-#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_payment__delivery_date
-msgid "Delivery Date"
-msgstr "Leistungszeitraum"
-
-#. module: ecoservice_german_documents_invoice
-#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
-msgid "Delivery date corresponds to"
-msgstr "Leistungszeitraum entspricht"
-
-#. module: ecoservice_german_documents_invoice
-#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
-msgid "The delivery date corresponds to the service date."
-msgstr "Das Lieferdatum entspricht dem Leistungsdatum."
+#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_res_company__use_template_text_on_entries
+msgid "Use template text on entries"
+msgstr "Benutze Vorlagentext für Journalbuchungen"
 
 #. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_invoice_document
