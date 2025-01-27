@@ -7,6 +7,8 @@ from dateutil.relativedelta import relativedelta
 # Odoo
 from odoo import fields, models
 import logging
+from odoo.exceptions import UserError
+
 
 _logger = logging.getLogger(__name__)
 
@@ -89,9 +91,9 @@ class AutoDatevExportConfig(models.Model):
         configs_daily = configs.filtered(lambda a: a.period == 'daily')
         if configs_daily:
             end_date = datetime.today().date()
-            ecofi = self.generate_financial_report_csv(start_date, end_date)
-            if ecofi:
-                self.send_mail_to_partners(configs_daily, ecofi)
+            ecofi_list = self.generate_financial_report_csv(start_date, end_date)
+            if ecofi_list:
+                self.send_mail_to_partners(configs_daily, ecofi_list)
                 self._set_last_run('daily', company_id)
 
     def auto_send_mail_weekly(self, configs, company_id):
@@ -107,9 +109,9 @@ class AutoDatevExportConfig(models.Model):
         if configs_weekly:
             if datetime.today().strftime('%A') in ['Monday', 'Montag']:
                 end_date = datetime.today().date()
-                ecofi = self.generate_financial_report_csv(start_date, end_date)
-                if ecofi:
-                    self.send_mail_to_partners(configs_weekly, ecofi)
+                ecofi_list = self.generate_financial_report_csv(start_date, end_date)
+                if ecofi_list:
+                    self.send_mail_to_partners(configs_weekly, ecofi_list)
                     self._set_last_run('weekly', company_id)
 
     def auto_send_mail_monthly(self, configs, company_id):
@@ -125,25 +127,46 @@ class AutoDatevExportConfig(models.Model):
         if configs_monthly:
             if datetime.today().strftime('%d') == '01':
                 end_date = datetime.today().date()
-                ecofi = self.generate_financial_report_csv(start_date, end_date)
-                if ecofi:
-                    self.send_mail_to_partners(configs_monthly, ecofi)
+                ecofi_list = self.generate_financial_report_csv(start_date, end_date)
+                if ecofi_list:
+                    self.send_mail_to_partners(configs_monthly, ecofi_list)
                     self._set_last_run('monthly', company_id)
 
     def generate_financial_report_csv(self, start_date, end_date):
-        journals = self.env.user.company_id.journal_ids
+        ecofi_list = []
+        current_start_date = start_date
+        while current_start_date <= end_date:
+            current_year = current_start_date.year
+            current_end_date = min(
+                end_date,
+                datetime(current_year, 12, 31).date()
+            )
 
-        ecofi = self.env['ecofi'].search([
-            ('date_from', '=', start_date),
-            ('date_to', '=', end_date),
-        ])
+            ecofi = self.env['ecofi'].search([
+                ('date_from', '=', start_date),
+                ('date_to', '=', end_date),
+            ])
 
-        if ecofi:
-            return ecofi
-        else:
-            return self.env['ecofi'].ecofi_buchungen(journals, start_date, end_date)
+            if ecofi:
+                ecofi_list.append(ecofi)
+            else:
+                try:
+                    new_export = self.env['ecofi'].ecofi_buchungen(
+                        self.env.company.journal_ids, current_start_date, current_end_date
+                    )
 
-    def send_mail_to_partners(self, configs, ecofi):
+                    if new_export:
+                        ecofi_list.append(new_export)
+
+                except UserError as e:
+                    _logger.warning(
+                        f"Keine Buchungen für den Zeitraum {current_start_date} bis {current_end_date}: {str(e)}"
+                    )
+
+            current_start_date = current_end_date + timedelta(days=1)
+        return ecofi_list
+
+    def send_mail_to_partners(self, configs, ecofi_list):
         template_id = self.env.ref('ecoservice_financeinterface_datev_auto_export.send_email_finance_report_summary').id
         for config in configs:
             email_to = config.email_to or config.partner_id.email
@@ -153,7 +176,26 @@ class AutoDatevExportConfig(models.Model):
 
             template = self.env['mail.template'].browse(template_id)
             if template:
-                attachment = self.create_attachment(ecofi)
+                attachment = self.env['ir.attachment']
+                for ecofi in ecofi_list:
+                    attachment += self.create_attachment(ecofi)
+
+                    module_is_installed = self.env['ir.module.module'].search(
+                        [
+                            ('name', '=', 'ecoservice_financeinterface_datev_xml'),
+                            ('state', '=', 'installed')
+                        ]
+                    )
+                    if module_is_installed:
+                        if ecofi.xml_export_file:
+                            xml_attachment_file = self.env['ir.attachment'].sudo().create({
+                                'name': ecofi.name + '.zip',
+                                'datas': ecofi.xml_export_file,
+                                'res_model': 'ecofi',
+                                'type': 'binary',
+                                'store_fname': ecofi.xml_export_file,
+                            })
+                            attachment += xml_attachment_file
 
                 values = template.generate_email(
                     config.id,
@@ -161,8 +203,8 @@ class AutoDatevExportConfig(models.Model):
                 )
                 values.update({
                     'subject': (
-                        f"Financial Summary Report From {ecofi.date_from.strftime('%d-%m-%Y')} "
-                        f"To {ecofi.date_to.strftime('%d-%m-%Y')}"
+                        f"Financial Summary Report From {ecofi_list[0].date_from.strftime('%d-%m-%Y')} "
+                        f"To {ecofi_list[-1].date_to.strftime('%d-%m-%Y')}"
                     ),
                     'email_from': self.env.user.email,
                     'email_to': email_to,
