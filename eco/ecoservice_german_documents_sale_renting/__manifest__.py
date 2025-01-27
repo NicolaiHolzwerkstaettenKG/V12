@@ -3,7 +3,7 @@
 {
     # App Information
     'name': 'German Documents (Sale renting)',
-    'summary': 'Designed German Documents for Odoo.',
+    'summary': 'Designed German Documents for Odoo (Enterprise only).',
     'version': '16.0.1.0.0',
     'category': 'Base',
     'license': 'OPL-1',
