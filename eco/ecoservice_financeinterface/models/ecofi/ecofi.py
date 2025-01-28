@@ -58,6 +58,7 @@ class Ecofi(models.Model):
         readonly=True,
         default=lambda self: self.env.company,
     )
+    active = fields.Boolean(default=True)
 
     # endregion
 
@@ -298,3 +299,9 @@ class Ecofi(models.Model):
             .replace('[', '(')
             .replace(']', ')')
         )
+
+    def toggle_active(self):
+        super().toggle_active()
+        for record in self:
+            if not record.active:
+                record.account_moves = [(5, 0, 0)]
