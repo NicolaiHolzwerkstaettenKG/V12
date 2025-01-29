@@ -63,5 +63,5 @@ class Ecofi(models.Model):
         else:
             vid = super().ecofi_buchungen(journal_ids, date_from, date_to)
             vid.export_csv_xml(journal_ids)
-            vid.unlink()
-            return
+            vid.csv_file = None
+            return vid

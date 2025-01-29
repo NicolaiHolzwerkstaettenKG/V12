@@ -10,7 +10,7 @@
     <field name="name">ECOFI | XML Attachment (Form)</field>
     <field name="model">ecofi</field>
     <field name="type">form</field>
-    <field name="inherit_id" ref="ecoservice_financeinterface_datev.eco_ecofi_form_view_inherit_datev"/>
+    <field name="inherit_id" ref="ecoservice_financeinterface.eco_ecofi_form_view"/>
     <field name="arch" type="xml">
 
       <field name="csv_file" position="after">

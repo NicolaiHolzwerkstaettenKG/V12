@@ -1,10 +1,10 @@
 # Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 {
-    'name': 'Financeinterface CSV/XML connector',
-    'summary': 'Attach documents to your CSV export via XML export.',
+    'name': 'Financeinterface XML connector',
+    'summary': 'Attach documents to your export via XML export.',
     'category': 'Accounting',
-    'version': '16.0.1.1.2',
+    'version': '16.0.1.1.3',
     'author': 'ecoservice GbR',
     'website': 'https://www.ecoservice.de/shop/datev-belegtransfer-197',
     'live_test_url': 'https://www.ecoservice.de/odoo-demo',
@@ -20,7 +20,6 @@
         'ecoservice_datev',
         'ecoservice_datev_xml',
         'ecoservice_financeinterface',
-        'ecoservice_financeinterface_datev',
     ],
     'data': [
         'views/ecofi/form.xml',
