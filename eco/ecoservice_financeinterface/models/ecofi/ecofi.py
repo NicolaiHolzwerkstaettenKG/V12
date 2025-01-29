@@ -103,6 +103,7 @@ class Ecofi(models.Model):
             partnererror,
             buchungszeilencount,
             bookingdict,
+            0
         )
 
     def generate_csv(self, ecofi_csv, bookingdict, log):
