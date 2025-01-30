@@ -4,9 +4,10 @@
     'name': 'DATEV Document Transfer',
     'summary': 'DATEV XML interface in accordance with offical docs.',
     'category': 'Accounting',
-    'version': '16.0.1.1.1',
+    'version': '16.0.1.1.2',
     'author': 'ecoservice GbR',
     'website': 'https://www.ecoservice.de',
+    'live_test_url': 'https://www.ecoservice.de/odoo-demo',
     'license': 'OPL-1',
     'category': 'Base',
     'application': True,
@@ -14,7 +15,9 @@
     'support': 'datev@ecoservice.de',
     'price': 500.00,
     'currency': 'EUR',
-    'images': [],
+    'images': [
+        'images/main_screenshot.gif',
+    ],
     'external_dependencies': {
         'python': ['xmlschema'],
     },
