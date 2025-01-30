@@ -5,7 +5,7 @@
     'name': 'DATEV Masterdata',
     'summary': 'Lets you export your accounting master data',
     'category': 'Accounting',
-    'version': '16.0.1.2.2',
+    'version': '16.0.1.2.3',
     'license': 'OPL-1',
     'application': False,
     'installable': True,
@@ -17,6 +17,9 @@
     'price': 550.00,
     'currency': 'EUR',
     'support': 'financeinterface@ecoservice.de',
+    'images': [
+        'images/main_screenshot.gif',
+    ],
     # Dependencies
     'depends': [
         'account',
