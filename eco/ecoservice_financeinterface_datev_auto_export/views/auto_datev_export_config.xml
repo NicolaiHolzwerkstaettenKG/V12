@@ -30,6 +30,7 @@
         <field name="company_id"/>
         <field name="partner_id"/>
         <field name="period"/>
+        <field name="export_backtrack"/>
         <field name="email_to"/>
       </tree>
     </field>
