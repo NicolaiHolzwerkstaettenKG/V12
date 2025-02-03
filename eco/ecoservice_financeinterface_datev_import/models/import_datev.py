@@ -5,7 +5,7 @@ import base64
 import csv
 import io
 import traceback
-from datetime import date, datetime
+from datetime import datetime
 from decimal import Decimal
 
 from odoo import _, api, exceptions, fields, models
@@ -156,21 +156,13 @@ class ImportDatev(models.Model):
                                     import_struct[key]['decimalformat'][1], '.')
                                 )
                             elif import_struct[key]['type'] == 'date':
-                                try:
-                                    val = datetime.strptime(
-                                        line[csv_name], import_struct[key]['dateformat']
-                                    ).date()
-                                    val = val.replace(
-                                        year=date.today().year
-                                    )
-                                except:  # noqa: E722
-                                    # for leap year
-                                    val = datetime.strptime(
-                                        line[csv_name] + str(
-                                            datetime.strptime(datev_header.split(';')[12], '%Y%m%d').year
-                                        ),
-                                        '%d%m%Y'
-                                    )
+                                val = datetime.strptime(
+                                    line[csv_name], import_struct[key]['dateformat']
+                                ).date()
+                                date_year = datev_header.split(';')[12].strip('"')
+                                val = val.replace(
+                                    year=datetime.strptime(date_year, '%Y%m%d').year
+                                )
                             else:
                                 errorlist.append({
                                     'line': linecounter,
