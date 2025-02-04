@@ -743,9 +743,11 @@ class ImportDatev(models.Model):
                                 move_line_ids_obj = move['move_id'].line_ids
                                 move['move_id'] = move['move_id'].id
                                 # skip validity check until all lines are created
-                                move_line_ids_obj.with_context(
+                                new_line = move_line_ids_obj.with_context(
                                     check_move_validity=False,
                                 ).create(move)
+                                new_line.credit = float(move['credit'])
+                                new_line.debit = float(move['debit'])
                             # catch up validity check after all lines are created
                             container = {'records': thismove}
                             thismove._check_balanced(container)
