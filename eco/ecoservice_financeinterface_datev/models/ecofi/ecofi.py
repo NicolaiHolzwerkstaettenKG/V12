@@ -302,11 +302,16 @@ class Ecofi(models.Model):
             )
             buschluessel = ''
             if export_method == 'gross':
+                is_tax_archived = False
+                if line.tax_line_id:
+                    if line.tax_line_id.active is False:
+                        is_tax_archived = True
                 if (
                     line.account_id.is_tax_account()
                     and not (tax_exigibility and line.journal_id == cash_basis)
                     and not line.datev_posting_key == 'SD'
                     and len(move.line_ids) != 2
+                    and not is_tax_archived
                 ):
                     move_tax_lines += 1
                     continue
