@@ -1,6 +1,7 @@
 # Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 
+from decimal import Decimal
 from odoo import _, api, exceptions, fields, models
 
 
@@ -58,6 +59,18 @@ class AccountMoveLine(models.Model):
 
     def _datev_has_tax(self) -> bool:
         return bool(self.get_tax())
+
+    def _currency_exchange_rate(self) -> Decimal:
+        """Get used exchange rate for current line."""
+        company = self.move_id.company_id or self.env.company
+        if company.currency_id == self.currency_id:
+            return Decimal(0)
+
+        if self.currency_rate:
+            return Decimal(self.currency_rate)
+
+        self._compute_currency_rate()
+        return Decimal(self.currency_rate or 0)
 
     @api.ecofi_validate(
         'validate_required_tax_is_set',

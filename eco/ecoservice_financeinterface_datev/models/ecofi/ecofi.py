@@ -91,11 +91,6 @@ class Ecofi(models.Model):
         if faelligkeit:
             datevdict['Beleg2'] = faelligkeit
 
-        datevdict['Waehrung'], datevdict['Kurs'] = self.with_context(
-            lang='de_DE',
-            date=move.date,
-        ).format_waehrung(line)
-
         if move.ecofi_buchungstext:
             datevdict['Buchungstext'] = move.ecofi_buchungstext
 
@@ -213,29 +208,6 @@ class Ecofi(models.Model):
         umsatz = str(abs(lineumsatz)).replace('.', ',')
         return umsatz, soll_haben
 
-    def format_waehrung(self, line):
-        """
-        Format the currency for the export.
-
-        :param line: account_move_line
-        """
-        factor = ''
-        company = line.company_id or self.env.company
-        currency = line.company_currency_id or company.currency_id
-
-        if not self.env.context.get('datev_ignore_currency'):
-            if line.currency_id.name != currency.name:
-                currency = line.currency_id
-                rate = self.env['res.currency.rate'].sudo().search([
-                    ('currency_id', '=', currency.id),
-                    ('name', '=', line.date),
-                ], limit=1)
-                factor = str(
-                    rate.rate if rate else currency.rate
-                ).replace('.', ',')
-
-        return currency.name if currency else '', factor
-
     def generate_csv(self, ecofi_csv, bookingdict, log):
         """
         Implement the generate_csv method for the datev interface.
@@ -272,14 +244,16 @@ class Ecofi(models.Model):
                 self.get_legal_datev_header(move.vorlauf_id)
             )
 
+        company = move.company_id or self.env.company
         faelligkeit = False
         move_tax_lines = 0
         grouped_line = {}
-        cash_basis = self.env.user.company_id.tax_cash_basis_journal_id
-        tax_exigibility = self.env.user.company_id.tax_exigibility
-        rounding_method = self.env.user.company_id.tax_calculation_rounding_method
+        cash_basis = company.tax_cash_basis_journal_id
+        tax_exigibility = company.tax_exigibility
+        rounding_method = company.tax_calculation_rounding_method
 
         move = self._prepare_move(move, export_method)
+        ignore_currency = self.env.context.get('datev_ignore_currency')
 
         for line in move.line_ids:
             if line.debit == 0 and line.credit == 0:
@@ -290,20 +264,40 @@ class Ecofi(models.Model):
                 if line.date_maturity:
                     faelligkeit = line.date_maturity.strftime('%d%m%y')
                 continue
-            currency = (
-                not self.env.context.get('datev_ignore_currency')
-                and bool(line.amount_currency)
-            )
 
-            # line.balance = debit (soll) - credit (haben)
             sollhaben = 'h' if line.balance < 0 else 's'
-            line_total = Decimal(
-                line.amount_currency if currency else line.balance
-            )
+
+            # 110646 "Export von Fremdwährung"
+            # Keine Rechnungsbeträge verwenden! Nur Buchungsbeträge.
+            # Da Rechnungsbeträge NUR bei Rechnungen gesetzt werden.
+            base_currency = line.company_currency_id or company.currency_id
+            foreign_currency = line.currency_id
+            exchange_rate = line._currency_exchange_rate()
+
+            base_currency_untaxed = Decimal(line.balance)
+            foreign_currency_untaxed = Decimal(line.amount_currency)
+
+            tax = line.get_tax()
+            tax_multiplier = 1 + (Decimal(tax.amount) / 100)
+            base_currency_taxed = base_currency_untaxed * tax_multiplier
+            foreign_currency_taxed = foreign_currency_untaxed * tax_multiplier
+
             buschluessel = ''
+
+            # Standardmäßig gehen wir von einem Nettoexport aus
+            csv_umsatz = foreign_currency_untaxed
+            csv_basisbetrag = base_currency_untaxed
+            csv_exchange_rate = exchange_rate
+            if exchange_rate:
+                # Maximal 4 Nachkommastellen in der CSV.
+                # Bei der tatsächlichen Umrechnung nutzen wir alle.
+                csv_exchange_rate = round(exchange_rate, 4)
+
             if export_method == 'gross':
+                # Kunde wünscht export mit Bruttoangaben
                 is_tax_archived = False
                 if line.tax_line_id:
+                    # Archivierte Steuerzeilen beachten
                     if line.tax_line_id.active is False:
                         is_tax_archived = True
                 if (
@@ -313,41 +307,49 @@ class Ecofi(models.Model):
                     and len(move.line_ids) != 2
                     and not is_tax_archived
                 ):
+                    # ??? Bitte gewünschtes Verhalten dokumentieren!
+                    # Wieso wird line.display_type == 'tax' nicht beachtet?
+                    # Wieso wird line.tax_repartition_line_id nicht beachtet?
                     move_tax_lines += 1
                     continue
 
                 if line.datev_posting_key == '40':
                     buschluessel = '40'
-                else:
-                    line_tax = line.get_tax()
-                    if line.price_total:
-                        # Wird durch Odoo nur bei Rechnungen gesetzt.
-                        # Rechnen mit Steuerbeträgen und Prozentwerten führt
-                        # schnell zu Cent-Rundungsfehlern.
-                        # z.B. line.total_tax_amount() -> 3.1899999999999977
-                        # Daher line.price_total oder line.price_subtotal
-                        line_total = Decimal(line.price_total)
-                    else:
-                        # Odoo selbst gibt uns keine informationen zum Brutto
-                        # der Zeile. Fallback aufs selber berechnen.
-                        # Problem: Rundungsfehler und Odoos Feature zum
-                        # Editieren der gezahlten Steuer
-                        tax_multiplier = 1 + (Decimal(line_tax.amount) / 100)
-                        line_total = line_total * tax_multiplier
+                    continue
 
-                    if (
-                        not line.account_id.datev_automatic_account
-                        and line_tax
-                    ):
-                        buschluessel = str(line_tax.l10n_de_datev_code)
+                # Wechsle von Nettobeträgen zu Bruttobeträgen
+                csv_umsatz = foreign_currency_taxed
+                csv_basisbetrag = base_currency_taxed
+
+                if not line.account_id.datev_automatic_account and tax:
+                    # ??? Bitte gewünschtes Verhalten dokumentieren!
+                    buschluessel = str(tax.l10n_de_datev_code)
 
             if rounding_method == 'round_per_line':
-                line_total = round(line_total, 2)
+                csv_umsatz = round(csv_umsatz, 2)
+                csv_basisbetrag = round(csv_basisbetrag, 2)
 
-            umsatz = -line_total if line_total < 0 else line_total
+            if csv_umsatz < 0:
+                # Minusbeträge auf im export vermeiden
+                csv_umsatz = -csv_umsatz
+                csv_basisbetrag = -csv_basisbetrag
+
+            if ignore_currency:
+                # Kunde wünscht keine Angabe von Fremdwährungen
+                # Basiswährungsangaben werden zur einzigen Währungsangabe
+                csv_umsatz = csv_basisbetrag
+                foreign_currency = base_currency
+                base_currency = self.env['res.currency'].sudo()
+                csv_basisbetrag = 0
+                csv_exchange_rate = 0
+
             datevdict = {
                 'Sollhaben': sollhaben,
-                'Umsatz': str(umsatz),
+                'Umsatz': str(csv_umsatz),
+                'Waehrung': foreign_currency.name,
+                'Kurs': str(csv_exchange_rate or '').replace('.', ','),
+                'Basiswaehrungsbetrag': str(csv_basisbetrag or ''),
+                'Basiswaehrungskennung': base_currency.name or '',
                 'Gegenkonto': datevgegenkonto,
                 'Konto': datevkonto or '',
                 'Buschluessel': buschluessel,
@@ -386,7 +388,7 @@ class Ecofi(models.Model):
                         grouped_line,
                         line,
                         sollhaben,
-                        umsatz,
+                        csv_umsatz,
                         datevdict,
                     )
                 else:
@@ -394,7 +396,7 @@ class Ecofi(models.Model):
                         grouped_line,
                         line,
                         sollhaben,
-                        umsatz,
+                        csv_umsatz,
                         datevdict,
                     )
             else:
