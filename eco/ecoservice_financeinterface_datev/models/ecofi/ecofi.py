@@ -279,6 +279,16 @@ class Ecofi(models.Model):
 
             tax = line.get_tax()
             tax_multiplier = 1 + (Decimal(tax.amount) / 100)
+            tax_repartitions = tax.invoice_repartition_line_ids
+
+            if line.is_refund:
+                tax_repartitions = tax.refund_repartition_line_ids
+
+            if tax_repartitions and len(tax_repartitions) > 2:
+                # Steuern die einen Buchungssatz mit mehreren Steuern erzeugen,
+                # sollen auf 0 gesetzt werden. Aufgabe 110719
+                tax_multiplier = 1
+
             base_currency_taxed = base_currency_untaxed * tax_multiplier
             foreign_currency_taxed = foreign_currency_untaxed * tax_multiplier
 
