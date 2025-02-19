@@ -227,11 +227,11 @@ class AutoDatevExportConfig(models.Model):
                     if module_is_installed:
                         if ecofi_item.xml_export_file:
                             xml_attachment_file = self.env['ir.attachment'].sudo().create({
-                                'name': ecofi.name + '.zip',
-                                'datas': ecofi.xml_export_file,
+                                'name': ecofi_item.name + '.zip',
+                                'datas': ecofi_item.xml_export_file,
                                 'res_model': 'ecofi',
                                 'type': 'binary',
-                                'store_fname': ecofi.xml_export_file,
+                                'store_fname': ecofi_item.xml_export_file,
                             })
                             attachment += xml_attachment_file
 
