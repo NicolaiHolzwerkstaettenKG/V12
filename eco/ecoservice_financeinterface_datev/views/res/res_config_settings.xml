@@ -103,6 +103,10 @@
           </div>
         </div>
 
+        <div class="row mt16 o_settings_container">
+          <h2>Datev Export Columns Configuration</h2>
+          <field name="column_config_ids"/>
+        </div>
       </xpath>
     </field>
   </record>

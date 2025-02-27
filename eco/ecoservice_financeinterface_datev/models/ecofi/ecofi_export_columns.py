@@ -226,6 +226,12 @@ class EcofiExportColumns(models.AbstractModel):
 
     @api.model
     def get_datev_export_line(self, datev_dict):
+        column_config_ids = self.env.company.column_config_ids.filtered(
+            lambda e: not e.to_export
+        )
+        # columns_not_to_export is a list of all columns which should not be exported
+        columns_not_to_export = [e.column for e in column_config_ids]
+        # WHEN YOU CHANGE THE NAMES, CHANGE IT EVERYWHERE(ie. ecofi_export_clumns_config.py)
         return [
             datev_dict['Umsatz'] or '',
             datev_dict['Sollhaben'] or '',
@@ -263,8 +269,18 @@ class EcofiExportColumns(models.AbstractModel):
             '',  # Beleginfo - Inhalt 7
             '',  # Beleginfo - Art 8
             '',  # Beleginfo - Inhalt 8
-            datev_dict['Kost1'] or '',
-            datev_dict['Kost2'] or '',
+            (
+                datev_dict['Kost1']
+                if 'Kost1' not in columns_not_to_export
+                else ''
+                or ''
+            ),
+            (
+                datev_dict['Kost2']
+                if 'Kost2' not in columns_not_to_export
+                else ''
+                or ''
+            ),
             datev_dict['Kostmenge'] or '',
             datev_dict['EulandUSTID'] or '',
             datev_dict['EUSteuer'] or '',
@@ -274,8 +290,18 @@ class EcofiExportColumns(models.AbstractModel):
             '',  # BU 49 Hauptfunktionstyp
             '',  # BU 49 Hauptfunktionsnummer
             '',  # BU 49 Funktionsergänzung
-            datev_dict['Zusatzinformation - Art 1'] or '',
-            datev_dict['ZusatzInhalt1'] or '',  # Zusatzinformation- Inhalt 1
+            (
+                datev_dict['Zusatzinformation - Art 1']
+                if 'Zusatzinformation - Art 1' not in columns_not_to_export
+                else ''
+                or ''
+            ),
+            (
+                datev_dict['ZusatzInhalt1']
+                if 'ZusatzInhalt1' not in columns_not_to_export
+                else ''
+                or ''
+            ),   # Zusatzinformation- Inhalt 1
             '',  # Zusatzinformation - Art 2
             '',  # Zusatzinformation- Inhalt 2
             '',  # Zusatzinformation - Art 3
@@ -321,7 +347,12 @@ class EcofiExportColumns(models.AbstractModel):
             '',  # Veranlagungsjahr
             '',  # Zugeordnete Fälligkeit
             '',  # Skontotyp
-            datev_dict['Auftragsnummer'] or '',  # Auftragsnummer
+            (
+                datev_dict['Auftragsnummer']
+                if 'Auftragsnummer' not in columns_not_to_export
+                else ''
+                or ''
+            ),   # Auftragsnummer
             '',  # Buchungstyp
             '',  # Ust-Schlüssel (Anzahlungen)
             '',  # EU-Land (Anzahlungen)
@@ -341,6 +372,10 @@ class EcofiExportColumns(models.AbstractModel):
             '',  # Bezeichnung SoBil-Sachverhalt
             '',  # Kennzeichen SoBil-Buchung
             datev_dict['Festschreibung'] or '',  # Festschreibung
-            datev_dict['Leistungsdatum'] or '',  # Leistungsdatum
+            (
+                datev_dict['Leistungsdatum']
+                if 'Leistungsdatum' not in columns_not_to_export
+                else '' or ''
+            ),   # Leistungsdatum
             datev_dict['Steuerperiode'] or ''   # Datum Zuord.Steuerperiode
         ]

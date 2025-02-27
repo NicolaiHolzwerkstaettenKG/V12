@@ -48,4 +48,9 @@ class ResConfigSettings(models.TransientModel):
         readonly=False,
     )
 
+    column_config_ids = fields.One2many(
+        related='company_id.column_config_ids',
+        readonly=False,
+    )
+
     # endregion

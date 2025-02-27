@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Developed by ecodoo GmbH
+# See COPYRIGHT and LICENSE files in the root directory of this module for full details.
+-->
+
+<odoo>
+    <record id="ecofi_column_config_tree_view" model="ir.ui.view">
+        <field name="name">ecofi.column.config.tree.view</field>
+        <field name="model">ecofi.export.columns.config</field>
+        <field name="arch" type="xml">
+            <tree string="Colums">
+                <field name="column"/>
+                <field name="to_export"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="ecofi_column_config_form_view" model="ir.ui.view">
+        <field name="name">ecofi.column.config.form.view</field>
+        <field name="model">ecofi.export.columns.config</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="column"/>
+                        <field name="to_export"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

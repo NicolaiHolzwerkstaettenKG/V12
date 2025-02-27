@@ -55,4 +55,10 @@ class ResCompany(models.Model):
         default='bedi',
         help='Defines the prefix in the "Beleglink" field in DATEV-Export',
     )
+
+    column_config_ids = fields.One2many(
+        comodel_name='ecofi.export.columns.config',
+        inverse_name='company_id',
+        readonly=False,
+    )
     # endregion
