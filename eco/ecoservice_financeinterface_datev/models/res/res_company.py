@@ -44,6 +44,11 @@ class ResCompany(models.Model):
         default=True,
         help='If enabled the delivery date from an invoice will be exported'
     )
+    export_tax_period_in_out_invoice = fields.Boolean(
+        default=False,
+        string='Export Tax Period Only for In/Out Invoices',
+        help='If enabled, the tax period will only be exported for in and out invoices',
+    )
     export_document_link_type = fields.Selection(
         selection=[
             ('bedi', 'BEDI'),

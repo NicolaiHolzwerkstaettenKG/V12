@@ -42,6 +42,10 @@ class ResConfigSettings(models.TransientModel):
         related='company_id.export_delivery_date',
         readonly=False,
     )
+    export_tax_period_in_out_invoice = fields.Boolean(
+        related='company_id.export_tax_period_in_out_invoice',
+        readonly=False,
+    )
     export_document_link_type = fields.Selection(
         related='company_id.export_document_link_type',
         required=True,

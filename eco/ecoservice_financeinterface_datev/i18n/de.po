@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-27 16:20+0000\n"
-"PO-Revision-Date: 2025-02-27 16:20+0000\n"
+"POT-Creation-Date: 2025-03-03 12:26+0000\n"
+"PO-Revision-Date: 2025-03-03 12:26+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -238,6 +238,12 @@ msgid "Export Delivery Date"
 msgstr "Export Leistungszeitraum"
 
 #. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_company__export_tax_period_in_out_invoice
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_config_settings__export_tax_period_in_out_invoice
+msgid "Export Tax Period Only for In/Out Invoices"
+msgstr "Export Steuerperiode nur für Ein- und Ausgangsrechnungen"
+
+#. module: ecoservice_financeinterface_datev
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_company__datev_export_method
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_config_settings__datev_export_method
 msgid "Export method"
@@ -272,6 +278,15 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev.view_ecoservice_finance_interface_datev_configuration
 msgid "If enabled the delivery date from an invoice will be exported"
 msgstr "Wenn gesetzt, wird der Leistungszeitraum mit exportiert"
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,help:ecoservice_financeinterface_datev.field_res_company__export_tax_period_in_out_invoice
+#: model:ir.model.fields,help:ecoservice_financeinterface_datev.field_res_config_settings__export_tax_period_in_out_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev.view_ecoservice_finance_interface_datev_configuration
+msgid ""
+"If enabled, the tax period will only be exported for in and out invoices"
+msgstr ""
+"Wenn gesetzt, wird die Steuerperiode nur für Ein- und Ausgangsrechnungen exportiert"
 
 #. module: ecoservice_financeinterface_datev
 #: model:ir.model.fields,help:ecoservice_financeinterface_datev.field_res_company__datev_ignore_currency

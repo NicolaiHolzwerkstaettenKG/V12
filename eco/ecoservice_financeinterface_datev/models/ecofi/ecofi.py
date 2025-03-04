@@ -42,7 +42,12 @@ class Ecofi(models.Model):
         if move.invoice_date:
             export_date = move.invoice_date
         datevdict['Datum'] = export_date.strftime('%d%m')
-        datevdict['Steuerperiode'] = move.date.strftime('%d%m%Y')
+
+        if self.env.company.export_tax_period_in_out_invoice:
+            if move.move_type in ['out_invoice', 'in_invoice']:
+                datevdict['Steuerperiode'] = move.date.strftime('%d%m%Y')
+        else:
+            datevdict['Steuerperiode'] = move.date.strftime('%d%m%Y')
 
         # Standard
         datevdict['Beleg1'] = move.name

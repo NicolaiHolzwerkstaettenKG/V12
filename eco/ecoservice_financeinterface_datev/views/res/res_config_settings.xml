@@ -85,6 +85,15 @@
               </div>
             </div>
             <div class="col-xs-12 col-md-3 o_setting_box">
+              <div class="o_setting_left_pane">
+                <field name="export_tax_period_in_out_invoice" class="oe_inline"/>
+              </div>
+              <div class="o_setting_right_pane">
+                <label for="export_tax_period_in_out_invoice"/>
+                <div class="text-muted">If enabled, the tax period will only be exported for in and out invoices</div>
+              </div>
+            </div>
+            <div class="col-xs-12 col-md-3 o_setting_box">
               <div class="o_setting_right_pane">
                 <label for="export_document_link_type" string="Preferred 'Beleglink' export method"/>
                 <field name="export_document_link_type" class="oe_inline"/>
