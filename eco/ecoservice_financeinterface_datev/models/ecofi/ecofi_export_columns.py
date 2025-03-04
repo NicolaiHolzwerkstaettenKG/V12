@@ -237,8 +237,20 @@ class EcofiExportColumns(models.AbstractModel):
             datev_dict['Sollhaben'] or '',
             datev_dict['Waehrung'] or '',
             datev_dict['Kurs'] or '',
-            datev_dict['Basiswaehrungsbetrag'] or '',
-            datev_dict['Basiswaehrungskennung'] or '',
+            (
+                datev_dict['Basiswaehrungsbetrag']
+                if ('Basiswaehrungskennung' or 'Basiswaehrungsbetrag')
+                not in columns_not_to_export
+                else ''
+                or ''
+            ),
+            (
+                datev_dict['Basiswaehrungskennung']
+                if ('Basiswaehrungskennung' or 'Basiswaehrungsbetrag')
+                not in columns_not_to_export
+                else ''
+                or ''
+            ),
             datev_dict['Konto'] or '',
             datev_dict['Gegenkonto'] or '',
             datev_dict['Buschluessel'] or '',

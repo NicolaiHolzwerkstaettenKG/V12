@@ -13,8 +13,10 @@ class EcofiExportColumnsConfig(models.Model):
         ('Kost2', 'KOST2 - Kostenstelle'),
         ('Zusatzinformation - Art 1', 'Zusatzinformation - Art 1'),
         ('ZusatzInhalt1', 'Zusatzinformation- Inhalt 1'),
-        ('Auftragsnummer', "Auftragsnummer"),
-        ('Leistungsdatum', "Leistungsdatum"),
+        ('Auftragsnummer', 'Auftragsnummer'),
+        ('Leistungsdatum', 'Leistungsdatum'),
+        ('Basiswaehrungsbetrag', 'Basisumsatz'),
+        ('Basiswaehrungskennung', 'WKZ Basisumsatz'),
     ]
 
     column = fields.Selection(string="Column", selection=HEADER)
