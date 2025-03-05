@@ -114,7 +114,8 @@ class AccountMove(models.Model):
         """
         for move in self.filtered(lambda r: r.line_ids):
             if not (
-                move._set_payment_counter_account_from_settings()
+                move._set_payment_counter_account_from_pos()
+                or move._set_payment_counter_account_from_settings()
                 or move._set_global_counter_account_from_journal()
                 or move._set_global_counter_account_from_lines()
                 or move._set_local_counter_account()
@@ -144,6 +145,39 @@ class AccountMove(models.Model):
 
     def _account_from_cash(self):
         return self.journal_id.default_account_id
+
+    def _set_payment_counter_account_from_pos(self) -> bool:
+        module_is_installed = self.env['ir.module.module'].search(
+            [
+                ('name', '=', 'point_of_sale'),
+                ('state', '=', 'installed')
+            ]
+        )
+        if module_is_installed:
+            payments = (
+                self.payment_id
+                or (
+                    self.statement_line_id
+                    and self.statement_line_id.payment_ids
+                )
+            )
+            if not payments:
+                return False
+
+            payment_types = payments.mapped('payment_type')
+            counter = False
+            if 'inbound' in payment_types:
+                try:
+                    counter = payments.pos_payment_method_id.outstanding_account_id
+                except Exception:
+                    return False
+            if not counter:
+                return False
+
+            self.line_ids.ecofi_account_counterpart = counter
+            return True
+        else:
+            return False
 
     def _set_payment_counter_account_from_settings(self) -> bool:
         payments = (
