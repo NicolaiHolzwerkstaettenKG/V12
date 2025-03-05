@@ -279,8 +279,16 @@ class Ecofi(models.Model):
             foreign_currency = line.currency_id
             exchange_rate = line._currency_exchange_rate()
 
-            base_currency_untaxed = Decimal(line.balance)
-            foreign_currency_untaxed = Decimal(line.amount_currency)
+            # 110851 "Minus im Export"
+            # line.balance kann negativ sein.
+            # line.amount_currency kann negativ sein.
+            # In Odoo ist negativ richtig, im Export positiv.
+            base_currency_untaxed = Decimal(line.credit or line.debit)
+            foreign_currency_untaxed = Decimal(
+                line.amount_currency
+                if line.amount_currency >= 0
+                else line.amount_currency * -1
+            )
 
             tax = line.get_tax()
             tax_multiplier = 1 + (Decimal(tax.amount) / 100)
@@ -334,7 +342,7 @@ class Ecofi(models.Model):
 
                 # Wechsle von Nettobeträgen zu Bruttobeträgen
                 csv_umsatz = foreign_currency_taxed
-                csv_basisbetrag = base_currency_taxed
+                csv_basisbetrag = round(base_currency_taxed, 4)
 
                 if not line.account_id.datev_automatic_account and tax:
                     # ??? Bitte gewünschtes Verhalten dokumentieren!
