@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+# Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
+# See COPYRIGHT and LICENSE files in the root directory of this module for full details.
+-->
+
+<odoo>
+
+  <record id="export_ecofi_view_inherit" model="ir.ui.view">
+    <field name="name">Create Finance Export inherit</field>
+    <field name="inherit_id" ref="ecoservice_financeinterface.export_ecofi_view"/>
+    <field name="model">export.ecofi</field>
+    <field name="type">form</field>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='journal_ids']" position="after">
+        <field name="to_export"/>
+      </xpath>
+    </field>
+  </record>
+
+</odoo>
