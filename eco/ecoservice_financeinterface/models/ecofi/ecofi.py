@@ -175,7 +175,7 @@ class Ecofi(models.Model):
                 'There are no non-exported moves in the given period and journals!',
             ))
 
-        return move_ids
+        return account_moves
 
     def ecofi_buchungen(self, journal_ids, date_from, date_to):  # noqa: C901
         """
