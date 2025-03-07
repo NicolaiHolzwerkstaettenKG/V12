@@ -57,6 +57,10 @@ class DatevExport(models.Model):
         ])
 
     def reset(self) -> None:
+        if not (self and self.id):
+            # 110493 Prevent it for running for IDs "False"
+            return
+
         shutil.rmtree(
             f'{tempfile.gettempdir()}/datev/export',
             ignore_errors=True,
