@@ -436,6 +436,7 @@ class ImportDatev(models.Model):
                 if type(line['wkz']) == str:
                     cur = self.env['res.currency'].search([('name', '=', line['wkz'])])
             move_line['currency_id'] = cur[0].id if cur and cur[0] else cur
+            move_line['amount_currency'] = move_line['debit'] - move_line['credit']
 
             if line.get('kurs', False):
                 move_line['debit'] = Decimal(
@@ -449,9 +450,9 @@ class ImportDatev(models.Model):
                         float(move_line['credit']) / float(line['kurs'])
                     ) if float(move_line['credit']) > 0 else 0
                 )
-                move_line['amount_currency'] = move_line['debit'] - move_line['credit']
-            else:
-                move_line['amount_currency'] = move_line['debit'] - move_line['credit']
+        else:
+            move_line['currency_id'] = import_config['company_currency_id'].id
+            move_line['amount_currency'] = move_line['debit'] - move_line['credit']
         return move_line
 
     def create_main_lines(self, line, thismove, partner_id, import_config, import_struct, move_lines=None):
@@ -628,6 +629,20 @@ class ImportDatev(models.Model):
             values = tax_id.copy_data()[0]
             values['price_include'] = True
             tmp_tax_id = tax_id.new(values)
+            invoice_tax_id = tmp_tax_id.invoice_repartition_line_ids.filtered(
+                lambda r: r.document_type == 'invoice' and r.repartition_type == 'tax' and r.account_id
+            ).account_id
+            refund_tax_id = tmp_tax_id.refund_repartition_line_ids.filtered(
+                lambda r: r.document_type == 'refund' and r.repartition_type == 'tax' and r.account_id
+            ).account_id
+            if invoice_tax_id:
+                tmp_tax_id.invoice_repartition_line_ids.filtered(
+                    lambda r: r.document_type == 'invoice' and r.repartition_type == 'tax'
+                ).account_id = invoice_tax_id
+            if refund_tax_id:
+                tmp_tax_id.refund_repartition_line_ids.filtered(
+                    lambda r: r.document_type == 'refund' and r.repartition_type == 'tax'
+                ).account_id = refund_tax_id
 
             for tax in tmp_tax_id.compute_all(total).get('taxes'):
                 if mainmove['credit'] == Decimal('0.00'):
@@ -743,11 +758,9 @@ class ImportDatev(models.Model):
                                 move_line_ids_obj = move['move_id'].line_ids
                                 move['move_id'] = move['move_id'].id
                                 # skip validity check until all lines are created
-                                new_line = move_line_ids_obj.with_context(
+                                move_line_ids_obj.with_context(
                                     check_move_validity=False,
                                 ).create(move)
-                                new_line.credit = float(move['credit'])
-                                new_line.debit = float(move['debit'])
                             # catch up validity check after all lines are created
                             container = {'records': thismove}
                             thismove._check_balanced(container)
