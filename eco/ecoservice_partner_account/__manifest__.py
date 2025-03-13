@@ -5,7 +5,7 @@
     'name': 'Debtor & Creditor Numbers',
     'summary': 'New debit and credit account following a sequence per company for partner.',
     'category': 'Accounting',
-    'version': '16.0.1.2.2',
+    'version': '16.0.1.3.2',
     'license': 'OPL-1',
     'application': False,
     'installable': True,

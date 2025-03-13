@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-28 13:52+0000\n"
-"PO-Revision-Date: 2022-10-28 13:52+0000\n"
+"POT-Creation-Date: 2025-03-13 12:49+0000\n"
+"PO-Revision-Date: 2025-03-13 12:49+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -65,6 +65,16 @@ msgid "Contact"
 msgstr "Kontakt"
 
 #. module: ecoservice_partner_account
+#: model:ir.model.fields,field_description:ecoservice_partner_account.field_res_config_settings__module_ecoservice_partner_account_confirm_purchase
+msgid "Create Creditor Account on Puchase Order confirm"
+msgstr "Erstelle Kreditorenkonto beim Bestätigen einer Bestellung"
+
+#. module: ecoservice_partner_account
+#: model:ir.model.fields,field_description:ecoservice_partner_account.field_res_config_settings__module_ecoservice_partner_account_confirm_sale
+msgid "Create Debitor Account on Sale Order Confirm"
+msgstr "Erstelle Debitorenkonto beim Bestätigen eines Verkaufsauftrags"
+
+#. module: ecoservice_partner_account
 #: model:ir.actions.server,name:ecoservice_partner_account.action_all_create_partner_account
 msgid "Create Accounts (All)"
 msgstr "Kontengenerierung (Alle)"
@@ -91,7 +101,7 @@ msgid ""
 "Generate partner payable or receivable account with first in or out going "
 "invoice related to the partner."
 msgstr ""
-"Automatische Partner-Kontengenerierung mit erster gebuchten eigehenden bzw. ausgehenden Rechnung des Partners."
+"Automatische Partner-Kontengenerierung mit erster gebuchten eingehenden bzw. ausgehenden Rechnung des Partners."
 
 #. module: ecoservice_partner_account
 #: model_terms:ir.ui.view,arch_db:ecoservice_partner_account.res_config_settings_view_form
@@ -99,7 +109,17 @@ msgid ""
 "Generate partner payable or receivable accounts with the first in or out "
 "going invoice related to the partner."
 msgstr ""
-"Automatische Partner-Kontengenerierung mit erster gebuchten eigehenden bzw. ausgehenden Rechnung des Partners."
+"Automatische Partner-Kontengenerierung mit erster gebuchten eingehenden bzw. ausgehenden Rechnung des Partners."
+
+#. module: ecoservice_partner_account
+#: model_terms:ir.ui.view,arch_db:ecoservice_partner_account.res_config_settings_view_form
+msgid "Install Module for account creation on purchase order confirm."
+msgstr "Installiert das Modul für Kontoerstellung bei Bestätigung einer Bestellung."
+
+#. module: ecoservice_partner_account
+#: model_terms:ir.ui.view,arch_db:ecoservice_partner_account.res_config_settings_view_form
+msgid "Install Module for account creation on sale order confirm."
+msgstr "Installiert das Modul für Kontoerstellung bei Bestätigung eines Verkaufsauftrags."
 
 #. module: ecoservice_partner_account
 #: model_terms:ir.ui.view,arch_db:ecoservice_partner_account.res_config_settings_view_form

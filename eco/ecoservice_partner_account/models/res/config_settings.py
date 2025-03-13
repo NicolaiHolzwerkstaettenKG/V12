@@ -22,5 +22,11 @@ class ResConfigSettings(models.TransientModel):
         readonly=False,
         required=True,
     )
+    module_ecoservice_partner_account_confirm_sale = fields.Boolean(
+        string='Create Debitor Account on Sale Order Confirm'
+    )
+    module_ecoservice_partner_account_confirm_purchase = fields.Boolean(
+        string='Create Creditor Account on Puchase Order confirm'
+    )
 
     # endregion
