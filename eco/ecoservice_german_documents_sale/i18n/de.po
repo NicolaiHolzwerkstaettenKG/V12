@@ -148,7 +148,12 @@ msgstr "Menge"
 #: model:text.template.config,name:ecoservice_german_documents_sale.sale_quotation_text
 #, python-format
 msgid "Quotation"
-msgstr "Angebot"
+msgstr "Angebot(üben)"
+
+#. module: ecoservice_german_documents_sale
+#: model:text.template.config,name:ecoservice_german_documents_sale.sale_quotation_text_bottom
+msgid "Quotation (Bottom)"
+msgstr "Angebot (Unten)"
 
 #. module: ecoservice_german_documents_sale
 #: model:ir.actions.report,name:ecoservice_german_documents_sale.sale_order_report_without_logo
