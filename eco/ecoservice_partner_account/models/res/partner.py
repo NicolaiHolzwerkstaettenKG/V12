@@ -31,11 +31,18 @@ class ResPartner(models.Model):
         if self.is_company:
             return self
 
+        parents = []
         parent = self.parent_id
         while parent:
             # Loop parents until we reach a company
             if parent.is_company:
                 return parent
+
+            if parent.id in parents:
+                # We're in an endless loop. Abort loop.
+                break
+
+            parents.append(parent.id)
             parent = parent.parent_id
 
         return self
