@@ -155,14 +155,19 @@ class ImportDatev(models.Model):
                                 val = Decimal(decimalvalue.replace(
                                     import_struct[key]['decimalformat'][1], '.')
                                 )
+
                             elif import_struct[key]['type'] == 'date':
+                                dateformat = import_struct[key]['dateformat']
+                                val = line[csv_name]
+                                if '%y' not in dateformat and '%Y' not in dateformat:
+                                    date_year = datev_header.split(';')[12].strip('"')[:4]
+                                    dateformat += '-%Y'
+                                    val += '-{date_year}'.format(date_year=date_year)
+
                                 val = datetime.strptime(
-                                    line[csv_name], import_struct[key]['dateformat']
+                                    val, dateformat
                                 ).date()
-                                date_year = datev_header.split(';')[12].strip('"')
-                                val = val.replace(
-                                    year=datetime.strptime(date_year, '%Y%m%d').year
-                                )
+
                             else:
                                 errorlist.append({
                                     'line': linecounter,
