@@ -417,6 +417,9 @@ class ImportDatev(models.Model):
             'quantity': 1.0,
             'datev_posting_key': move.get('datev_posting_key', ''),
             'product_id': False,
+            'tax_tag_ids': move.get('tax_tag_ids', False),
+            'tax_ids': move.get('tax_ids', None),
+            'display_type': move.get('display_type', False),
         }
         currency_id = move.get('currency_id', False)
         if currency_id:
@@ -483,6 +486,7 @@ class ImportDatev(models.Model):
             'name': line['buchungstext'],
             'partner_id': partner_id,
             'ecofi_account_counterpart': line['gegenkonto_object'].id,
+            'display_type': 'payment_term',
         }
         mainmove = {
             'credit': credit,
@@ -493,17 +497,23 @@ class ImportDatev(models.Model):
             'name': line['buchungstext'],
             'partner_id': partner_id,
             'ecofi_account_counterpart': line['gegenkonto_object'].id,
+            'display_type': 'product',
         }
+
         if line.get('buschluessel') or line.get('konto_object') or line.get('gegenkonto_object'):
             # if not isinstance(line['buschluessel'], int):
             #     # We don't need the correction-key part of the booking key
             #     line['buschluessel'] = line['buschluessel'][-1]
-            mainmove, taxmoves, tax_id = self.create_tax_line(
+            mainmove, gegenmove, taxmoves, tax_id = self.create_tax_line(
                 mainmove,
+                gegenmove,
                 import_config,
                 line
             )
-            if line.get('buschluessel'):
+            if tax_id:
+                mainmove['tax_ids'] = [fields.Command.set(tax_id.ids)]
+
+            if taxmoves:
                 for taxmove in taxmoves:
                     move_lines.append(
                         self.compute_currency(
@@ -534,50 +544,9 @@ class ImportDatev(models.Model):
                 import_config
             )
         )
-        return move_lines
+        return move_lines, tax_id
 
-    def add_tax_to_lines(self, move_lines, line, tax_id):
-        if tax_id:
-            for move_line in move_lines:
-                if move_line['name'] == 'Buchung' and not move_line['ecofi_tax_id']:
-                    move_line.update({
-                        'ecofi_tax_id': tax_id.id,
-                        'tax_ids': [(6, 0, [tax_id.id])],
-                    })
-        else:
-            account = self.env['account.account'].search(
-                [
-                    ('code', '=', line['konto']),
-                ], limit=1
-            )
-            if account.datev_automatic_account and account.datev_tax_ids:
-                tax_id = account.datev_tax_ids
-                self.add_tax_to_lines(move_lines, line, tax_id)
-
-    def add_tax_info_to_lines(self, move_lines, tax_id):
-        if tax_id:
-            user_type_list = self.env.ref(
-                'account.selection__account_account__account_type__asset_receivable',
-            ) + self.env.ref(
-                'account.selection__account_account__account_type__liability_payable',
-            )
-            accounts = self.env['account.account'].search(
-                [('account_type', 'in', user_type_list.ids)],
-            )
-            taxes = self.env['account.tax'].search([])
-            for tax in taxes:
-                accounts = accounts | tax.invoice_repartition_line_ids.account_id
-                accounts = accounts | tax.refund_repartition_line_ids.account_id
-            no_tax_on_this_account_ids = accounts.ids
-            for move_line in move_lines:
-                account_id = move_line.get('account_id', False)
-                if account_id and account_id not in no_tax_on_this_account_ids:
-                    move_line.update({
-                        'ecofi_tax_id': tax_id.id,
-                        'tax_ids': [(6, 0, [tax_id.id])],
-                    })
-
-    def create_tax_line(self, mainmove, import_config, line):
+    def create_tax_line(self, mainmove, gegenmove, import_config, line):
         taxmoves = []
         tax_id = None
 
@@ -595,30 +564,29 @@ class ImportDatev(models.Model):
             gegenkonto_obj_is_rec_or_pay = gegenkonto_obj.account_type in user_type_list
             # check konto or gegenkonto is not receivable or payable
             if not konto_obj_is_rec_or_pay or not gegenkonto_obj_is_rec_or_pay:
-                if konto_obj.datev_automatic_account and not tax_id:  # check konto automatic
+                if konto_obj.datev_automatic_account and not tax_id:   # check konto automatic
                     tax_id = konto_obj.tax_ids[:1] or False
-                elif gegenkonto_obj.datev_automatic_account and not tax_id:  # check gegenkonto automatic
+                elif gegenkonto_obj.datev_automatic_account and not tax_id:
+                    # check gegenkonto automatic, when automatic, switch mainkonto with gegenkonto
                     tax_id = gegenkonto_obj.tax_ids[:1] or False
-                elif line.get('buschluessel'):
+                    save_konto = mainmove
+                    mainmove = gegenmove
+                    gegenmove = save_konto
+
+                elif line.get('buschluessel') and not tax_id:
                     if line['buschluessel'] in ['40', 'SD']:
                         mainmove['ecofi_bu'] = line['buschluessel']
                         mainmove['ecofi_tax_id'] = konto_obj.datev_tax_ids and konto_obj.datev_tax_ids[0].id or False
                         tax_id = None
                     else:
                         try:
-                            buschluessel = int(line['busschluessel'])
+                            buschluessel = int(line['buschluessel'])
                         except KeyError:
                             buschluessel = 0
                         tax_id = self.env['account.tax'].search(
                             [('l10n_de_datev_code', '=', buschluessel)],
                             limit=1,
                         )
-                # check konto automatic
-                elif not konto_obj.datev_automatic_account and not tax_id and konto_obj.tax_ids:
-                    tax_id = konto_obj.tax_ids[:1] or False
-                # check gegenkonto automatic
-                elif not gegenkonto_obj.datev_automatic_account and not tax_id and konto_obj.tax_ids:
-                    tax_id = gegenkonto_obj.tax_ids[:1] or False
 
         total = float(mainmove['debit'] + mainmove['credit'])
 
@@ -629,20 +597,6 @@ class ImportDatev(models.Model):
             values = tax_id.copy_data()[0]
             values['price_include'] = True
             tmp_tax_id = tax_id.new(values)
-            invoice_tax_id = tmp_tax_id.invoice_repartition_line_ids.filtered(
-                lambda r: r.document_type == 'invoice' and r.repartition_type == 'tax' and r.account_id
-            ).account_id
-            refund_tax_id = tmp_tax_id.refund_repartition_line_ids.filtered(
-                lambda r: r.document_type == 'refund' and r.repartition_type == 'tax' and r.account_id
-            ).account_id
-            if invoice_tax_id:
-                tmp_tax_id.invoice_repartition_line_ids.filtered(
-                    lambda r: r.document_type == 'invoice' and r.repartition_type == 'tax'
-                ).account_id = invoice_tax_id
-            if refund_tax_id:
-                tmp_tax_id.refund_repartition_line_ids.filtered(
-                    lambda r: r.document_type == 'refund' and r.repartition_type == 'tax'
-                ).account_id = refund_tax_id
 
             for tax in tmp_tax_id.compute_all(total).get('taxes'):
                 if mainmove['credit'] == Decimal('0.00'):
@@ -662,11 +616,27 @@ class ImportDatev(models.Model):
                     'credit': tax_credit,
                     'debit': tax_debit,
                     'ecofi_account_counterpart': line['gegenkonto_object'].id,
+                    'display_type': 'tax',
                 }
                 mainmove['credit'] -= Decimal(str(data['credit']))
                 mainmove['debit'] -= Decimal(str(data['debit']))
                 taxmoves.append(data)
-        return mainmove, taxmoves, tax_id
+
+            # to giving the main move tax_tag_ids
+            if mainmove.get('move_id').move_type in ['entry', 'out_invoice']:
+                tax_tag_lines = tax_id.invoice_repartition_line_ids
+            elif mainmove.get('move_id').move_type in ['out_refund']:
+                tax_tag_lines = tax_id.refund_repartition_line_ids
+
+            if tax_tag_lines:
+                mainmove['tax_tag_ids'] = [
+                    tag_id
+                    for line in tax_tag_lines
+                    if line.repartition_type != 'tax'
+                    for tag_id in line.tag_ids.ids
+                ]
+
+        return mainmove, gegenmove, taxmoves, tax_id
 
     def do_import(self):
         """
@@ -745,25 +715,21 @@ class ImportDatev(models.Model):
                                 manual=manual,
                                 title=ref
                             )
-                            move_lines = self.create_main_lines(
+                            move_lines, tax_id = self.create_main_lines(
                                 line,
                                 thismove,
                                 partner_id,
                                 import_config,
                                 import_struct
                             )
+
                             for move in move_lines:
                                 move['credit'] = Decimal(move['credit'])
                                 move['debit'] = Decimal(move['debit'])
-                                move_line_ids_obj = move['move_id'].line_ids
                                 move['move_id'] = move['move_id'].id
-                                # skip validity check until all lines are created
-                                move_line_ids_obj.with_context(
-                                    check_move_validity=False,
-                                ).create(move)
-                            # catch up validity check after all lines are created
-                            container = {'records': thismove}
-                            thismove._check_balanced(container)
+
+                            self.env['account.move.line'].create(move_lines)
+
                             self.log_line.create({
                                 'parent_id': datev_import.id,
                                 'name': _('Line: {line} has been imported').format(
