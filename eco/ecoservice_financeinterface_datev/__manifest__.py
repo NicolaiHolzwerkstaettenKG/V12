@@ -5,7 +5,7 @@
     'name': 'DATEV Export',
     'summary': 'Export of account moves to DATEV',
     'category': 'Accounting',
-    'version': '16.0.2.2.5',
+    'version': '16.0.2.2.6',
     'license': 'OPL-1',
     'application': True,
     'installable': True,

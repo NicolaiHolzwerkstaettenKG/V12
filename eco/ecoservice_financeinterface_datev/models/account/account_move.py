@@ -137,7 +137,8 @@ class AccountMove(models.Model):
         return self.partner_id.property_account_payable_id
 
     def _account_from_sale(self):
-        return self.partner_id.property_account_receivable_id
+        partner = self.partner_id or self.line_ids.partner_id
+        return partner.property_account_receivable_id
 
     def _account_from_bank(self):
         # Einkommentiert lassen. Fixt 110070
