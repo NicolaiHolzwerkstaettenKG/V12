@@ -42,19 +42,17 @@ class Ecofi(models.Model):
         if move.invoice_date:
             export_date = move.invoice_date
         datevdict['Datum'] = export_date.strftime('%d%m')
-
-        if self.env.company.export_tax_period_in_out_invoice:
-            if move.move_type in ['out_invoice', 'in_invoice']:
-                datevdict['Steuerperiode'] = move.date.strftime('%d%m%Y')
-        else:
-            datevdict['Steuerperiode'] = move.date.strftime('%d%m%Y')
+        datevdict['Steuerperiode'] = move.date.strftime('%d%m%Y')
 
         # Standard
         datevdict['Beleg1'] = move.name
 
         # Kundenzahlung
         if move.journal_id.type == 'bank':
-            if not move.payment_id:
+            payment_ids = move.line_ids.mapped('payment_id')
+            reconciled_ids = payment_ids.mapped('reconciled_invoice_ids')
+
+            if not payment_ids:
                 datevdict['Buchungstext'] = move.display_name
                 # Suche abgestimmte Zeilen
                 bank_line = self.env['account.move.line'].search([
@@ -74,23 +72,23 @@ class Ecofi(models.Model):
                     )
                     datevdict['Beleg1'] = ' '.join([line.move_name for line in found_lines])
             else:
-                if move.payment_id.reconciled_invoice_ids:
+                if reconciled_ids:
                     datevdict['Buchungstext'] = datevdict['Beleg1']
                     invoice_names = []
-                    for reconciled_invoice_id in move.payment_id.reconciled_invoice_ids:
-                        invoice_names.append(reconciled_invoice_id.name)
+                    for reconciled_id in reconciled_ids:
+                        invoice_names.append(reconciled_id.name)
                     datevdict['Beleg1'] = ', '.join(invoice_names)
                 elif move.ref:
                     datevdict['Buchungstext'] = datevdict['Beleg1']
                     datevdict['Beleg1'] = move.ref
 
         # Kundenrechnung
-        if move.journal_id.type == 'sale':
+        elif move.journal_id.type == 'sale':
             if move.name:
                 datevdict['Beleg1'] = move.name
                 datevdict['Buchungstext'] = move.name
 
-        if move.journal_id.type == 'purchase' and move.ref:
+        elif move.journal_id.type == 'purchase' and move.ref:
             datevdict['Beleg1'] = move.ref
 
         if faelligkeit:
@@ -122,7 +120,6 @@ class Ecofi(models.Model):
         datevdict = self.set_country_code(
             datevdict=datevdict,
             move=move,
-            line=line,
         )
 
         if line.account_id.datev_vat_handover and line.ecofi_tax_id:
@@ -165,24 +162,30 @@ class Ecofi(models.Model):
         move, line, datevdict = self.set_beleglink(move, line, datevdict)
         return errorcount, partnererror, thislog, thismovename, datevdict
 
-    def set_country_code(self, datevdict, move, line):
-        datevdict['EulandUSTID'] = ''
-        if not move.partner_id:
-            return datevdict
+    def get_country_code(self, partner, lines) -> str:
+        res = ''
+        if not partner:
+            return res
 
-        if move.partner_id.country_id:
-            datevdict['EulandUSTID'] = move.partner_id.country_id.code
+        if partner.country_id:
+            res = partner.country_id.code
 
-        if line.account_id.datev_vat_handover:
-            if move.partner_id.vat:
-                datevdict['EulandUSTID'] = move.partner_id.vat
+        if any(lines.mapped('account_id.datev_vat_handover')) and partner.vat:
+            res = partner.vat
 
         # Task 110088: Handle exceptions from ISO-Code 3166
-        if datevdict['EulandUSTID'] == 'GR':
-            datevdict['EulandUSTID'] = 'EL'
-        elif datevdict['EulandUSTID'] == 'IE':
-            datevdict['EulandUSTID'] = 'XI'
+        if res == 'GR':
+            res = 'EL'
+        elif res == 'IE':
+            res = 'XI'
 
+        return res
+
+    def set_country_code(self, datevdict, move):
+        datevdict['EulandUSTID'] = self.get_country_code(
+            move.partner_id,
+            lines=move.line_ids,
+        )
         return datevdict
 
     def _get_analytic_account_datev(self, datevdict, line):
@@ -238,17 +241,353 @@ class Ecofi(models.Model):
         """
         Implement the generate_csv_move_lines method for the datev interface.
         """
+        # Set Headers
         if 'buchungen' not in bookingdict:
             bookingdict['buchungen'] = []
-        if 'buchungsheader' not in bookingdict:
             bookingdict['buchungsheader'] = (
                 self.env['ecofi.export.columns'].get_datev_column_headings()
             )
-        if 'datevheader' not in bookingdict:
             bookingdict['datevheader'] = (
                 self.get_legal_datev_header(move.vorlauf_id)
             )
 
+        return self.generate_grouped_csv_move_lines(  # 111022
+            move,
+            buchungserror,
+            errorcount,
+            thislog,
+            thismovename,
+            export_method,
+            partnererror,
+            buchungszeilencount,
+            bookingdict
+        ) or self.generate_csv_move_lines_v1(
+            move,
+            buchungserror,
+            errorcount,
+            thislog,
+            thismovename,
+            export_method,
+            partnererror,
+            buchungszeilencount,
+            bookingdict
+        )
+
+    def has_equal_kost_columns(self, product_lines) -> bool:
+        """Return if all product lines share the same analytic distribution"""
+
+        if 'analytic_distribution' not in product_lines:
+            # Feature disabled in settings
+            return True
+
+        line_dicts = product_lines.mapped('analytic_distribution')
+        if len(line_dicts) == 1:
+            return True
+
+        line_dicts = product_lines.mapped('analytic_distribution')
+
+        # Each move line contains a dict in the field "analytic_distribution"
+        # with the base template "{'<aaa_id>': <distr. percentage>}"
+        first = None
+        for line_dict in line_dicts:
+            lkeys = False
+            if isinstance(line_dict, dict):
+                lkeys = line_dict.keys()
+            if first is None:
+                first = lkeys
+                continue
+            if first != lkeys:
+                return False
+        return True
+
+    def get_grouped_kost_columns(self, product_lines) -> tuple[str, str]:
+        # Einstellungen -> Buchungszeilen -> Kostenrechnung
+        if 'analytic_distribution' not in product_lines:
+            # Feature disabled in settings
+            return '', ''
+
+        aaa_ids = []
+        line_dicts = product_lines.mapped('analytic_distribution')
+
+        # Each move line contains a dict in the field "analytic_distribution"
+        # with the base template "{'<aaa_id>': <distr. percentage>}"
+        for line_dict in line_dicts:
+            if not line_dict:
+                # Skip product lines without analytic distributions
+                continue
+            for aaa_id in line_dict.keys():
+                aaa_ids.append(int(aaa_id))
+
+        aaa = self.env['account.analytic.account'].sudo().browse(aaa_ids)
+        dist_codes = [x.code for x in aaa if x and x.code]
+
+        if not dist_codes:
+            return '', ''
+        if len(dist_codes) > 1:
+            return dist_codes[0], dist_codes[1]
+        return dist_codes[0], ''
+
+    def generate_grouped_csv_move_lines(  # noqa: C901
+        self,
+        move,
+        buchungserror,
+        errorcount,
+        thislog,
+        thismovename,
+        export_method,
+        partnererror,
+        buchungszeilencount,
+        bookingdict
+    ):
+        lines = move.line_ids
+        company = move.company_id or self.env.company
+
+        # Get relevant line types
+        # Respect odoo standard or atleast comment changes to it properly
+        tax_lines = lines.filtered(lambda x: x.display_type == 'tax')
+        product_lines = lines.filtered(lambda x: x.display_type == 'product')
+        term_lines = lines.filtered(lambda x: x.display_type == 'payment_term')
+
+        move_account_id = product_lines.mapped('account_id')
+        move_counter_account_id = product_lines.mapped(
+            'ecofi_account_counterpart'
+        )
+        account_code = (
+            move_account_id
+            and move_account_id.code
+            or ''
+        )
+        counter_account_code = (
+            move_counter_account_id
+            and move_counter_account_id.code
+            or ''
+        )
+
+        # Get taxes
+        tax_ids = lines.mapped('tax_ids')
+        if not (
+            company.datev_group_lines
+            and len(tax_ids) == 1
+            and len(move_account_id) == 1
+            and self.has_equal_kost_columns(product_lines=product_lines)
+        ):
+            return None
+
+        # Gross
+        base_balance = sum(term_lines.mapped('balance'))
+        base_balance = -base_balance if base_balance < 0 else base_balance
+        base_currency = move.company_currency_id
+        foreign_balance = move.amount_total_in_currency_signed
+        foreign_currency = move.currency_id
+        sollhaben = 'h' if base_balance < 0 else 's'
+        exchange_rate = 0
+        for line in product_lines:
+            exchange_rate += line._currency_exchange_rate()
+
+        if (
+            company.datev_ignore_currency
+            or base_currency == foreign_currency
+        ):
+            # Foreign and base currency is the same or the customer doesn't
+            # want to export foreign currencies.
+            foreign_balance = base_currency
+            foreign_balance = base_balance
+            exchange_rate = ''
+            base_currency = ''
+            base_balance = ''
+
+        booking_key = tax_ids.mapped('l10n_de_datev_code')
+        booking_key = booking_key[0] if booking_key else ''
+
+        export_date = move.date
+        if move.invoice_date:
+            export_date = move.invoice_date
+        export_date = export_date.strftime('%d%m')
+
+        date_maturity = term_lines.mapped('date_maturity')
+        if date_maturity:
+            date_maturity = date_maturity[0].strftime('%d%m%y')
+
+        booking_text = '{:.55}'.format(
+            ', '.join([x for x in term_lines.mapped('name') if x])
+        )
+        receipt_link = '{link_type} ""{link}""'.format(
+            link_type=company.export_document_link_type.upper(),
+            link=move.get_uuid4(),
+        )
+
+        receiptInfoType1 = ''
+        receiptInfoContent1 = ''
+        if move.journal_id and move.journal_id.type in ['purchase']:
+            receiptInfoType1 = 'Odoo Bill no'
+            receiptInfoContent1 = move.name
+
+        kost1, kost2 = self.get_grouped_kost_columns(product_lines)
+
+        # EU Tax
+        ecofi_tax_ids = lines.mapped('ecofi_tax_id')
+        handovers = lines.mapped('account_id.datev_vat_handover')
+        eu_tax = ''
+        if any(handovers) and ecofi_tax_ids:
+            eu_tax = str(
+                sum(ecofi_tax_ids.mapped('amount'))
+            ).replace('.', ',')
+
+        # Leistungsdatum
+        service_date = move.date.strftime('%d%m%Y')
+        if (
+            company.export_delivery_date
+            and move.move_type == 'out_invoice'
+            and move.delivery_date
+        ):
+            service_date = move.delivery_date.strftime('%d%m%Y')
+
+        # Tax Period
+        tax_period = move.date and move.date.strftime('%d%m%Y') or ''
+
+        bookingdict['move_bookings'].append([
+            str(foreign_balance),  # Umsatz
+            sollhaben,
+            foreign_currency.name if foreign_currency else '',
+            exchange_rate or '',
+            str(base_balance),  # Basiswaehrungsbetrag
+            base_currency.name if base_currency else '',
+            account_code,
+            counter_account_code,
+            booking_key,
+            export_date,
+            move.name,  # Beleg1
+            date_maturity or '',
+            '',  # Skonto
+            booking_text,
+            '',  # Postensperre
+            '',  # Diverse Adressnummer
+            '',  # Geschäftspartnerbank
+            '',  # Sachverhalt
+            '',  # Zinssperre
+            receipt_link or '',  # Beleglink
+            receiptInfoType1,  # Beleginfo - Art 1
+            receiptInfoContent1,  # Beleginfo - Inhalt 1
+            '',  # Beleginfo - Art 2
+            '',  # Beleginfo - Inhalt 2
+            '',  # Beleginfo - Art 3
+            '',  # Beleginfo - Inhalt 3
+            '',  # Beleginfo - Art 4
+            '',  # Beleginfo - Inhalt 4
+            '',  # Beleginfo - Art 5
+            '',  # Beleginfo - Inhalt 5
+            '',  # Beleginfo - Art 6
+            '',  # Beleginfo - Inhalt 6
+            '',  # Beleginfo - Art 7
+            '',  # Beleginfo - Inhalt 7
+            '',  # Beleginfo - Art 8
+            '',  # Beleginfo - Inhalt 8
+            kost1 or '',
+            kost2 or '',
+            '',  # Kostmenge,
+            self.get_country_code(move.partner_id, lines), # EulandUSTID
+            eu_tax,  # EUSteuer
+            '',  # Abw. Versteuerungsart
+            '',  # Sachverhalt L+L
+            '',  # Funktionsergänzung L+L
+            '',  # BU 49 Hauptfunktionstyp
+            '',  # BU 49 Hauptfunktionsnummer
+            '',  # BU 49 Funktionsergänzung
+            '',  # Zusatzinformation - Art 1
+            '',  # Zusatzinformation- Inhalt 1
+            '',  # Zusatzinformation - Art 2
+            '',  # Zusatzinformation- Inhalt 2
+            '',  # Zusatzinformation - Art 3
+            '',  # Zusatzinformation- Inhalt 3
+            '',  # Zusatzinformation - Art 4
+            '',  # Zusatzinformation- Inhalt 4
+            '',  # Zusatzinformation - Art 5
+            '',  # Zusatzinformation- Inhalt 5
+            '',  # Zusatzinformation - Art 6
+            '',  # Zusatzinformation- Inhalt 6
+            '',  # Zusatzinformation - Art 7
+            '',  # Zusatzinformation- Inhalt 7
+            '',  # Zusatzinformation - Art 8
+            '',  # Zusatzinformation- Inhalt 8
+            '',  # Zusatzinformation - Art 9
+            '',  # Zusatzinformation- Inhalt 9
+            '',  # Zusatzinformation - Art 10
+            '',  # Zusatzinformation- Inhalt 10
+            '',  # Zusatzinformation - Art 11
+            '',  # Zusatzinformation- Inhalt 11
+            '',  # Zusatzinformation - Art 12
+            '',  # Zusatzinformation- Inhalt 12
+            '',  # Zusatzinformation - Art 13
+            '',  # Zusatzinformation- Inhalt 13
+            '',  # Zusatzinformation - Art 14
+            '',  # Zusatzinformation- Inhalt 14
+            '',  # Zusatzinformation - Art 15
+            '',  # Zusatzinformation- Inhalt 15
+            '',  # Zusatzinformation - Art 16
+            '',  # Zusatzinformation- Inhalt 16
+            '',  # Zusatzinformation - Art 17
+            '',  # Zusatzinformation- Inhalt 17
+            '',  # Zusatzinformation - Art 18
+            '',  # Zusatzinformation- Inhalt 18
+            '',  # Zusatzinformation - Art 19
+            '',  # Zusatzinformation- Inhalt 19
+            '',  # Zusatzinformation - Art 20
+            '',  # Zusatzinformation- Inhalt 20
+            '',  # Stück
+            '',  # Gewicht
+            '',  # Zahlweise
+            '',  # Forderungsart
+            '',  # Veranlagungsjahr
+            '',  # Zugeordnete Fälligkeit
+            '',  # Skontotyp
+            move.invoice_origin or '',  # Auftragsnummer
+            '',  # Buchungstyp
+            '',  # Ust-Schlüssel (Anzahlungen)
+            '',  # EU-Land (Anzahlungen)
+            '',  # Sachverhalt L+L (Anzahlungen)
+            '',  # EU-Steuersatz (Anzahlungen)
+            '',  # Erlöskonto (Anzahlungen)
+            '',  # Herkunft-Kz
+            '',  # Leerfeld
+            '',  # KOST-Datum
+            '',  # Mandatsreferenz
+            '',  # Skontosperre
+            '',  # Gesellschaftername
+            '',  # Beteiligtennummer
+            '',  # Identifikationsnummer
+            '',  # Zeichnernummer
+            '',  # Postensperre bis
+            '',  # Bezeichnung SoBil-Sachverhalt
+            '',  # Kennzeichen SoBil-Buchung
+            str(int(bool(
+                move.restrict_mode_hash_table and move.inalterable_hash
+            ))),  # Festschreibung
+            service_date,  # Leistungsdatum
+            tax_period  # Datum Zuord.Steuerperiode
+        ])
+
+        return (
+            buchungserror,
+            errorcount,
+            thislog,
+            partnererror,
+            buchungszeilencount,
+            bookingdict,
+            tax_lines
+        )
+
+    def generate_csv_move_lines_v1(  # noqa: C901
+        self,
+        move,
+        buchungserror,
+        errorcount,
+        thislog,
+        thismovename,
+        export_method,
+        partnererror,
+        buchungszeilencount,
+        bookingdict
+    ):
         company = move.company_id or self.env.company
         faelligkeit = False
         move_tax_lines = 0
@@ -295,6 +634,7 @@ class Ecofi(models.Model):
             tax_repartitions = tax.invoice_repartition_line_ids
 
             if line.is_refund:
+                # Wenn Refund, nutze Refund-Steuerzeilen
                 tax_repartitions = tax.refund_repartition_line_ids
 
             if tax_repartitions and len(tax_repartitions) > 2:

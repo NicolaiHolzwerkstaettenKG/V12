@@ -1,14 +1,19 @@
 # Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 
+from uuid import uuid4
 from collections import defaultdict
-
 from odoo import _, api, exceptions, fields, models
 from odoo.exceptions import UserError
 
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
+
+    uuid4 = fields.Char(
+        copy=False,
+        readonly=True,
+    )  # Required for DATEV document links
 
     visible_account_counterpart = fields.Boolean(
         compute='_set_visible_account_counterpart'
@@ -80,6 +85,11 @@ class AccountMove(models.Model):
                 raise exceptions.ValidationError(
                     '\n\n'.join(error_msg)
                 )
+
+    def get_uuid4(self):
+        if not self.uuid4:
+            self.uuid4 = uuid4()
+        return self.uuid4
 
     def _post(self, soft=True):
         self.set_main_account()
