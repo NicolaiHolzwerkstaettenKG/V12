@@ -3,6 +3,7 @@
 
 import re
 from decimal import Decimal
+from typing import Tuple as TTuple
 from odoo import api, models
 
 
@@ -300,7 +301,7 @@ class Ecofi(models.Model):
                 return False
         return True
 
-    def get_grouped_kost_columns(self, product_lines) -> tuple[str, str]:
+    def get_grouped_kost_columns(self, product_lines) -> TTuple[str, str]:
         # Einstellungen -> Buchungszeilen -> Kostenrechnung
         if 'analytic_distribution' not in product_lines:
             # Feature disabled in settings
