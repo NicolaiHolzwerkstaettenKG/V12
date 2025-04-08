@@ -353,6 +353,11 @@ class Ecofi(models.Model):
         move_counter_account_id = product_lines.mapped(
             'ecofi_account_counterpart'
         )
+        if len(move_account_id) != 1 or len(move_counter_account_id) != 1:
+            # Too many accounts for same invoice/batch. Can't export
+            # a grouped invoice/batch
+            return False
+
         account_code = (
             move_account_id
             and move_account_id.code
