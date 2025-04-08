@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-29 14:40+0000\n"
-"PO-Revision-Date: 2025-01-29 14:40+0000\n"
+"POT-Creation-Date: 2025-04-03 10:29+0000\n"
+"PO-Revision-Date: 2025-04-03 10:29+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,66 +16,84 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: ecoservice_financeinterface_datev_auto_export
-#: model:mail.template,body_html:ecoservice_financeinterface_datev_auto_export.send_email_finance_report_summary
+#: model:mail.template,body_html:ecoservice_financeinterface_datev_auto_export.email_template_auto_datev_export
 msgid ""
 "<div style=\"margin: 0px; padding: 0px;\">\n"
 "        <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"          Dear ${object.partner_id.name}<br/>\n"
-"          <br/>\n"
-"          <br/>\n"
-"          Please find the summary of financial report from the attached file.<br/>\n"
-"          <br/>\n"
-"          <br/>\n"
-"          Regards,<br/>\n"
-"          ${user.partner_id.name}\n"
+"          Hello,<br>\n"
+"          <br>\n"
+"          <br>\n"
+"          Please find the latest financial export in the attached file.<br>\n"
+"          <br>\n"
+"          <br>\n"
+"          Regards,<br>\n"
+"         <t t-out=\"user.partner_id.name\"></t>\n"
 "        </p>\n"
 "      </div>\n"
 "    "
 msgstr ""
 "<div style=\"margin: 0px; padding: 0px;\">\n"
 "        <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
-"          Sehr geehrte/r ${object.partner_id.name}<br/>\n"
-"          <br/>\n"
-"          <br/>\n"
-"          Die Zusammenfassung des Finanzberichts entnehmen Sie bitte der beigefügten Datei.<br/>\n"
-"          <br/>\n"
-"          <br/>\n"
-"          Mit freundlichen Grüßen,<br/>\n"
-"          ${user.partner_id.name}\n"
+"          Hallo,<br>\n"
+"          <br>\n"
+"          <br>\n"
+"          Den neuesten Finanzexport entnehmen Sie bitte der beigefügten Datei.<br>\n"
+"          <br>\n"
+"          <br>\n"
+"          Mit freundlichen Grüßen,<br>\n"
+"         <t t-out=\"user.partner_id.name\"></t>\n"
 "        </p>\n"
 "      </div>\n"
 "    "
 
 #. module: ecoservice_financeinterface_datev_auto_export
-#: model:ir.model.constraint,message:ecoservice_financeinterface_datev_auto_export.constraint_auto_datev_export_config_partner_period_unique
-msgid "A period could be defined only one time for same partner."
-msgstr "Eine Periode kann nur einmal für denselben Partner definiert werden"
-
-#. module: ecoservice_financeinterface_datev_auto_export
 #: model:ir.model,name:ecoservice_financeinterface_datev_auto_export.model_auto_datev_export_config
 msgid "Auto Datev Export Config"
-msgstr "Auto-Datev-Export-Konfiguration"
+msgstr "Auto Datev Export Konfiguration"
 
 #. module: ecoservice_financeinterface_datev_auto_export
-#: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev_auto_export.view_ecoservice_finance_interface_configuration
-msgid "Auto Mail Configuration"
-msgstr "Auto-Mail-Konfiguration"
+#: model:mail.template,name:ecoservice_financeinterface_datev_auto_export.email_template_auto_datev_export
+msgid "Auto Datev Export Mail"
+msgstr "Auto Datev Export Mail"
+
 
 #. module: ecoservice_financeinterface_datev_auto_export
-#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_auto_export.field_res_company__auto_datev_export_config_ids
-#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_auto_export.field_res_config_settings__auto_datev_export_config_ids
-msgid "Auto Mail Export Configuration"
-msgstr "Auto-Mail-Export Konfiguration"
+#: model:ir.actions.server,name:ecoservice_financeinterface_datev_auto_export.ir_cron_auto_datev_export_mail_daily_ir_actions_server
+#: model:ir.cron,cron_name:ecoservice_financeinterface_datev_auto_export.ir_cron_auto_datev_export_mail_daily
+msgid "Auto send mail with Finance Export (Daily)"
+msgstr "Automatisches Senden von Finanzexports (Täglich)"
 
 #. module: ecoservice_financeinterface_datev_auto_export
-#: model:ir.model,name:ecoservice_financeinterface_datev_auto_export.model_res_company
-msgid "Companies"
+#: model:ir.actions.server,name:ecoservice_financeinterface_datev_auto_export.ir_cron_auto_datev_export_mail_monthly_ir_actions_server
+#: model:ir.cron,cron_name:ecoservice_financeinterface_datev_auto_export.ir_cron_auto_datev_export_mail_monthly
+msgid "Auto send mail with Finance Export (Monthly)"
+msgstr "Automatisches Senden von Finanzexports (Monatlich)"
+
+#. module: ecoservice_financeinterface_datev_auto_export
+#: model:ir.actions.server,name:ecoservice_financeinterface_datev_auto_export.ir_cron_auto_datev_export_mail_weekly_ir_actions_server
+#: model:ir.cron,cron_name:ecoservice_financeinterface_datev_auto_export.ir_cron_auto_datev_export_mail_weekly
+msgid "Auto send mail with Finance Export (Weekly)"
+msgstr "Automatisches Senden von Finanzexports (Wöchentlich)"
+
+#. module: ecoservice_financeinterface_datev_auto_export
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev_auto_export.selection__auto_datev_export_config__to_export__belege_export
+msgid "Belege Export"
+msgstr ""
+
+#. module: ecoservice_financeinterface_datev_auto_export
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev_auto_export.selection__auto_datev_export_config__to_export__csv_and_beleg_export
+msgid "CSV+Beleg Export"
+msgstr ""
+
+#. module: ecoservice_financeinterface_datev_auto_export
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev_auto_export.selection__auto_datev_export_config__to_export__csv_export
+msgid "CSV-Export"
+msgstr ""
+
+#. module: ecoservice_financeinterface_datev_auto_export
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_auto_export.field_auto_datev_export_config__company_id
+msgid "Company"
 msgstr "Unternehmen"
-
-#. module: ecoservice_financeinterface_datev_auto_export
-#: model:ir.model,name:ecoservice_financeinterface_datev_auto_export.model_res_config_settings
-msgid "Config Settings"
-msgstr "Konfigurationseinstellungen"
 
 #. module: ecoservice_financeinterface_datev_auto_export
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_auto_export.field_auto_datev_export_config__create_uid
@@ -88,15 +106,10 @@ msgid "Created on"
 msgstr "Erstellt am"
 
 #. module: ecoservice_financeinterface_datev_auto_export
-#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_auto_export.field_auto_datev_export_config__partner_id
-msgid "Customer"
-msgstr "Kunde"
-
-#. module: ecoservice_financeinterface_datev_auto_export
 #: model:ir.actions.act_window,name:ecoservice_financeinterface_datev_auto_export.auto_datev_export_config_action
 #: model:ir.ui.menu,name:ecoservice_financeinterface_datev_auto_export.auto_datev_export_config_menu
 msgid "DATEV Auto Export Configuration"
-msgstr "DATEV Auto-Export Konfiguration"
+msgstr "DATEV Auto Export Konfiguration"
 
 #. module: ecoservice_financeinterface_datev_auto_export
 #: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev_auto_export.selection__auto_datev_export_config__period__daily
@@ -104,19 +117,31 @@ msgid "Daily"
 msgstr "Täglich"
 
 #. module: ecoservice_financeinterface_datev_auto_export
+#. odoo-python
+#: code:addons/ecoservice_financeinterface_datev_auto_export/models/auto_datev_export_config.py:0
+#, python-format
+msgid "Datev Export from {start_date} to {end_date}"
+msgstr "Datev Export vom {start_date} bis zum {end_date}"
+
+#. module: ecoservice_financeinterface_datev_auto_export
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_auto_export.field_auto_datev_export_config__display_name
 msgid "Display Name"
 msgstr "Anzeigename"
 
 #. module: ecoservice_financeinterface_datev_auto_export
-#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_auto_export.field_auto_datev_export_config__email_to
-msgid "Email To"
-msgstr "Email an"
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_auto_export.field_auto_datev_export_config__fi_datev_xml_installed
+msgid "Fi Datev Xml Installed"
+msgstr "FI Datev XML Installiert"
 
 #. module: ecoservice_financeinterface_datev_auto_export
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_auto_export.field_auto_datev_export_config__id
 msgid "ID"
-msgstr "ID"
+msgstr ""
+
+#. module: ecoservice_financeinterface_datev_auto_export
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_auto_export.field_auto_datev_export_config__journal_ids
+msgid "Journals"
+msgstr "Journale"
 
 #. module: ecoservice_financeinterface_datev_auto_export
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_auto_export.field_auto_datev_export_config____last_update
@@ -144,65 +169,16 @@ msgid "Period"
 msgstr "Periode"
 
 #. module: ecoservice_financeinterface_datev_auto_export
-#: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev_auto_export.view_ecoservice_finance_interface_configuration
-msgid "Select period based on customer"
-msgstr "Zeitraum nach Kunde wählen"
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_auto_export.field_auto_datev_export_config__partner_id
+msgid "Send to"
+msgstr "Senden an"
 
 #. module: ecoservice_financeinterface_datev_auto_export
-#: model:ir.model.fields,help:ecoservice_financeinterface_datev_auto_export.field_auto_datev_export_config__email_to
-msgid ""
-"Specify the email address to send the report to. If not set, the partner's "
-"email will be used."
-msgstr ""
-"Geben Sie die E-Mail-Adresse an, an die der Bericht gesendet werden soll. "
-"Wenn nicht festgelegt, wird die des Kontaktes verwendet."
-
-#. module: ecoservice_financeinterface_datev_auto_export
-#: model:mail.template,name:ecoservice_financeinterface_datev_auto_export.send_email_finance_report_summary
-msgid "Summary : Finance Report"
-msgstr "Zusammenfassung: Finanzbericht"
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_auto_export.field_auto_datev_export_config__to_export
+msgid "To Export"
+msgstr "Zu exportieren"
 
 #. module: ecoservice_financeinterface_datev_auto_export
 #: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev_auto_export.selection__auto_datev_export_config__period__weekly
 msgid "Weekly"
 msgstr "Wöchentlich"
-
-#. module: ecoservice_financeinterface_datev_auto_export
-#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_auto_export.field_auto_datev_export_config__company_id
-msgid "Company"
-msgstr "Unternehmen"
-
-#. module: ecoservice_financeinterface_datev_auto_export
-#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev_auto_export.selection__auto_datev_export_config__export_backtrack__previous_year_start
-msgid "Start of the Last Year"
-msgstr "Anfang des vorherigen Jahres"
-
-#. module: ecoservice_financeinterface_datev_auto_export
-#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev_auto_export.selection__auto_datev_export_config__export_backtrack__start_of_year
-msgid "Start of the Year"
-msgstr "Beginn des Jahres"
-
-#. module: ecoservice_financeinterface_datev_auto_export
-#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev_auto_export.selection__auto_datev_export_config__export_backtrack__last_export
-msgid "Last Automatic Export"
-msgstr "Letzer auto Export"
-
-#. module: ecoservice_financeinterface_datev_auto_export
-#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev_auto_export.selection__auto_datev_export_config__export_backtrack__last_export_minus_1
-msgid "Last Export - 1 Month"
-msgstr "Letzer auto Export - 1 Monat"
-
-#. module: ecoservice_financeinterface_datev_auto_export
-#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev_auto_export.selection__auto_datev_export_config__export_backtrack__last_export_minus_2
-msgid "Last Export - 2 Month"
-msgstr "Letzer auto Export - 2 Monate"
-
-#. module: ecoservice_financeinterface_datev_auto_export
-#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev_auto_export.selection__auto_datev_export_config__export_backtrack__last_export_minus_3
-msgid "Last Export - 3 Month"
-msgstr "Letzer auto Export - 3 Monate"
-
-#. module: ecoservice_financeinterface_datev_auto_export
-#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_auto_export.field_auto_datev_export_config__export_backtrack
-msgid "Export Backtrack"
-msgstr "Backtrack exportieren"

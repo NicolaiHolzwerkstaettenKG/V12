@@ -5,7 +5,7 @@
     'name': 'Auto DATEV Export',
     'summary': 'Generate CSV files and send them via mail based on a time interval.',
     'category': 'Accounting',
-    'version': '16.0.1.0.5',
+    'version': '16.0.1.1.0',
     'license': 'OPL-1',
     'application': True,
     'installable': True,
@@ -28,9 +28,8 @@
     # Data
     'data': [
         'security/ir.model.access.csv',
-        'data/ir_cron.xml',
         'data/mail_template.xml',
+        'data/ir_cron.xml',
         'views/auto_datev_export_config.xml',
-        'views/res_config_settings.xml'
     ],
 }
