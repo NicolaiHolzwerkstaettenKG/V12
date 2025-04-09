@@ -4,16 +4,26 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 15.0+e\n"
+"Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-09 10:30+0000\n"
-"PO-Revision-Date: 2025-01-09 10:30+0000\n"
+"POT-Creation-Date: 2025-04-09 06:37+0000\n"
+"PO-Revision-Date: 2025-04-09 06:37+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: \n"
+
+#. module: ecoservice_financeinterface_datev_import
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev_import.selection__account_move_line__datev_posting_key__40
+msgid "40"
+msgstr ""
+
+#. module: ecoservice_financeinterface_datev_import
+#: model:ir.model,name:ecoservice_financeinterface_datev_import.model_account_account
+msgid "Account"
+msgstr ""
 
 #. module: ecoservice_financeinterface_datev_import
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_import.field_import_datev__account_moves
@@ -34,6 +44,7 @@ msgid "Account {account} could not be found in Odoo!"
 msgstr "Konto {account} konnte in Odoo nicht gefunden werden!"
 
 #. module: ecoservice_financeinterface_datev_import
+#. odoo-python
 #: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
 #: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
 #: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
@@ -42,18 +53,21 @@ msgid "Attribute could not be converted!"
 msgstr "Das Attribut konnte nicht konvertiert werden!"
 
 #. module: ecoservice_financeinterface_datev_import
+#. odoo-python
 #: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
 #, python-format
 msgid "Attribute type could not be resolved"
 msgstr "Attribut-Typ ist nicht bekannt"
 
 #. module: ecoservice_financeinterface_datev_import
+#. odoo-python
 #: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
 #, python-format
 msgid "Attribute type {type} could not be resolved!"
 msgstr "Der Attribut-Typ {type} ist nicht bekannt!"
 
 #. module: ecoservice_financeinterface_datev_import
+#. odoo-python
 #: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
 #, python-format
 msgid ""
@@ -114,6 +128,16 @@ msgid "DATEV Import"
 msgstr "DATEV Import"
 
 #. module: ecoservice_financeinterface_datev_import
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_import.field_account_account__datev_automatic_account
+msgid "Datev Automatic Account"
+msgstr "Automatikkonto"
+
+#. module: ecoservice_financeinterface_datev_import
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_import.field_account_move_line__datev_posting_key
+msgid "Datev BU"
+msgstr "Buchungsschlüssel"
+
+#. module: ecoservice_financeinterface_datev_import
 #: model:ir.model,name:ecoservice_financeinterface_datev_import.model_import_datev
 #: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev_import.import_datev_form_view
 msgid "Datev Import"
@@ -157,9 +181,30 @@ msgid "Error"
 msgstr "Fehler"
 
 #. module: ecoservice_financeinterface_datev_import
+#. odoo-python
+#: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
+#, python-format
+msgid "Error with file formatting!"
+msgstr "Fehler bei der Dateiformatierung!"
+
+#. module: ecoservice_financeinterface_datev_import
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_import.field_import_datev__config_extended_datev_header
 msgid "Extended Datev Header"
-msgstr "Erweitete Datev-Kopfzeile"
+msgstr "Erweiterte Datev-Kopfzeile"
+
+#. module: ecoservice_financeinterface_datev_import
+#. odoo-python
+#: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
+#, python-format
+msgid "File could not be processed."
+msgstr "Die Datei konnte nicht verarbeitet werden."
+
+#. module: ecoservice_financeinterface_datev_import
+#. odoo-python
+#: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
+#, python-format
+msgid "File could not be processed. Please adjust the encoding. "
+msgstr "Die Datei konnte nicht verarbeitet werden. Bitte passen Sie die Kodierung an."
 
 #. module: ecoservice_financeinterface_datev_import
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev_import.field_import_datev__id
@@ -184,12 +229,14 @@ msgid "Import"
 msgstr "Import"
 
 #. module: ecoservice_financeinterface_datev_import
+#. odoo-python
 #: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
 #, python-format
 msgid "Import can only be deleted in state draft!"
 msgstr "Der Import kann nur im Status Entwurf gelöscht werden!"
 
 #. module: ecoservice_financeinterface_datev_import
+#. odoo-python
 #: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
 #, python-format
 msgid "Import started!"
@@ -221,6 +268,11 @@ msgid "Journal Entry"
 msgstr "Journalbuchung"
 
 #. module: ecoservice_financeinterface_datev_import
+#: model:ir.model,name:ecoservice_financeinterface_datev_import.model_account_move_line
+msgid "Journal Item"
+msgstr "Journal Item"
+
+#. module: ecoservice_financeinterface_datev_import
 #: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev_import.import_datev_form_view
 msgid "LOG"
 msgstr "LOG"
@@ -244,6 +296,7 @@ msgid "Last Updated on"
 msgstr "Zuletzt aktualisiert am"
 
 #. module: ecoservice_financeinterface_datev_import
+#. odoo-python
 #: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
 #, python-format
 msgid "Line: {line} has been imported"
@@ -266,6 +319,7 @@ msgid "Name"
 msgstr "Name"
 
 #. module: ecoservice_financeinterface_datev_import
+#. odoo-python
 #: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
 #, python-format
 msgid "Odoo ERROR: {error}"
@@ -297,6 +351,23 @@ msgid "Status"
 msgstr "Status"
 
 #. module: ecoservice_financeinterface_datev_import
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev_import.selection__account_move_line__datev_posting_key__sd
+msgid "Steuer Direkt"
+msgstr "Steuer Direkt"
+
+#. module: ecoservice_financeinterface_datev_import
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev_import.selection__import_datev__config_delimiter__
+msgid "Tab"
+msgstr "Tab"
+
+#. module: ecoservice_financeinterface_datev_import
+#. odoo-python
+#: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
+#, python-format
+msgid "The File Header could not be read. Please adjust the delimiter."
+msgstr "Der Dateikopf konnte nicht gelesen werden. Bitte passen Sie das Trennzeichen an."
+
+#. module: ecoservice_financeinterface_datev_import
 #: model:ir.model.fields,help:ecoservice_financeinterface_datev_import.field_import_datev__config_extended_datev_header
 msgid ""
 "The first line of a standard export from DATEV contains meta information. If"
@@ -323,6 +394,7 @@ msgid "Windows-1252"
 msgstr "Windows-1252"
 
 #. module: ecoservice_financeinterface_datev_import
+#. odoo-python
 #: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
 #, python-format
 msgid ""
@@ -333,6 +405,7 @@ msgstr ""
 "laden Sie eine Datei mit einem korrekten Format hoch."
 
 #. module: ecoservice_financeinterface_datev_import
+#. odoo-python
 #: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
 #: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
 #, python-format
@@ -340,12 +413,14 @@ msgid "{desc} Line: {line}"
 msgstr "{desc} Zeile: {line}"
 
 #. module: ecoservice_financeinterface_datev_import
+#. odoo-python
 #: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
 #, python-format
 msgid "{name} booked successful."
 msgstr "{name} Buchung erfolgreich."
 
 #. module: ecoservice_financeinterface_datev_import
+#. odoo-python
 #: code:addons/ecoservice_financeinterface_datev_import/models/import_datev.py:0
 #, python-format
 msgid "{name} could not be booked, Odoo ERROR: {error}"
