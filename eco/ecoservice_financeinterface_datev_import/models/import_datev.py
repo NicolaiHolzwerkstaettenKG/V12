@@ -330,7 +330,8 @@ class ImportDatev(models.Model):
                 'csv_name': [
                     'Gegenkonto (ohne BU-Schlüssel)',
                     'Gegenkonto',
-                    'Gegenkonto (ohne BU-Schluessel)'
+                    'Gegenkonto (ohne BU-Schluessel)',
+                    'Gegenkonto (ohne BU-Schl�ssel)'
                 ],
                 'csv_row': False,
                 'type': 'string',
@@ -362,7 +363,11 @@ class ImportDatev(models.Model):
                 'erpfield': 'name',
             },
             'buschluessel': {
-                'csv_name': ['BU-Schlüssel', 'BU-Schluessel'],
+                'csv_name': [
+                    'BU-Schlüssel',
+                    'BU-Schluessel',
+                    'BU-Schl�ssel'
+                ],
                 'csv_row': False,
                 'type': 'string',
                 'required': False,
@@ -551,7 +556,7 @@ class ImportDatev(models.Model):
             'account_id': line['gegenkonto_object'].id,
             'date': line['belegdatum'],
             'move_id': thismove,
-            'name': line['buchungstext'],
+            'name': line['buchungstext'] if 'buchungstext' in line else '',
             'partner_id': partner_id,
             'ecofi_account_counterpart': line['gegenkonto_object'].id,
             'display_type': 'payment_term',
@@ -562,7 +567,7 @@ class ImportDatev(models.Model):
             'account_id': line['konto_object'].id,
             'date': line['belegdatum'],
             'move_id': thismove,
-            'name': line['buchungstext'],
+            'name': line['buchungstext'] if 'buchungstext' in line else '',
             'partner_id': partner_id,
             'ecofi_account_counterpart': line['gegenkonto_object'].id,
             'display_type': 'product',
