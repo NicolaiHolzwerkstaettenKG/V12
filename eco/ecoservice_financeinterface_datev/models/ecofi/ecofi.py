@@ -452,11 +452,11 @@ class Ecofi(models.Model):
         tax_period = move.date and move.date.strftime('%d%m%Y') or ''
 
         bookingdict['move_bookings'].append([
-            str(foreign_balance),  # Umsatz
+            str(foreign_balance).replace('.', ','),  # Umsatz
             sollhaben,
             foreign_currency.name if foreign_currency else '',
             exchange_rate or '',
-            str(base_balance),  # Basiswaehrungsbetrag
+            str(base_balance).replace('.', ','),  # Basiswaehrungsbetrag
             base_currency.name if base_currency else '',
             account_code,
             counter_account_code,
@@ -491,7 +491,7 @@ class Ecofi(models.Model):
             kost1 or '',
             kost2 or '',
             '',  # Kostmenge,
-            self.get_country_code(move.partner_id, lines), # EulandUSTID
+            self.get_country_code(move.partner_id, lines),  # EulandUSTID
             eu_tax,  # EUSteuer
             '',  # Abw. Versteuerungsart
             '',  # Sachverhalt L+L
