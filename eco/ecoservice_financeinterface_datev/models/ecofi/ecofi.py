@@ -390,10 +390,7 @@ class Ecofi(models.Model):
         for line in product_lines:
             exchange_rate += line._currency_exchange_rate()
 
-        if (
-            company.datev_ignore_currency
-            or base_currency == foreign_currency
-        ):
+        if company.datev_ignore_currency:
             # Foreign and base currency is the same or the customer doesn't
             # want to export foreign currencies.
             foreign_balance = base_currency
