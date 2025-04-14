@@ -448,6 +448,12 @@ class Ecofi(models.Model):
         # Tax Period
         tax_period = move.date and move.date.strftime('%d%m%Y') or ''
 
+        # Only export positive values
+        if base_balance and base_balance < 0:
+            base_balance = -base_balance
+        if foreign_balance and foreign_balance < 0:
+            foreign_balance = -foreign_balance
+
         bookingdict['move_bookings'].append([
             str(foreign_balance).replace('.', ','),  # Umsatz
             sollhaben,
