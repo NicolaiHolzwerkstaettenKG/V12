@@ -252,17 +252,7 @@ class Ecofi(models.Model):
                 self.get_legal_datev_header(move.vorlauf_id)
             )
 
-        return self.generate_grouped_csv_move_lines(  # 111022
-            move,
-            buchungserror,
-            errorcount,
-            thislog,
-            thismovename,
-            export_method,
-            partnererror,
-            buchungszeilencount,
-            bookingdict
-        ) or self.generate_csv_move_lines_v1(
+        return self.generate_csv_move_lines_v1(
             move,
             buchungserror,
             errorcount,
