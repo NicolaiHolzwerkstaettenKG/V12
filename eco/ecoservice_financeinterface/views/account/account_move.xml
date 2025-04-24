@@ -12,6 +12,7 @@
     <field name="type">form</field>
     <field name="inherit_id" ref="account.view_move_form"/>
     <field name="arch" type="xml">
+
       <field name="partner_id" position="attributes">
         <attribute name="attrs">{
           'invisible': [('move_type', '=', 'entry')],
@@ -36,6 +37,9 @@
               <field name="ecofi_to_check"/>
             </group>
           </group>
+          <group>
+            <field name="export_mismatch"/>
+          </group>
         </page>
       </notebook>
       <field name="invoice_date" position="after">
@@ -51,7 +55,11 @@
     <field name="inherit_id" ref="account.view_move_tree"/>
     <field name="type">tree</field>
     <field name="arch" type="xml">
+      <tree position="attributes">
+        <attribute name="decoration-warning">export_mismatch != 0</attribute>
+      </tree>
       <field name="state" position="after">
+        <field name="export_mismatch" invisible="1"/>
         <field name="vorlauf_id"/>
       </field>
     </field>

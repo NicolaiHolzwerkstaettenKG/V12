@@ -1,6 +1,7 @@
 # Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 
+from decimal import Decimal
 from odoo import _, api, exceptions, fields, models
 
 
@@ -24,7 +25,7 @@ class AccountMoveLine(models.Model):
         ondelete='restrict',
     )
     line_ref = fields.Char()
-
+    eco_balance = fields.Monetary()
     # endregion
 
     # region Constrains
@@ -53,6 +54,34 @@ class AccountMoveLine(models.Model):
     # endregion
 
     # region Business Methods
+
+    def get_tax(self):
+        """
+        Return the used tax.
+        """
+        self.ensure_one()
+        return (
+            self.tax_ids
+            or self.ecofi_tax_id
+            or self.env['account.tax']
+        )
+
+    def get_tax_repartition_line_ids(self):
+        """Tax reparation lines"""
+        tax = self.get_tax()
+        if self.is_refund:
+            return tax.refund_repartition_line_ids
+        return tax.invoice_repartition_line_ids
+
+    def get_tax_multiplier(self):
+        """Tax multiplier"""
+        tax = self.get_tax()
+        tax_repartitions = self.get_tax_repartition_line_ids()
+        if tax_repartitions and len(tax_repartitions) > 2:
+            # Steuern die einen Buchungssatz mit mehreren Steuern erzeugen,
+            # sollen auf 0 gesetzt werden. Aufgabe 110719
+            return 1
+        return 1 + (Decimal(tax.amount) / 100)
 
     def _ecofi_validations_enabled(self):
         return self.move_id._ecofi_validations_enabled()

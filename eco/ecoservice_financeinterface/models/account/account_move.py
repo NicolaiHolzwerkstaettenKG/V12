@@ -50,6 +50,11 @@ class AccountMove(models.Model):
         copy=True,
         readonly=False,
     )
+    export_mismatch = fields.Monetary(
+        string='Rounding mismatch',
+        readonly=True,
+        copy=False,
+    )
     # endregion
 
     # region CRUD

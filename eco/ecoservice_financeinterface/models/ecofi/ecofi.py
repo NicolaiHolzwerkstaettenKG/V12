@@ -263,6 +263,14 @@ class Ecofi(models.Model):
                 move_booking[13] = self._safe_booking_text(move_booking[13])
                 bookingdict['buchungen'].append(move_booking)
 
+            if export_method == 'gross':
+                # Check if our export made some rounding mistakes
+                vorlauf_id._check_for_mismatch(
+                    move,
+                    sum_export_lines,
+                    move_tax_lines
+                )
+
         output = io.StringIO()
         ecofi_csv = csv.writer(
             output,
@@ -287,6 +295,44 @@ class Ecofi(models.Model):
         output.close()
 
         return vorlauf_id
+
+    def _check_for_mismatch(self, move, sum_export_lines, move_tax_lines):
+        # 111070 - Highlight moves with rounding mistakes
+        # Highlight as warning, as all other colors are occupied by odoo.
+        sum_move_lines = Decimal(str(sum(move.line_ids.mapped('credit'))))
+        mismatch = sum_export_lines - Decimal(sum_move_lines)
+
+        if mismatch != 0:
+            # A rounding mistake is possible, but we can't be 100% sure.
+            move.write({
+                'ecofi_to_check': True,
+                'export_mismatch': mismatch,
+            })
+
+            # Necessary for proper translation strings
+            msg = '<div class="alert alert-warning" role="alert">'
+            msg += _(
+                '{move_name} has a total of {move_sum} while '
+                '{export_sum} was exported (difference: {mismatch}).'
+            ).format(
+                move_name=move.name,
+                move_sum=sum_move_lines,
+                export_sum=sum_export_lines,
+                mismatch=mismatch,
+            )
+            msg += '<br/>'
+            msg += _('Please review the exported amounts.')
+            msg += '</div>'
+
+            self.message_post(message_type='notification', body=msg)
+            return
+
+        if move.export_mismatch:
+            # Lines once had are mismatch or mistake but are now correct.
+            move.write({
+                'ecofi_to_check': False,
+                'export_mismatch': False
+            })
 
     def _safe_booking_text(self, text: str) -> str:
         return (
