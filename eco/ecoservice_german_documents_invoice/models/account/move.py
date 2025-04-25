@@ -35,6 +35,9 @@ class AccountMove(models.Model):
         states={'draft': [('readonly', False)]},
         help='Enter the delivery period (e.g. month) or the delivery date here.'
     )
+    print_shipping_address = fields.Boolean(
+        default=True,
+    )
     # endregion
 
     # region Compute Methods
