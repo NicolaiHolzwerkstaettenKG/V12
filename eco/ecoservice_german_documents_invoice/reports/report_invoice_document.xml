@@ -93,6 +93,7 @@
           <t t-set="customer_address_check"
             t-value="o.get_value_customer_address()" />
           <t t-set="delivery_address" t-value="o.partner_shipping_id" />
+          <t t-set="differing_shipping_address" t-value="o.partner_id != o.partner_shipping_id" />
           <t t-set="print_shipping_address" t-value="o.print_shipping_address" />
           <t t-if="differing_shipping_address and delivery_address_check and customer_address_check and print_shipping_address">
             <div class="row mt16"
