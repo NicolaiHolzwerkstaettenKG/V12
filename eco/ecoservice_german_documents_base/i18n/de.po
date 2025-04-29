@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-18 15:39+0000\n"
-"PO-Revision-Date: 2023-04-18 15:39+0000\n"
+"POT-Creation-Date: 2025-04-29 11:17+0000\n"
+"PO-Revision-Date: 2025-04-29 11:17+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -81,6 +81,7 @@ msgstr "Unternehmen"
 
 #. module: ecoservice_german_documents_base
 #: model:ir.model.fields,field_description:ecoservice_german_documents_base.field_res_config_settings__company_id
+#: model:ir.model.fields,field_description:ecoservice_german_documents_base.field_text_template_config__company_id
 msgid "Company"
 msgstr "Unternehmen"
 
@@ -346,6 +347,11 @@ msgid "Text templates for documents"
 msgstr "Textvorlagen für Dokumente"
 
 #. module: ecoservice_german_documents_base
+#: model:ir.actions.act_window,name:ecoservice_german_documents_base.text_template_config_action
+msgid "Text templates for documents"
+msgstr "Textvorlagen für Dokumente"
+
+#. module: ecoservice_german_documents_base
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_base.external_layout_footer
 msgid "VAT-ID:"
 msgstr "USt. IdNr.:"
@@ -359,6 +365,11 @@ msgstr "Webseite:"
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_base.letterhead_reference_contact
 msgid "Your contact:"
 msgstr "Ihr Kontakt:"
+
+#. module: ecoservice_german_documents_base
+#: model:ir.actions.server,name:ecoservice_german_documents_base.action_create_missing_template
+msgid "create missing template"
+msgstr "fehlende Vorlage erstellen"
 
 #. module: ecoservice_german_documents_base
 #: model:ir.model.fields,help:ecoservice_german_documents_base.field_sale_order__amount_by_group

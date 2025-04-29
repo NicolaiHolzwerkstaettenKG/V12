@@ -5,7 +5,7 @@
     'name': 'German Documents (Base)',
     'summary': 'Designed German Documents for Odoo.',
     'category': 'Base',
-    'version': '16.0.1.2.15',
+    'version': '16.0.1.3.0',
     'license': 'OPL-1',
     'application': False,
     'installable': True,
@@ -25,7 +25,7 @@
         'sale_management',
         'web',
         # ecoservice
-        'ecoservice_partner_salutation',  # eco/finance-interface
+        'ecoservice_partner_salutation',
          'account',
     ],
     # Data

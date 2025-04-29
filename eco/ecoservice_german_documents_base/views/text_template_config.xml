@@ -13,9 +13,10 @@
       <form create="false" delete="false">
         <sheet>
           <group>
-            <field name="model"/>
-            <field name="name"/>
-            <field name="default_text" widget="html" class="oe-bordered-editor" options="{'style-inline': true, 'codeview': true }"/>
+            <field name="model" />
+            <field name="name" />
+            <field name="default_text" widget="html" class="oe-bordered-editor"
+              options="{'style-inline': true, 'codeview': true }" />
           </group>
         </sheet>
       </form>
@@ -27,10 +28,20 @@
     <field name="model">text.template.config</field>
     <field name="arch" type="xml">
       <tree create="false" delete="false">
-        <field name="name"/>
-        <field name="model" options="{'no_open': True}"/>
+        <field name="name" />
+        <field name="model" options="{'no_open': True}" />
+        <field name="company_id" />
+        <field name="company_xml_id" invisible="True" />
       </tree>
     </field>
   </record>
+
+  <record id="text_template_config_action" model="ir.actions.act_window">
+    <field name="name">Text templates for documents</field>
+    <field name="res_model">text.template.config</field>
+    <field name="view_mode">tree,form</field>
+    <field name="domain">[('company_id', 'in', allowed_company_ids)]</field>
+  </record>
+
 
 </odoo>
