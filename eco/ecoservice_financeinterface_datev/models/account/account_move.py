@@ -56,17 +56,18 @@ class AccountMove(models.Model):
 
             error_msg = []
             if count:
-                error_msg.append(
-                    _(
-                        '{count} lines of move {move_name} ({move_id}) do not '
-                        'have both accounts, an account and a counter account, '
-                        'defined!'
-                    ).format(
-                        count=count,
-                        move_name=move.name,
-                        move_id=move.id,
+                if not (self.company_id.allow_pos_error_skip and move._pos_move()):
+                    error_msg.append(
+                        _(
+                            '{count} lines of move {move_name} ({move_id}) do not '
+                            'have both accounts, an account and a counter account, '
+                            'defined!'
+                        ).format(
+                            count=count,
+                            move_name=move.name,
+                            move_id=move.id,
+                        )
                     )
-                )
             if any(
                 abs(value['check'] + value['real']) > 10 ** -4
                 for value in result.values()
@@ -85,6 +86,20 @@ class AccountMove(models.Model):
                 raise exceptions.ValidationError(
                     '\n\n'.join(error_msg)
                 )
+
+    def _pos_move(self):
+        module_is_installed = self.env['ir.module.module'].search(
+            [
+                ('name', '=', 'point_of_sale'),
+                ('state', '=', 'installed')
+            ]
+        )
+        if(
+            module_is_installed
+            and any(line.name.startswith('POS') for line in self.line_ids)
+        ):
+            return True
+        return False
 
     def get_uuid4(self):
         if not self.uuid4:

@@ -66,4 +66,9 @@ class ResCompany(models.Model):
         inverse_name='company_id',
         readonly=False,
     )
+    allow_pos_error_skip = fields.Boolean(
+        string='Allow POS Error Skip',
+        default=False,
+        help='If enabled, allows to skip errors on POS account moves.'
+    )
     # endregion

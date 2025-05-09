@@ -56,5 +56,8 @@ class ResConfigSettings(models.TransientModel):
         related='company_id.column_config_ids',
         readonly=False,
     )
-
+    allow_pos_error_skip = fields.Boolean(
+        related='company_id.allow_pos_error_skip',
+        readonly=False,
+    )
     # endregion
