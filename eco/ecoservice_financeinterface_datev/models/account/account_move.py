@@ -68,6 +68,8 @@ class AccountMove(models.Model):
                             move_id=move.id,
                         )
                     )
+                else:
+                    move.to_check = True
             if any(
                 abs(value['check'] + value['real']) > 10 ** -4
                 for value in result.values()
@@ -94,11 +96,25 @@ class AccountMove(models.Model):
                 ('state', '=', 'installed')
             ]
         )
-        if(
-            module_is_installed
-            and any(line.name.startswith('POS') for line in self.line_ids)
-        ):
-            return True
+        if not module_is_installed:
+            return False
+
+        sequences = self.env['ir.sequence'].search([
+            ('code', 'ilike', 'pos'),
+            '|', ('company_id', '=', self.env.company.id), ('company_id', '=', False)
+        ])
+        static_prefixes = set()
+        for seq in sequences:
+            if seq.prefix:
+                static_part = seq.prefix.split('/')[0]
+                if static_part:
+                    static_prefixes.add(static_part)
+
+        for line in self.line_ids:
+            name = line.display_name or ''
+            if 'POS' in name or any(prefix in name for prefix in static_prefixes):
+                return True
+
         return False
 
     def get_uuid4(self):
