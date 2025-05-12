@@ -34,7 +34,7 @@
             <t t-call="ecoservice_german_documents_base.letter_salutation"/>
             <div style="margin-top:5px;">
               <!-- Render the HTML fields as a mako template to evaluate variables -->
-              <t t-raw="o.env['mail.template']._render_template(doc_text, o._name, o.ids)[o.id]"/>
+              <t t-out="o.env['mail.template']._render_template(doc_text, o._name, o.ids)[o.id]"/>
             </div>
           </div>
         </div>
@@ -55,7 +55,7 @@
         <div t-if="doc_text_bottom" class="row mt16">
           <div class="col-12" align="left">
             <!-- Render the HTML fields as a mako template to evaluate variables -->
-            <t t-raw="o.env['mail.template']._render_template(doc_text_bottom, o._name, o.ids)[o.id]"/>
+            <t t-out="o.env['mail.template']._render_template(doc_text_bottom, o._name, o.ids)[o.id]"/>
           </div>
         </div>
 
