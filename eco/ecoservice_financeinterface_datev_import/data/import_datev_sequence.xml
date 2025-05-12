@@ -13,6 +13,7 @@
       <field name="number_next" eval="1"/>
       <field name="number_increment" eval="1"/>
       <field name="padding" eval="8"/>
+      <field name="company_id" eval="False"/>
     </record>
 
 </odoo>
