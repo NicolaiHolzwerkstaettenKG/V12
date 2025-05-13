@@ -5,15 +5,15 @@
     'name': 'Finance Interface',
     'summary': 'Base module of the Finance Interface',
     'category': 'Accounting',
-    'version': '16.0.1.0.4',
+    'version': '16.0.1.3.1',
     'license': 'OPL-1',
     'application': False,
     'installable': True,
     # Author
-    'author': 'ecoservice',
+    'author': 'ecoservice GbR',
     'website': 'https://ecoservice.de/shop/product/odoo-datev-export-53',
     # Odoo Apps Store
-    'price': 650.00,
+    'price': 0.00,
     'currency': 'EUR',
     #'live_test_url': 'https://eco-finance-interface-14-0.test.ecoservice.de/',
     'support': 'financeinterface@ecoservice.de',

@@ -55,11 +55,12 @@ class ResCompany(models.Model):
                     })
                 )
 
-    @api.model
+    @api.model_create_multi
     def create(self, vals_list):
         res = super().create(vals_list)
         model_ecofi = self.env['ecofi.validation'].sudo()
-        res.ecofi_validation_id = model_ecofi.create({
-            'company_id': res.id,
-        })
+        for company in res:
+            company.ecofi_validation_id = model_ecofi.create({
+                'company_id': company.id,
+            })
         return res

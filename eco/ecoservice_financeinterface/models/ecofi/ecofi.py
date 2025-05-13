@@ -58,6 +58,7 @@ class Ecofi(models.Model):
         readonly=True,
         default=lambda self: self.env.company,
     )
+    active = fields.Boolean(default=True)
 
     # endregion
 
@@ -102,6 +103,7 @@ class Ecofi(models.Model):
             partnererror,
             buchungszeilencount,
             bookingdict,
+            0
         )
 
     def generate_csv(self, ecofi_csv, bookingdict, log):
@@ -173,7 +175,7 @@ class Ecofi(models.Model):
                 'There are no non-exported moves in the given period and journals!',
             ))
 
-        return move_ids
+        return account_moves
 
     def ecofi_buchungen(self, journal_ids, date_from, date_to):  # noqa: C901
         """
@@ -258,7 +260,16 @@ class Ecofi(models.Model):
             sum_export_lines = Decimal('0.00')
             for move_booking in bookingdict['move_bookings']:
                 sum_export_lines += Decimal(move_booking[0].replace(',', '.'))
+                move_booking[13] = self._safe_booking_text(move_booking[13])
                 bookingdict['buchungen'].append(move_booking)
+
+            if export_method == 'gross':
+                # Check if our export made some rounding mistakes
+                vorlauf_id._check_for_mismatch(
+                    move,
+                    sum_export_lines,
+                    move_tax_lines
+                )
 
         output = io.StringIO()
         ecofi_csv = csv.writer(
@@ -284,3 +295,61 @@ class Ecofi(models.Model):
         output.close()
 
         return vorlauf_id
+
+    def _check_for_mismatch(self, move, sum_export_lines, move_tax_lines):
+        # 111070 - Highlight moves with rounding mistakes
+        # Highlight as warning, as all other colors are occupied by odoo.
+        sum_move_lines = Decimal(str(sum(move.line_ids.mapped('credit'))))
+        sum_export_lines = Decimal(str(sum_export_lines))
+        mismatch = round(sum_export_lines, 2) - round(sum_move_lines, 2)
+
+        if mismatch != 0:
+            # A rounding mistake is possible, but we can't be 100% sure.
+            move.write({
+                'ecofi_to_check': True,
+                'export_mismatch': mismatch,
+            })
+
+            # Necessary for proper translation strings
+            msg = '<div class="alert alert-warning" role="alert">'
+            msg += _(
+                '{move_name} has a total of {move_sum} while '
+                '{export_sum} was exported (difference: {mismatch}).'
+            ).format(
+                move_name=move.name,
+                move_sum=sum_move_lines,
+                export_sum=sum_export_lines,
+                mismatch=mismatch,
+            )
+            msg += '<br/>'
+            msg += _('Please review the exported amounts.')
+            msg += '</div>'
+
+            self.message_post(message_type='notification', body=msg)
+            return
+
+        if move.export_mismatch:
+            # Lines once had are mismatch or mistake but are now correct.
+            move.write({
+                'ecofi_to_check': False,
+                'export_mismatch': False
+            })
+
+    def _safe_booking_text(self, text: str) -> str:
+        return (
+            text
+            .replace('<p>', '')
+            .replace('</p>', '')
+            .replace('<br/>', '')
+            .replace('<br>', '')
+            .replace('\n', ', ')
+            .replace('\r', '')
+            .replace('[', '(')
+            .replace(']', ')')
+        )
+
+    def toggle_active(self):
+        super().toggle_active()
+        for record in self:
+            if not record.active:
+                record.account_moves = [(5, 0, 0)]

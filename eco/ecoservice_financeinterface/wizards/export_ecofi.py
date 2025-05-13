@@ -55,11 +55,23 @@ class ExportEcofi(models.TransientModel):
         """
         self.ensure_one()
 
-        vorlauf = self.env['ecofi'].ecofi_buchungen(
-            journal_ids=self.journal_ids,
-            date_from=self.date_from,
-            date_to=self.date_to,
+        model_exists = self.env['ir.module.module'].search(
+            [('name', '=', 'ecoservice_financeinterface_datev_xml')],
+            limit=1
         )
+        if model_exists.state == 'installed':
+            vorlauf = self.env['ecofi'].ecofi_buchungen(
+                journal_ids=self.journal_ids,
+                date_from=self.date_from,
+                date_to=self.date_to,
+                to_export=self.to_export
+            )
+        else:
+            vorlauf = self.env['ecofi'].ecofi_buchungen(
+                journal_ids=self.journal_ids,
+                date_from=self.date_from,
+                date_to=self.date_to,
+            )
         return {
             'name': 'Create Finance Export',
             'view_type': 'form',
