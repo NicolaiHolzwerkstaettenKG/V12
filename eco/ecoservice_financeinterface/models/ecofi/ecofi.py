@@ -300,7 +300,8 @@ class Ecofi(models.Model):
         # 111070 - Highlight moves with rounding mistakes
         # Highlight as warning, as all other colors are occupied by odoo.
         sum_move_lines = Decimal(str(sum(move.line_ids.mapped('credit'))))
-        mismatch = sum_export_lines - Decimal(sum_move_lines)
+        sum_export_lines = Decimal(str(sum_export_lines))
+        mismatch = round(sum_export_lines, 2) - round(sum_move_lines, 2)
 
         if mismatch != 0:
             # A rounding mistake is possible, but we can't be 100% sure.
