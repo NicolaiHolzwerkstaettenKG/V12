@@ -6,6 +6,9 @@ from collections import defaultdict
 from odoo import _, api, exceptions, fields, models
 from odoo.exceptions import UserError
 
+import inspect
+# do not remove 'inspect'! it's needed to recognise whether the move originates from the pos modul
+
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -90,31 +93,27 @@ class AccountMove(models.Model):
                 )
 
     def _pos_move(self):
+        """return True if move originates from pos, else return False"""
+
         module_is_installed = self.env['ir.module.module'].search(
             [
                 ('name', '=', 'point_of_sale'),
                 ('state', '=', 'installed')
             ]
         )
-        if not module_is_installed:
-            return False
-
-        sequences = self.env['ir.sequence'].search([
-            ('code', 'ilike', 'pos'),
-            '|', ('company_id', '=', self.env.company.id), ('company_id', '=', False)
-        ])
-        static_prefixes = set()
-        for seq in sequences:
-            if seq.prefix:
-                static_part = seq.prefix.split('/')[0]
-                if static_part:
-                    static_prefixes.add(static_part)
-
-        for line in self.line_ids:
-            name = line.display_name or ''
-            if 'POS' in name or any(prefix in name for prefix in static_prefixes):
-                return True
-
+        possible_pos_functions = [
+            "action_pos_session_close",
+            "action_pos_session_closing_control",
+            "action_pos_session_validate"
+        ]
+        if module_is_installed:
+            for frame in inspect.stack():
+                if(
+                    len(frame) >= 4
+                    and "/point_of_sale/models/pos_session.py" in frame[1]
+                    and frame[3] in possible_pos_functions
+                ):
+                    return True
         return False
 
     def get_uuid4(self):
