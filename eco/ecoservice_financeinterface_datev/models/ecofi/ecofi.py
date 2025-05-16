@@ -128,6 +128,22 @@ class Ecofi(models.Model):
                 line.ecofi_tax_id.amount
             ).replace('.', ',')
 
+        module_oss = self.env['ir.module.module'].search(
+            [('name', '=', 'l10n_eu_oss')],
+            limit=1
+        )
+        if module_oss and module_oss.state == 'installed':
+            if line.ecofi_tax_id:
+                oss_found = (
+                    'OSS' in line.ecofi_tax_id.tax_group_id.name and any(
+                        'OSS' in tag.name for tag in line.ecofi_tax_id.invoice_repartition_line_ids.tag_ids
+                    )
+                )
+                if oss_found:
+                    datevdict['EUSteuer'] = str(
+                        line.ecofi_tax_id.amount
+                    ).replace('.', ',')
+
         if line.partner_id:
             datevdict['ZusatzInhalt1'] = line.partner_id.name
 
