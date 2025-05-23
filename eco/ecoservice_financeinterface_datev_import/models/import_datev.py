@@ -5,10 +5,10 @@ import base64
 import csv
 import io
 import traceback
-from datetime import date, datetime
+from datetime import datetime
 from decimal import Decimal
 
-from odoo import _, exceptions, fields, models, api
+from odoo import _, api, exceptions, fields, models
 
 
 class ImportDatev(models.Model):
@@ -26,6 +26,7 @@ class ImportDatev(models.Model):
         comodel_name='res.company',
         string='Company',
         required=True,
+        default=lambda self: self.env.company,
         domain=lambda self: self._get_allowed_companies_domain()
     )
 
@@ -62,8 +63,27 @@ class ImportDatev(models.Model):
         string='Status', readonly=True, default='draft')
 
     # Extended configuration
-    config_delimiter = fields.Char(string='Delimiter', size=1, default=';')
-    config_quotechar = fields.Selection(string='Quote', selection=[('"', '"'), ("'", "'")], default='"')
+    config_delimiter = fields.Selection(
+        selection=[
+            (';', ';'),
+            ('\t', 'Tab'),
+            (':', ':'),
+            (',', ','),
+            ('|', '|'),
+        ],
+        string='Delimiter',
+        default=';',
+        required=True
+    )
+    config_quotechar = fields.Selection(
+        string='Quote',
+        selection=[
+            ('"', '"'),
+            ("'", "'")
+        ],
+        default='"',
+        required=True
+    )
     config_extended_datev_header = fields.Boolean(
         string='Extended Datev Header',
         default=True,
@@ -82,11 +102,16 @@ class ImportDatev(models.Model):
         default='cp1252',
     )
 
+    @api.onchange('datev_ascii_filename')
+    def _onchange_datev_ascii_filename(self):
+        if self.datev_ascii_filename:
+            self.description = self.datev_ascii_filename
+
     def _lookup_erpvalue(self, field_config, value):
         """
         Get the ERP ID for the Object and the given Value.
 
-        :param field_config: Dictionary of the field containing the erpobject and the erpfield
+        :param field_config: Dictionary of the field containing erpobject & erpfield
         :param value: Domain Search Value
         """
         value = False
@@ -113,81 +138,109 @@ class ImportDatev(models.Model):
         Convert given Value into the Datev Format.
         """
         data_list = []
-        input_file = io.StringIO(importcsv.decode(encoding=import_config['encoding']))
+        ref = None
+        datev_header = None
+        input_file = None
+        try:
+            input_file = io.StringIO(
+                importcsv.decode(
+                    encoding=import_config['encoding']
+                )
+            )
+        except:  # noqa: E722
+            errorlist.append({
+                'line': '0',
+                'name': _('File could not be processed.'),
+                'beschreibung': _(
+                    "File could not be processed. Please adjust the encoding. "
+                ).format()
+            })
+        if input_file:
+            if import_config['extended_header']:
+                datev_header = input_file.readline()
 
-        if import_config['extended_header']:
-            datev_header = input_file.readline()
+            importliste = csv.DictReader(
+                input_file,
+                delimiter=import_config['delimiter'],
+                quotechar=import_config['quotechar'],
+            )
 
-        importliste = csv.DictReader(
-            input_file,
-            delimiter=import_config['delimiter'],
-            quotechar=import_config['quotechar'],
-        )
+            for linecounter, line in enumerate(importliste, start=1):
+                spaltenvalues = {}
 
-        for linecounter, line in enumerate(importliste, start=1):
-            spaltenvalues = {}
+                for key in import_struct.keys():
+                    val = False
+                    csv_names = import_struct[key]['csv_name']
+                    try:
+                        for csv_name in csv_names:
+                            if csv_name in line and line[csv_name]:
+                                if import_struct[key]['type'] == 'string':
+                                    val = line[csv_name]
+                                elif import_struct[key]['type'] == 'integer':
+                                    val = int(
+                                        line[csv_name]
+                                    )
+                                elif import_struct[key]['type'] == 'decimal':
+                                    decimalvalue = line[csv_name]
 
-            for key in import_struct.keys():
-                val = False
-                csv_names = import_struct[key]['csv_name']
+                                    if import_struct[key]['decimalformat'][0]:
+                                        decimalvalue = decimalvalue.replace(
+                                            import_struct[key]['decimalformat'][0], ''
+                                        )
+                                    val = Decimal(decimalvalue.replace(
+                                        import_struct[key]['decimalformat'][1], '.')
+                                    )
+                                elif import_struct[key]['type'] == 'date':
+                                    dateformat = import_struct[key]['dateformat']
+                                    val = line[csv_name]
+                                    if datev_header:
+                                        if '%y' not in dateformat and '%Y' not in dateformat:
+                                            date_year = datev_header.split(
+                                                import_config['delimiter']
+                                            )[12].strip('"')[:4]
+                                            dateformat += '-%Y'
+                                            val += '-{date_year}'.format(
+                                                date_year=date_year
+                                            )
+
+                                        val = datetime.strptime(
+                                            val, dateformat
+                                        ).date()
+                                else:
+                                    errorlist.append({
+                                        'line': linecounter,
+                                        'name': _('Attribute type could not be resolved'),
+                                        'beschreibung': _('Attribute type {type} could not be resolved!').format(
+                                            type=import_struct[key]['type']
+                                        )
+                                    })
+                    except:  # noqa: E722
+                        errorlist.append({
+                            'line': linecounter,
+                            'name': _('Attribute could not be converted!'),
+                            'beschreibung': _(
+                                u"Attribute {name} in line {counter} could not be converted to type '{type}'!"
+                            ).format(
+                                name=import_struct[key]['csv_name'], counter=linecounter,
+                                type=import_struct[key]['type'],
+                            )
+                        })
+                    if val:
+                        spaltenvalues[key] = val
+                data_list.append(spaltenvalues)
+            ref = None
+            if datev_header:
                 try:
-                    for csv_name in csv_names:
-                        if csv_name in line and line[csv_name]:
-                            if import_struct[key]['type'] == 'string':
-                                val = line[csv_name]
-                            elif import_struct[key]['type'] == 'integer':
-                                val = int(
-                                    line[csv_name]
-                                )
-                            elif import_struct[key]['type'] == 'decimal':
-                                decimalvalue = line[csv_name]
-
-                                if import_struct[key]['decimalformat'][0]:
-                                    decimalvalue = decimalvalue.replace(
-                                        import_struct[key]['decimalformat'][0], ''
-                                    )
-                                val = Decimal(decimalvalue.replace(
-                                    import_struct[key]['decimalformat'][1], '.')
-                                )
-                            elif import_struct[key]['type'] == 'date':
-                                try:
-                                    val = datetime.strptime(
-                                        line[csv_name], import_struct[key]['dateformat']
-                                    ).date()
-                                    val = val.replace(
-                                        year=date.today().year
-                                    )
-                                except:  # noqa: E722
-                                    # for leap year
-                                    val = datetime.strptime(
-                                        line[csv_name] + str(
-                                            datetime.strptime(datev_header.split(';')[12], '%Y%m%d').year
-                                        ),
-                                        '%d%m%Y'
-                                    )
-                            else:
-                                errorlist.append({
-                                    'line': linecounter,
-                                    'name': _('Attribute type could not be resolved'),
-                                    'beschreibung': _('Attribute type {type} could not be resolved!').format(
-                                        type=import_struct[key]['type']
-                                    )
-                                })
-                except:  # noqa: E722
+                    ref = datev_header.split(import_config['delimiter'])[16].strip('"')
+                except:  # noqa: E72
                     errorlist.append({
-                        'line': linecounter,
-                        'name': _('Attribute could not be converted!'),
+                        'line': '0',
+                        'name': _('Error with file formatting!'),
                         'beschreibung': _(
-                            u"Attribute {name} in line {counter} could not be converted to type '{type}'!"
-                        ).format(
-                            name=import_struct[key]['csv_name'], counter=linecounter,
-                            type=import_struct[key]['type'],
-                        )
+                            "The File Header could not be read. Please adjust the delimiter."
+                        ).format()
                     })
-                if val:
-                    spaltenvalues[key] = val
-            data_list.append(spaltenvalues)
-        return data_list, errorlist
+        return data_list, errorlist, ref
 
     def unlink(self):
         """
@@ -219,7 +272,9 @@ class ImportDatev(models.Model):
             except:  # noqa: E722
                 self.log_line.create({
                     'parent_id': datev_import.id,
-                    'name': _('Odoo ERROR: {error}').format(error=traceback.format_exc()),
+                    'name': _('Odoo ERROR: {error}').format(
+                        error=traceback.format_exc()
+                    ),
                     'state': 'error',
                 })
         return True
@@ -272,7 +327,12 @@ class ImportDatev(models.Model):
         }
         import_struct = {
             'gegenkonto': {
-                'csv_name': ['Gegenkonto (ohne BU-Schlüssel)', 'Gegenkonto'],
+                'csv_name': [
+                    'Gegenkonto (ohne BU-Schlüssel)',
+                    'Gegenkonto',
+                    'Gegenkonto (ohne BU-Schluessel)',
+                    'Gegenkonto (ohne BU-Schl�ssel)'
+                ],
                 'csv_row': False,
                 'type': 'string',
                 'required': True,
@@ -303,7 +363,11 @@ class ImportDatev(models.Model):
                 'erpfield': 'name',
             },
             'buschluessel': {
-                'csv_name': ['BU-Schlüssel'],
+                'csv_name': [
+                    'BU-Schlüssel',
+                    'BU-Schluessel',
+                    'BU-Schl�ssel'
+                ],
                 'csv_row': False,
                 'type': 'string',
                 'required': False,
@@ -331,7 +395,11 @@ class ImportDatev(models.Model):
                 'required': False,
             },
             'umsatz': {
-                'csv_name': ['Umsatz (ohne Soll/Haben-Kz)', 'Umsatz', 'Umsatz (ohne Soll-/Haben-Kennzeichen)'],
+                'csv_name': [
+                    'Umsatz (ohne Soll/Haben-Kz)',
+                    'Umsatz',
+                    'Umsatz (ohne Soll-/Haben-Kennzeichen)'
+                ],
                 'csv_row': False,
                 'type': 'decimal',
                 'required': True,
@@ -359,7 +427,11 @@ class ImportDatev(models.Model):
                 'skipon': ['Gruppensumme', 'Abstimmsumme'],
             },
             'sollhaben': {
-                'csv_name': ['Soll/Haben-Kennzeichen', 'Soll-/Haben-Kennzeichen', 'S/H'],
+                'csv_name': [
+                    'Soll/Haben-Kennzeichen',
+                    'Soll-/Haben-Kennzeichen',
+                    'S/H'
+                ],
                 'csv_row': False,
                 'type': 'string',
                 'required': True,
@@ -368,7 +440,9 @@ class ImportDatev(models.Model):
         }
         return import_config, import_struct
 
-    def create_account_move(self, datev_import, import_config, line, linecounter, move_id=False, manual=False):
+    def create_account_move(
+            self, datev_import, import_config, line, linecounter, move_id=False, manual=False, title=None
+    ):
         """
         Create the move for the import line.
 
@@ -380,7 +454,10 @@ class ImportDatev(models.Model):
         partner_id = self.get_partner(line)
 
         if not move_id:
-            ref = ', '.join([x for x in [line.get('beleg1'), line.get('beleg2')] if x])
+            if title:
+                ref = title
+            else:
+                ref = ', '.join([x for x in [line.get('beleg1'), line.get('beleg2')] if x])
             move = {
                 'import_datev': datev_import.id,
                 'ref': ref,
@@ -413,6 +490,9 @@ class ImportDatev(models.Model):
             'quantity': 1.0,
             'datev_posting_key': move.get('datev_posting_key', ''),
             'product_id': False,
+            'tax_tag_ids': move.get('tax_tag_ids', False),
+            'tax_ids': move.get('tax_ids', None),
+            'display_type': move.get('display_type', False),
         }
         currency_id = move.get('currency_id', False)
         if currency_id:
@@ -432,8 +512,9 @@ class ImportDatev(models.Model):
                 if type(line['wkz']) == str:
                     cur = self.env['res.currency'].search([('name', '=', line['wkz'])])
             move_line['currency_id'] = cur[0].id if cur and cur[0] else cur
+            move_line['amount_currency'] = move_line['debit'] - move_line['credit']
 
-            if line['kurs']:
+            if line.get('kurs', False):
                 move_line['debit'] = Decimal(
                     str(
                         float(move_line['debit']) / float(line['kurs'])
@@ -445,8 +526,8 @@ class ImportDatev(models.Model):
                         float(move_line['credit']) / float(line['kurs'])
                     ) if float(move_line['credit']) > 0 else 0
                 )
-                move_line['amount_currency'] = move_line['debit'] - move_line['credit']
         else:
+            move_line['currency_id'] = import_config['company_currency_id'].id
             move_line['amount_currency'] = move_line['debit'] - move_line['credit']
         return move_line
 
@@ -475,9 +556,10 @@ class ImportDatev(models.Model):
             'account_id': line['gegenkonto_object'].id,
             'date': line['belegdatum'],
             'move_id': thismove,
-            'name': 'Gegenbuchung',
+            'name': line['buchungstext'] if 'buchungstext' in line else '',
             'partner_id': partner_id,
             'ecofi_account_counterpart': line['gegenkonto_object'].id,
+            'display_type': 'payment_term',
         }
         mainmove = {
             'credit': credit,
@@ -485,20 +567,26 @@ class ImportDatev(models.Model):
             'account_id': line['konto_object'].id,
             'date': line['belegdatum'],
             'move_id': thismove,
-            'name': 'Buchung',
+            'name': line['buchungstext'] if 'buchungstext' in line else '',
             'partner_id': partner_id,
             'ecofi_account_counterpart': line['gegenkonto_object'].id,
+            'display_type': 'product',
         }
+
         if line.get('buschluessel') or line.get('konto_object') or line.get('gegenkonto_object'):
             # if not isinstance(line['buschluessel'], int):
             #     # We don't need the correction-key part of the booking key
             #     line['buschluessel'] = line['buschluessel'][-1]
-            mainmove, taxmoves, tax_id = self.create_tax_line(
+            mainmove, gegenmove, taxmoves, tax_id = self.create_tax_line(
                 mainmove,
+                gegenmove,
                 import_config,
                 line
             )
-            if line.get('buschluessel'):
+            if tax_id:
+                mainmove['tax_ids'] = [fields.Command.set(tax_id.ids)]
+
+            if taxmoves:
                 for taxmove in taxmoves:
                     move_lines.append(
                         self.compute_currency(
@@ -519,60 +607,19 @@ class ImportDatev(models.Model):
         )
         move_lines.append(
             self.create_move_line_dict(
-                gegenmove,
+                mainmove,
                 import_config
             )
         )
         move_lines.append(
             self.create_move_line_dict(
-                mainmove,
+                gegenmove,
                 import_config
             )
         )
-        return move_lines
+        return move_lines, tax_id
 
-    def add_tax_to_lines(self, move_lines, line, tax_id):
-        if tax_id:
-            for move_line in move_lines:
-                if move_line['name'] == 'Buchung' and not move_line['ecofi_tax_id']:
-                    move_line.update({
-                        'ecofi_tax_id': tax_id.id,
-                        'tax_ids': [(6, 0, [tax_id.id])],
-                    })
-        else:
-            account = self.env['account.account'].search(
-                [
-                    ('code', '=', line['konto']),
-                ], limit=1
-            )
-            if account.datev_automatic_account and account.datev_tax_ids:
-                tax_id = account.datev_tax_ids
-                self.add_tax_to_lines(move_lines, line, tax_id)
-
-    def add_tax_info_to_lines(self, move_lines, tax_id):
-        if tax_id:
-            user_type_list = self.env.ref(
-                'account.selection__account_account__account_type__asset_receivable',
-            ) + self.env.ref(
-                'account.selection__account_account__account_type__liability_payable',
-            )
-            accounts = self.env['account.account'].search(
-                [('account_type', 'in', user_type_list.ids)],
-            )
-            taxes = self.env['account.tax'].search([])
-            for tax in taxes:
-                accounts = accounts | tax.invoice_repartition_line_ids.account_id
-                accounts = accounts | tax.refund_repartition_line_ids.account_id
-            no_tax_on_this_account_ids = accounts.ids
-            for move_line in move_lines:
-                account_id = move_line.get('account_id', False)
-                if account_id and account_id not in no_tax_on_this_account_ids:
-                    move_line.update({
-                        'ecofi_tax_id': tax_id.id,
-                        'tax_ids': [(6, 0, [tax_id.id])],
-                    })
-
-    def create_tax_line(self, mainmove, import_config, line):
+    def create_tax_line(self, mainmove, gegenmove, import_config, line):
         taxmoves = []
         tax_id = None
 
@@ -590,26 +637,33 @@ class ImportDatev(models.Model):
             gegenkonto_obj_is_rec_or_pay = gegenkonto_obj.account_type in user_type_list
             # check konto or gegenkonto is not receivable or payable
             if not konto_obj_is_rec_or_pay or not gegenkonto_obj_is_rec_or_pay:
-                if konto_obj.datev_automatic_account and not tax_id:  # check konto automatic
+                if konto_obj.datev_automatic_account and not tax_id:   # check konto automatic
                     tax_id = konto_obj.tax_ids[:1] or False
-                elif gegenkonto_obj.datev_automatic_account and not tax_id:  # check gegenkonto automatic
+                elif gegenkonto_obj.datev_automatic_account and not tax_id:
+                    # check gegenkonto automatic, when automatic, switch mainkonto with gegenkonto
                     tax_id = gegenkonto_obj.tax_ids[:1] or False
-                elif line.get('buschluessel'):
+                    save_konto = mainmove
+                    mainmove = gegenmove
+                    gegenmove = save_konto
+
+                elif line.get('buschluessel') and not tax_id:
                     if line['buschluessel'] in ['40', 'SD']:
                         mainmove['ecofi_bu'] = line['buschluessel']
-                        mainmove['ecofi_tax_id'] = konto_obj.datev_tax_ids and konto_obj.datev_tax_ids[0].id or False
+                        mainmove['ecofi_tax_id'] = (
+                            konto_obj.datev_tax_ids
+                            and konto_obj.datev_tax_ids[0].id
+                            or False
+                        )
                         tax_id = None
                     else:
+                        try:
+                            buschluessel = int(line['buschluessel'])
+                        except KeyError:
+                            buschluessel = 0
                         tax_id = self.env['account.tax'].search(
-                            [('l10n_de_datev_code', '=', int(line['buschluessel']))],
+                            [('l10n_de_datev_code', '=', buschluessel)],
                             limit=1,
                         )
-                # check konto automatic
-                elif not konto_obj.datev_automatic_account and not tax_id and konto_obj.tax_ids:
-                    tax_id = konto_obj.tax_ids[:1] or False
-                # check gegenkonto automatic
-                elif not gegenkonto_obj.datev_automatic_account and not tax_id and konto_obj.tax_ids:
-                    tax_id = gegenkonto_obj.tax_ids[:1] or False
 
         total = float(mainmove['debit'] + mainmove['credit'])
 
@@ -639,11 +693,27 @@ class ImportDatev(models.Model):
                     'credit': tax_credit,
                     'debit': tax_debit,
                     'ecofi_account_counterpart': line['gegenkonto_object'].id,
+                    'display_type': 'tax',
                 }
                 mainmove['credit'] -= Decimal(str(data['credit']))
                 mainmove['debit'] -= Decimal(str(data['debit']))
                 taxmoves.append(data)
-        return mainmove, taxmoves, tax_id
+
+            # to giving the main move tax_tag_ids
+            if mainmove.get('move_id').move_type in ['entry', 'out_invoice']:
+                tax_tag_lines = tax_id.invoice_repartition_line_ids
+            elif mainmove.get('move_id').move_type in ['out_refund']:
+                tax_tag_lines = tax_id.refund_repartition_line_ids
+
+            if tax_tag_lines:
+                mainmove['tax_tag_ids'] = [
+                    tag_id
+                    for line in tax_tag_lines
+                    if line.repartition_type != 'tax'
+                    for tag_id in line.tag_ids.ids
+                ]
+
+        return mainmove, gegenmove, taxmoves, tax_id
 
     def do_import(self):
         """
@@ -660,7 +730,7 @@ class ImportDatev(models.Model):
             })
             if datev_import.datev_ascii_file:
                 importcsv = base64.decodebytes(datev_import.datev_ascii_file)
-                vorlauf, errorlist = self.convert_value(
+                vorlauf, errorlist, ref = self.convert_value(
                     importcsv,
                     import_config,
                     import_struct,
@@ -683,24 +753,25 @@ class ImportDatev(models.Model):
                                 ('company_id', '=', self.company_id.id)
                             ])
                         except:  # noqa: E722
-                            raise exceptions.ValidationError(_(
-                                'You have an incorrect file format.'
-                                'Please change the Encoding field or upload a file with a correct format.'
-                            ))
-                        if not line['konto_object']:
+                            errorlist.append({
+                                'line': linecounter,
+                                'name': _('incorrect file format.'),
+                                'beschreibung': _('You have an incorrect file format. Change the Encoding.'.format())
+                            })
+                        if 'konto_object' not in line and not errorlist:
                             errorlist.append({
                                 'line': linecounter,
                                 'name': _('Attribute could not be converted!'),
                                 'beschreibung': _('Account {account} could not be found in Odoo!'.format(
-                                    account=line['konto'],
+                                    account=(line['konto'] if 'konto' in line else ''),
                                 ))
                             })
-                        if not line['gegenkonto_object']:
+                        if 'gegenkonto_object' not in line and not errorlist:
                             errorlist.append({
                                 'line': linecounter,
                                 'name': _('Attribute could not be converted!'),
                                 'beschreibung': _('Account {account} could not be found in Odoo!'.format(
-                                    account=line['gegenkonto'],
+                                    account=(line['gegenkonto'] if 'gegenkonto' in line else ''),
                                 ))
                             })
 
@@ -719,27 +790,24 @@ class ImportDatev(models.Model):
                                 line,
                                 linecounter,
                                 move_id=thismove,
-                                manual=manual
+                                manual=manual,
+                                title=ref
                             )
-                            move_lines = self.create_main_lines(
+                            move_lines, tax_id = self.create_main_lines(
                                 line,
                                 thismove,
                                 partner_id,
                                 import_config,
                                 import_struct
                             )
+
                             for move in move_lines:
                                 move['credit'] = Decimal(move['credit'])
                                 move['debit'] = Decimal(move['debit'])
-                                move_line_ids_obj = move['move_id'].line_ids
                                 move['move_id'] = move['move_id'].id
-                                # skip validity check until all lines are created
-                                move_line_ids_obj.with_context(
-                                    check_move_validity=False,
-                                ).create(move)
-                            # catch up validity check after all lines are created
-                            container = {'records': thismove}
-                            thismove._check_balanced(container)
+
+                            self.env['account.move.line'].create(move_lines)
+
                             self.log_line.create({
                                 'parent_id': datev_import.id,
                                 'name': _('Line: {line} has been imported').format(
