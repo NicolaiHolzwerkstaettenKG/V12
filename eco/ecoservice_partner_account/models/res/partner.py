@@ -25,6 +25,28 @@ class ResPartner(models.Model):
     def company(self):
         return self.company_id or self.env.company
 
+    def employing_company(self):
+        """Get company that employs the current partner (self)"""
+        # 110909 - DO NOT CHANGE BEHAVIOUR!
+        if self.is_company:
+            return self
+
+        parents = []
+        parent = self.parent_id
+        while parent:
+            # Loop parents until we reach a company
+            if parent.is_company:
+                return parent
+
+            if parent.id in parents:
+                # We're in an endless loop. Abort loop.
+                break
+
+            parents.append(parent.id)
+            parent = parent.parent_id
+
+        return self
+
     # region View
 
     def action_create_payable_account(self) -> bool:
@@ -111,18 +133,19 @@ class ResPartner(models.Model):
         fname = f'property_account_{ftype}_id'
         account = getattr(self, fname)
 
-        if account.is_partner_account:
+        if account.is_partner_account and not self._context.get('ignore_existing_account'):
             return account
 
+        company = self.employing_company()  # 110909: DO NOT CHANGE!
         if not code:
+            # !! (Their) company != (Our) self.company
             code = self.company.next_account_code(account_type)
 
         new_account = account.create({
-            'company_id': self.company.id,
             'is_partner_account': True,
             'currency_id': self.company.currency_id.id,
             'code': code,
-            'name': self.commercial_partner_id.name,
+            'name': company.name,
             'reconcile': True,
             'account_type': account_type,
             'tag_ids': [(6, 0, account.tag_ids.ids)]
@@ -131,10 +154,7 @@ class ResPartner(models.Model):
         result = {}
         result[fname] = new_account.id
 
-        if (
-            self.company.partner_ref_source == account_type
-            and not self.ref
-        ):
+        if self.company.partner_ref_source == account_type and not self.ref:
             result['ref'] = new_account.code
 
         self.write(result)

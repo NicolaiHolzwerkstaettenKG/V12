@@ -11,19 +11,29 @@ class AccountMove(models.Model):
     _inherit = 'account.move'
 
     def check_partner_accounts_default(self, default_account):
-        rec_pay_default_value = self.env['ir.property'].search(
-            [
-                ('name', '=', default_account),
-                ('res_id', '=', False)
-            ]
+        rec_pay_default_domain = [
+            ('name', '=', default_account),
+            ('res_id', '=', False),
+        ]
+        if self.company:
+            rec_pay_default_domain.append(
+                ('company_id', '=', self.company.id),
+            )
+        rec_pay_default_value = self.env['ir.property'].sudo().search(
+            rec_pay_default_domain
         )
-        rec_pay_default_value_reference = int(rec_pay_default_value.value_reference.split(',')[1])
+        if len(rec_pay_default_value) != 1:
+            rec_pay_default_value_reference = 0
+        else:
+            rec_pay_default_value_reference = int(rec_pay_default_value.value_reference.split(',')[1])
+
+        employer = self.partner_employing_company()
         is_account_default = True
         if default_account == 'property_account_receivable_id':
-            if not rec_pay_default_value_reference == self.partner.property_account_receivable_id.id:
+            if not rec_pay_default_value_reference == employer.property_account_receivable_id.id:
                 is_account_default = False
         elif default_account == 'property_account_payable_id':
-            if not rec_pay_default_value_reference == self.partner.property_account_payable_id.id:
+            if not rec_pay_default_value_reference == employer.property_account_payable_id.id:
                 is_account_default = False
         else:
             is_account_default = True
@@ -37,6 +47,10 @@ class AccountMove(models.Model):
     @property
     def partner(self):
         return self.with_company(self.company).partner_id
+
+    def partner_employing_company(self):
+        """Get company that employs the current partner"""
+        return self.partner.employing_company()
 
     def _post(self, soft=True):
         for move in self:
@@ -60,16 +74,17 @@ class AccountMove(models.Model):
             # fallback for modules that override the old version of this method
             account_type = self.get_account_type()
         if account_type and self.company.partner_account_generate_automatically:
+            employer = self.partner_employing_company()
             if (
-                    account_type == ACCOUNT_TYPE_RECEIVABLE
-                    and self.check_partner_accounts_default('property_account_receivable_id')
+                account_type == ACCOUNT_TYPE_RECEIVABLE
+                and self.check_partner_accounts_default('property_account_receivable_id')
             ):
-                self.partner.create_accounts([account_type])
+                employer.create_accounts([account_type])
             elif (
-                    account_type == ACCOUNT_TYPE_PAYABLE
-                    and self.check_partner_accounts_default('property_account_payable_id')
+                account_type == ACCOUNT_TYPE_PAYABLE
+                and self.check_partner_accounts_default('property_account_payable_id')
             ):
-                self.partner.create_accounts([account_type])
+                employer.create_accounts([account_type])
 
     def update_move_lines(self, account_type: str) -> None:
         self.ensure_one()
@@ -80,5 +95,8 @@ class AccountMove(models.Model):
                 'receivable'
             )
             self.line_ids.filtered(
-                lambda l: l.account_type == account_type,
-            ).account_id = getattr(self.partner, f'property_account_{ftype}_id')
+                lambda x: x.account_type == account_type,
+            ).account_id = getattr(
+                self.partner_employing_company(),
+                f'property_account_{ftype}_id',
+            )
