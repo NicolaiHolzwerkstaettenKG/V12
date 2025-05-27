@@ -196,6 +196,11 @@ you can to this here by inherit or override.
           <!-- reset description to its start value (see comment above) -->
           <t t-set="description" t-value="description_start_value"/>
 
+          <tr t-if="move_line.result_package_id" class="fw-bold o_line_section">
+            <td colspan="4">
+              <span t-esc="move_line.result_package_id.name"/>
+            </td>
+          </tr>
           <tr>
             <!--Index-->
             <td class="text-left" t-if="display_pos_no" style="width: 50px;">
