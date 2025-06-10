@@ -55,23 +55,11 @@ class Ecofi(models.Model):
 
             if not payment_ids:
                 datevdict['Buchungstext'] = move.display_name
-                # Suche abgestimmte Zeilen
-                bank_line = self.env['account.move.line'].search([
-                    ('move_name', '=', move.name),
-                    ('account_type', '=', 'asset_receivable'),
-                ])
-                matched_lines = self.env['account.move.line']
-                for bline in bank_line:
-                    matched_lines += self.env['account.move.line'].search([
-                        ('name', '=', bline.name),
-                    ])
-
-                if matched_lines:
-                    # filte nach Ausgangsrechnung
-                    found_lines = matched_lines.filtered(
-                        lambda x: x.move_type == 'out_invoice'
-                    )
-                    datevdict['Beleg1'] = ' '.join([line.move_name for line in found_lines])
+                # compare line name with move_name
+                if line.name and line.move_name:
+                    if line.name != line.move_name:
+                        datevdict['Beleg1'] = line.name
+                        datevdict['Buchungstext'] = line.move_name
             else:
                 if reconciled_ids:
                     datevdict['Buchungstext'] = datevdict['Beleg1']
@@ -760,7 +748,10 @@ class Ecofi(models.Model):
             # ! TODO grouping does not work properly.
             # ! grouping adds 2*len(lines) lines with the
             # total of the move (2* = s+h each)
-            if self.env.user.company_id.datev_group_lines:
+            if (
+                self.env.user.company_id.datev_group_lines
+                and move.joutnal_id.type not in ['bank', 'cash']
+            ):
                 if self.env.user.company_id.datev_group_sh:
                     self._datev_grouping_combined(
                         grouped_line,
