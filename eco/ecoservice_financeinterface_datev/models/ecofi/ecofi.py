@@ -750,7 +750,7 @@ class Ecofi(models.Model):
             # total of the move (2* = s+h each)
             if (
                 self.env.user.company_id.datev_group_lines
-                and move.joutnal_id.type not in ['bank', 'cash']
+                and move.journal_id.type not in ['bank', 'cash']
             ):
                 if self.env.user.company_id.datev_group_sh:
                     self._datev_grouping_combined(
