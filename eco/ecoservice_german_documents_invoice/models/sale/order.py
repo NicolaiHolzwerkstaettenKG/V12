@@ -21,6 +21,10 @@ class SaleOrder(models.Model):
 
         return {sale.id: sale.partner_shipping_id for sale in sales}
 
+    def _get_collective_invoice_note_text(self, sale_order, shipping_partner, contact_address):
+        note_text = f"{sale_order.name}\n{shipping_partner.name}\n{contact_address}"
+        return note_text
+
     def _create_invoices(self, grouped=False, final=False, date=None):
         """Create invoices and insert shipping notes directly before related invoice lines by batch invoices."""
         moves = super()._create_invoices(grouped=grouped, final=final, date=date)
@@ -51,7 +55,9 @@ class SaleOrder(models.Model):
                 handled_sales.add(sale_id)
 
                 contact_address = re.sub(r'\n{2,}', '\n', shipping_partner.contact_address_complete.strip())
-                note_text = f"{sale_order.name}\n{shipping_partner.name}\n{contact_address}"
+                note_text = self._get_collective_invoice_note_text(
+                    sale_order, shipping_partner, contact_address
+                )
 
                 # Insert new note line directly in front of the product line
                 move.env['account.move.line'].create({
