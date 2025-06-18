@@ -5,7 +5,7 @@
     'name': 'DATEV Masterdata',
     'summary': 'Lets you export your accounting master data',
     'category': 'Accounting',
-    'version': '16.0.1.2.3',
+    'version': '16.0.1.2.4',
     'license': 'OPL-1',
     'application': False,
     'installable': True,
