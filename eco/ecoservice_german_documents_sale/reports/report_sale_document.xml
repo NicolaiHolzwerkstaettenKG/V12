@@ -159,7 +159,7 @@
         </t>
 
         <div class="row mt16" id="fiscal_position_remark"
-             t-if="o.fiscal_position_id and o.fiscal_position_id.sudo().note"
+             t-if="o.fiscal_position_id and not is_html_empty(o.fiscal_position_id.sudo().note)"
              style="page-break-inside: avoid;">
           <div class="col-4" style="font-weight:bold">
             Fiscal Position Remark:
