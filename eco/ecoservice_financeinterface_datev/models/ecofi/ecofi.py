@@ -2,6 +2,7 @@
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 
 import re
+from datetime import datetime
 from decimal import Decimal
 from typing import Tuple as TTuple
 from odoo import api, models
@@ -39,10 +40,17 @@ class Ecofi(models.Model):
             move.journal_id._fields['type']._description_selection(self.env)
         ).get(move.journal_id.type)
 
-        export_date = move.date
-        if move.invoice_date:
-            export_date = move.invoice_date
-        datevdict['Datum'] = export_date.strftime('%d%m')
+        # Was ist mit der Methode "_get_accounting_date"?
+        fld_booking_date = self.env['ir.config_parameter'].sudo().get_param(
+            'ecofi_belegdatum',
+            'invoice_date',
+        )  # 111632: Konfigurierbares Belegdatum
+        booking_date = getattr(move, fld_booking_date, move.date) or move.date
+        if not isinstance(booking_date, datetime):
+            # A datetime object is always required.
+            booking_date = move.invoice_date or move.date or datetime.now()
+
+        datevdict['Datum'] = booking_date.strftime('%d%m')
         datevdict['Steuerperiode'] = move.date.strftime('%d%m%Y')
 
         # Standard
