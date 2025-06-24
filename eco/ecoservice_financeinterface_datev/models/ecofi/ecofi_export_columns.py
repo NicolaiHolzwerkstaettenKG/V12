@@ -254,7 +254,7 @@ class EcofiExportColumns(models.AbstractModel):
             datev_dict['Konto'] or '',
             datev_dict['Gegenkonto'] or '',
             datev_dict['Buschluessel'] or '',
-            datev_dict['Datum'] or '',
+            datev_dict['Belegdatum'] or '',
             datev_dict['Beleg1'] or '',
             datev_dict['Beleg2'] or '',
             datev_dict['Skonto'] or '',

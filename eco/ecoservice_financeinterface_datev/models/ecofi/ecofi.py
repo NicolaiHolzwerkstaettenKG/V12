@@ -40,17 +40,12 @@ class Ecofi(models.Model):
             move.journal_id._fields['type']._description_selection(self.env)
         ).get(move.journal_id.type)
 
-        # Was ist mit der Methode "_get_accounting_date"?
-        fld_booking_date = self.env['ir.config_parameter'].sudo().get_param(
-            'ecofi_belegdatum',
-            'invoice_date',
-        )  # 111632: Konfigurierbares Belegdatum
-        booking_date = getattr(move, fld_booking_date, move.date) or move.date
-        if not isinstance(booking_date, datetime):
-            # A datetime object is always required.
-            booking_date = move.invoice_date or move.date or datetime.now()
-
-        datevdict['Datum'] = booking_date.strftime('%d%m')
+        # 111632 "Datev Export: Buchungsdatum und Belegdatum"
+        # Im Meeting vom 24.06.25 um 14:30 wurde durch Falk, Simon und Jan final
+        # beschlossen, dass das Feld "date" immer als Buchungsdatum und Belegdatum
+        # verwendet wird - wie im Odoo Standard. Alles andere ist eine Abweichung vom
+        # Odoo Standard UND vom DATEV Standard und wird somit NICHT mehr unterstützt.
+        datevdict['Belegdatum'] = move.date.strftime('%d%m')  # Do not change!
         datevdict['Steuerperiode'] = move.date.strftime('%d%m%Y')
 
         # Standard
@@ -937,7 +932,7 @@ class Ecofi(models.Model):
             'Sollhaben': kwargs.get('Sollhaben', ''),
             'Umsatz': kwargs.get('Umsatz', ''),
             'Gegenkonto': kwargs.get('Gegenkonto', ''),
-            'Datum': kwargs.get('Datum', ''),
+            'Belegdatum': kwargs.get('Belegdatum', ''),
             'Konto': kwargs.get('Konto', ''),
             'Beleg1': kwargs.get('Beleg1', ''),
             'Beleg2': kwargs.get('Beleg2', ''),
