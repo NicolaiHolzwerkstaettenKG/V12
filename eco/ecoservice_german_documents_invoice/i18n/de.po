@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-23 15:23+0000\n"
-"PO-Revision-Date: 2025-01-23 15:23+0000\n"
+"POT-Creation-Date: 2025-06-26 15:11+0000\n"
+"PO-Revision-Date: 2025-06-26 15:11+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -71,6 +71,17 @@ msgstr "Unternehmen"
 #: model:ir.model,name:ecoservice_german_documents_invoice.model_res_config_settings
 msgid "Config Settings"
 msgstr "Konfigurationseinstellungen"
+
+#. module: ecoservice_german_documents_invoice
+#: model:ir.model.fields.selection,name:ecoservice_german_documents_invoice.selection__account_move__refund_type__credit_note
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_translator_invoice
+msgid "Credit Note"
+msgstr "Gutschrift"
+
+#. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_translator_invoice_duplicate
+msgid "Credit Note (Duplicate)"
+msgstr "Gutschrift (Duplikat)"
 
 #. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.letterhead_reference_customer_shipping_vat
@@ -188,6 +199,17 @@ msgid "Invoice (Top)"
 msgstr "Rechnung (Oben)"
 
 #. module: ecoservice_german_documents_invoice
+#: model:ir.model.fields.selection,name:ecoservice_german_documents_invoice.selection__account_move__refund_type__invoice_correction
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_translator_invoice
+msgid "Invoice Correction"
+msgstr "Rechnungskorrektur"
+
+#. module: ecoservice_german_documents_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_translator_invoice_duplicate
+msgid "Invoice Correction (Duplicate)"
+msgstr "Rechnungskorrektur (Duplikat)"
+
+#. module: ecoservice_german_documents_invoice
 #: model:ir.actions.report,name:ecoservice_german_documents_invoice.report_invoice_without_logo
 msgid "Invoice Letter Paper"
 msgstr "Rechnung (Briefpapier)"
@@ -245,7 +267,7 @@ msgstr "Referenz:"
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_translator_invoice
 #, python-format
 msgid "Refund"
-msgstr "Rechnungskorrektur"
+msgstr "Erstattung"
 
 #. module: ecoservice_german_documents_invoice
 #: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_bank_statement_line__account_refund_bottom
@@ -253,12 +275,12 @@ msgstr "Rechnungskorrektur"
 #: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_payment__account_refund_bottom
 #: model:text.template.config,name:ecoservice_german_documents_invoice.account_refund_text_bottom
 msgid "Refund (Bottom)"
-msgstr "Rechnungskorrektur (Unten)"
+msgstr "Rechnungskorrektur/Gutschrift (Unten)"
 
 #. module: ecoservice_german_documents_invoice
 #: model_terms:ir.ui.view,arch_db:ecoservice_german_documents_invoice.report_translator_invoice_duplicate
 msgid "Refund (Duplicate)"
-msgstr "Rechnungskorrektur (Duplikat)"
+msgstr "Erstattung (Duplikat)"
 
 #. module: ecoservice_german_documents_invoice
 #: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_bank_statement_line__account_refund
@@ -266,7 +288,13 @@ msgstr "Rechnungskorrektur (Duplikat)"
 #: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_payment__account_refund
 #: model:text.template.config,name:ecoservice_german_documents_invoice.account_refund_text
 msgid "Refund (Top)"
-msgstr "Rechnungskorrektur (Oben)"
+msgstr "Rechnungskorrektur/Gutschrift (Oben)"
+
+#. module: ecoservice_german_documents_invoice
+#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_bank_statement_line__refund_type
+#: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_move__refund_type
+msgid "Refund Type"
+msgstr "Erstattungstyp"
 
 #. module: ecoservice_german_documents_invoice
 #: model:ir.model.fields,field_description:ecoservice_german_documents_invoice.field_account_move__report_compute_date

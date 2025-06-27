@@ -38,6 +38,14 @@ class AccountMove(models.Model):
     print_shipping_address = fields.Boolean(
         default=True,
     )
+    refund_type = fields.Selection(
+        string='Refund Type',
+        selection=[
+            ('invoice_correction', 'Invoice Correction'),
+            ('credit_note', 'Credit Note'),
+        ],
+        default='invoice_correction',
+    )
     # endregion
 
     # region Compute Methods
