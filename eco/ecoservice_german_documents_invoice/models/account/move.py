@@ -215,13 +215,17 @@ class AccountMove(models.Model):
             raise UserError(_('Only invoices could be printed.'))
 
         invoice = any('invoice' in r.move_type for r in self)
-        refund = any('refund' in r.move_type for r in self)
+        refund = any(('refund' in r.move_type and not r.refund_type) for r in self)
+        invoice_correction = any(('refund' in r.move_type and r.refund_type == 'invoice_correction') for r in self)
+        credit_note = any(('refund' in r.move_type and r.refund_type == 'credit_note') for r in self)
 
         return [
             x for x
             in [
                 invoice and _('Invoice'),
                 refund and _('Refund'),
+                invoice_correction and _('Invoice_Correction'),
+                credit_note and _('Credit_Note'),
             ]
             if x
         ]
