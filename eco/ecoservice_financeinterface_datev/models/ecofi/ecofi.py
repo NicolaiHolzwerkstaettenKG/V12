@@ -2,7 +2,6 @@
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 
 import re
-from datetime import datetime
 from decimal import Decimal
 from typing import Tuple as TTuple
 from odoo import api, models
@@ -694,9 +693,8 @@ class Ecofi(models.Model):
                     # ??? Bitte gewünschtes Verhalten dokumentieren!
                     buschluessel = str(tax.l10n_de_datev_code)
 
-            if rounding_method == 'round_per_line':
-                csv_umsatz = round(csv_umsatz, 2)
-                csv_basisbetrag = round(csv_basisbetrag, 2)
+            csv_umsatz = round(csv_umsatz, 2)
+            csv_basisbetrag = round(csv_basisbetrag, 2)
 
             if csv_umsatz < 0:
                 # Minusbeträge auf im export vermeiden
