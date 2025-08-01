@@ -80,7 +80,7 @@ class EcofiDatevFormatePaymentTerms(models.Model):
                     res['skonto2percent'] = line.value_amount * 100
                 skonto_count += 1
 
-        if not res['netdays']:
+        if res.get('netdays') is None or res['netdays'] == '':
             res['error'] = True
             res['log'] = _('Payment term {name} has no balance line').format(
                 name=paymentterm.name,
