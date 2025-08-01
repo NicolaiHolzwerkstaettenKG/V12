@@ -35,6 +35,17 @@ class AccountMove(models.Model):
         states={'draft': [('readonly', False)]},
         help='Enter the delivery period (e.g. month) or the delivery date here.'
     )
+    print_shipping_address = fields.Boolean(
+        default=True,
+    )
+    refund_type = fields.Selection(
+        string='Refund Type',
+        selection=[
+            ('invoice_correction', 'Invoice Correction'),
+            ('credit_note', 'Credit Note'),
+        ],
+        default='invoice_correction',
+    )
     # endregion
 
     # region Compute Methods
@@ -131,7 +142,14 @@ class AccountMove(models.Model):
         # While changing partner: change the text according to partner's language
         # and do not reset this if text is written manually
 
-        if self.partner_id:
+        if (
+            self.partner_id
+            and (
+                not self.move_type
+                or self.move_type != 'entry'
+                or self.company_id.use_template_text_on_entries
+            )
+        ):
             field_xml_list = []
 
             field_xml_list.append((
@@ -197,13 +215,17 @@ class AccountMove(models.Model):
             raise UserError(_('Only invoices could be printed.'))
 
         invoice = any('invoice' in r.move_type for r in self)
-        refund = any('refund' in r.move_type for r in self)
+        refund = any(('refund' in r.move_type and not r.refund_type) for r in self)
+        invoice_correction = any(('refund' in r.move_type and r.refund_type == 'invoice_correction') for r in self)
+        credit_note = any(('refund' in r.move_type and r.refund_type == 'credit_note') for r in self)
 
         return [
             x for x
             in [
                 invoice and _('Invoice'),
                 refund and _('Refund'),
+                invoice_correction and _('Invoice_Correction'),
+                credit_note and _('Credit_Note'),
             ]
             if x
         ]

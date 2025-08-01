@@ -34,7 +34,7 @@
             <t t-call="ecoservice_german_documents_base.letter_salutation" />
             <div style="margin-top:5px;">
               <!-- Render the HTML fields as a mako template to evaluate variables -->
-              <t t-raw="o.env['mail.template']._render_template(doc_text, o._name, o.ids)[o.id]" />
+              <t t-out="doc_text" />
             </div>
           </div>
         </div>
@@ -60,7 +60,7 @@
             <div>
               <!-- Render the HTML fields as a mako template to evaluate variables -->
               <t
-                t-raw="o.env['mail.template']._render_template(doc_text_bottom, o._name, o.ids)[o.id]" />
+                t-out="doc_text_bottom" />
             </div>
           </div>
         </div>
@@ -94,7 +94,8 @@
             t-value="o.get_value_customer_address()" />
           <t t-set="delivery_address" t-value="o.partner_shipping_id" />
           <t t-set="differing_shipping_address" t-value="o.partner_id != o.partner_shipping_id" />
-          <t t-if="differing_shipping_address and delivery_address_check and customer_address_check">
+          <t t-set="print_shipping_address" t-value="o.print_shipping_address" />
+          <t t-if="differing_shipping_address and delivery_address_check and customer_address_check and print_shipping_address">
             <div class="row mt16"
                  t-if="differing_shipping_address"
                  style="page-break-inside: avoid;">

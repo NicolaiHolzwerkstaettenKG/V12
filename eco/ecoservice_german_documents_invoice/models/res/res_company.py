@@ -10,3 +10,6 @@ class ResCompany(models.Model):
     delivery_address = fields.Boolean(
         string='Delivery Address ',
     )
+    use_template_text_on_entries = fields.Boolean(
+        string='Use template text on entries',
+    )
