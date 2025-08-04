@@ -90,6 +90,21 @@ class AccountMove(models.Model):
                 ref,
             ]))
 
+    def datev_description(self):
+        if self.partner_id.is_company:
+            name = (self.partner_id.name or "").strip()
+        else:
+            parent = self.partner_id.commercial_partner_id
+            if parent.is_company:
+                name = (parent.name or "").strip()
+            else:
+                name = (self.partner_id.name or "").strip()  # fallback if no company found
+
+        if not name:
+            return "[no employer found]"
+
+        return name
+
     def datev_extension_property(self):
         odoo_types = {
             'entry': '',
