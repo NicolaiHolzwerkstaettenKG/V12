@@ -18,6 +18,7 @@ from ...datev import (
     Content,
     DateTime,
     Description40,
+    Description255,
     Document,
     ExtensionFile,
     ExtensionInvoice,
@@ -122,8 +123,8 @@ class DatevExport(models.Model):
             extensions.insert(0, ext_xml)
 
             documents.append(Document(
-                description=Description40(move.display_name),
-                keywords=move.datev_keywords(),
+                description=Description40(move.datev_description()),
+                keywords=Description255(move.display_name),
                 type=move.datev_document_type(),
                 guid=move.uuid4,
                 extension=extensions,
@@ -167,8 +168,8 @@ class DatevExport(models.Model):
 
             extensions = [ExtensionFile(name=x) for x in files]
             documents.append(Document(
-                description=Description40(move.display_name),
-                keywords=move.datev_keywords(),
+                description=Description40(move.datev_description()),
+                keywords=Description255(move.display_name),
                 type=move.datev_document_type(),
                 guid=move.uuid4,
                 extension=extensions,

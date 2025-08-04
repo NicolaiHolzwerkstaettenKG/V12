@@ -4,7 +4,7 @@
     'name': 'DATEV Document Transfer',
     'summary': 'DATEV XML interface in accordance with offical docs.',
     'category': 'Accounting',
-    'version': '16.0.1.1.2',
+    'version': '16.0.1.1.3',
     'author': 'ecoservice GbR',
     'website': 'https://www.ecoservice.de',
     'live_test_url': 'https://www.ecoservice.de/odoo-demo',
