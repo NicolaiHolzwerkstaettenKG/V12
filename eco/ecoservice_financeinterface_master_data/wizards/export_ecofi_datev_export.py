@@ -6,6 +6,7 @@ from odoo import fields, models
 
 class DatevReferenceDataExport(models.TransientModel):
     _name = 'datev.reference.data.export'
+    _description = 'Datev Reference Data Export'
 
     # region Fields
 
