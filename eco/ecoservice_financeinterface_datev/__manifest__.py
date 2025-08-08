@@ -5,7 +5,7 @@
     'name': 'DATEV Export',
     'summary': 'Export of account moves to DATEV',
     'category': 'Accounting',
-    'version': '16.0.2.4.1',
+    'version': '16.0.2.4.2',
     'license': 'OPL-1',
     'application': True,
     'installable': True,
@@ -28,11 +28,9 @@
     'data': [
         'security/ir.model.access.csv',
         'data/ir_sequence.xml',
-
         # actions used in res_config_view
         'wizards/views/ecofi_move_migration.xml',
         'wizards/views/ecofi_set_account_counterpart.xml',
-
         'views/account/account_account.xml',
         'views/account/account_move.xml',
         'views/account/account_move_line.xml',
