@@ -71,7 +71,7 @@ class EcofiDatevFormatePaymentTerms(models.Model):
         for line in paymentterm.line_ids:
             if line.value == 'balance':
                 res['netdays'] = line.days
-            elif line.value == 'procent':
+            elif line.value == 'percent':
                 if skonto_count == 0:
                     res['skonto1days'] = line.days
                     res['skonto1percent'] = line.value_amount * 100
@@ -86,7 +86,7 @@ class EcofiDatevFormatePaymentTerms(models.Model):
                 name=paymentterm.name,
             )
 
-        if skonto_count > 1:
+        if skonto_count > 2:
             res['error'] = True
             res['log'] = _('Payment term {name} has more than 2 percent lines').format(
                 name=paymentterm.name,
