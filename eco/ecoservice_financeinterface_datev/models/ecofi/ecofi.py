@@ -11,6 +11,59 @@ class Ecofi(models.Model):
     _name = 'ecofi'
     _inherit = ['ecofi', 'ecofi.export.columns']
 
+    def _get_reconcilation_name(self, move, line):
+        """
+        Gets a unique reference for DATEV Belegfeld 1.
+
+        :param move: The current `account.move` journal entry.
+        :param line: The current `account.move.line` being processed.
+        :return: A string with the determined reference for DATEV.
+        """
+        # Find a matching_number
+        matching_number_to_use = line.matching_number
+        if not matching_number_to_use:
+            # if not matching_number is found, search in the same move
+            reconciled_sibling = move.line_ids.filtered(
+                lambda l: l.matching_number
+            )
+            if reconciled_sibling:
+                matching_number_to_use = reconciled_sibling[0].matching_number
+
+        # use the matching_number to find reconciled lines
+        if matching_number_to_use:
+            reconciled_lines = self.env['account.move.line'].search([
+                ('matching_number', '=', matching_number_to_use)
+            ])
+
+            # find the correct invoice to use
+            invoice_lines = reconciled_lines.filtered(
+                lambda l: l.move_id.move_type in ('out_invoice', 'in_invoice')
+            )
+            if invoice_lines:
+                invoice_move = invoice_lines[0].move_id
+                return invoice_move.ref or invoice_move.name
+
+            # if it is not an invoice, use the first line's move
+            other_moves = reconciled_lines.mapped('move_id').filtered(
+                lambda m: m.id != move.id
+            )
+            if other_moves:
+                return other_moves[0].ref or other_moves[0].name
+
+        # if not matching_number is available, use the move's ref or name
+        # reversal_move_id could be set, so we check for that
+        if move.move_type in ('out_refund', 'in_refund') and move.reversal_move_id:
+            return move.reversal_move_id.ref or move.reversal_move_id.name
+
+        # fallback
+        return move.ref or move.name
+
+    def _set_buchungstext(self, move) -> str:
+        """
+        Set Buchungstext
+        """
+        return move.display_name or move.name
+
     def field_config(  # noqa: C901
         self,
         move,
@@ -49,43 +102,22 @@ class Ecofi(models.Model):
         # Standard
         datevdict['Beleg1'] = move.name
 
-        # Kundenzahlung
-        if move.journal_id.type == 'bank':
-            payment_ids = move.line_ids.mapped('payment_id')
-            reconciled_ids = payment_ids.mapped('reconciled_invoice_ids')
-
-            if not payment_ids:
-                datevdict['Buchungstext'] = move.display_name
-                # compare line name with move_name
-                if line.name and line.move_name:
-                    if line.name != line.move_name:
-                        datevdict['Beleg1'] = line.name
-                        datevdict['Buchungstext'] = line.move_name
-            else:
-                if reconciled_ids:
-                    datevdict['Buchungstext'] = datevdict['Beleg1']
-                    invoice_names = []
-                    for reconciled_id in reconciled_ids:
-                        invoice_names.append(reconciled_id.name)
-                    datevdict['Beleg1'] = ', '.join(invoice_names)
-                elif move.ref:
-                    datevdict['Buchungstext'] = datevdict['Beleg1']
-                    datevdict['Beleg1'] = move.ref
-
-        # Kundenrechnung
-        elif move.journal_id.type == 'sale':
-            if move.name:
-                datevdict['Beleg1'] = move.name
-                datevdict['Buchungstext'] = move.name
-
-        elif move.journal_id.type == 'purchase' and move.ref:
-            datevdict['Beleg1'] = move.ref
+        beleg = self._get_reconcilation_name(
+            move=move,
+            line=line,
+        )
+        if beleg:
+            datevdict['Beleg1'] = beleg
+        buchungstext = self._set_buchungstext(move)
+        if buchungstext:
+            datevdict['Buchungstext'] = buchungstext
 
         if faelligkeit:
             datevdict['Beleg2'] = faelligkeit
 
+        # in case our own field is set, use it
         if move.ecofi_buchungstext:
-            datevdict['Buchungstext'] = move.ecofi_buchungstext
+            datevdict['Buchungstext'] += move.ecofi_buchungstext
 
         if line.name and line.name not in ['/', '<p><br></p>', '<p><br/></p>']:
             line_name = (
@@ -99,10 +131,11 @@ class Ecofi(models.Model):
             )
 
             if datevdict.get('Buchungstext'):
-                datevdict['Buchungstext'] = '{m_bu}, {l_bu}'.format(
-                    m_bu=datevdict['Buchungstext'],
-                    l_bu=line_name,
-                )
+                if move.move_type in ['out_invoice', 'in_invoice']:
+                    datevdict['Buchungstext'] = '{m_bu}, {l_bu}'.format(
+                        m_bu=datevdict['Buchungstext'],
+                        l_bu=line_name,
+                    )
             else:
                 datevdict['Buchungstext'] = line_name
 
