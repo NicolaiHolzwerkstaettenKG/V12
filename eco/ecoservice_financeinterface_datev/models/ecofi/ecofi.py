@@ -23,17 +23,15 @@ class Ecofi(models.Model):
         matching_number_to_use = line.matching_number
         if not matching_number_to_use:
             # if not matching_number is found, search in the same move
-            reconciled_sibling = move.line_ids.filtered(
-                lambda l: l.matching_number
-            )
+            reconciled_sibling = move.line_ids.filtered(lambda l: l.matching_number)
             if reconciled_sibling:
                 matching_number_to_use = reconciled_sibling[0].matching_number
 
         # use the matching_number to find reconciled lines
         if matching_number_to_use:
-            reconciled_lines = self.env['account.move.line'].search([
-                ('matching_number', '=', matching_number_to_use)
-            ])
+            reconciled_lines = self.env['account.move.line'].search(
+                [('matching_number', '=', matching_number_to_use)]
+            )
 
             # find the correct invoice to use
             invoice_lines = reconciled_lines.filtered(
@@ -665,18 +663,17 @@ class Ecofi(models.Model):
             foreign_currency_taxed = foreign_currency_untaxed * tax_multiplier
 
             if line.price_total and foreign_currency_taxed != line.price_total:
-                # Rundungsfehler
-                foreign_currency_taxed = Decimal(str(line.price_total))
-
+                # We've got a rounding mistake
                 if line.currency_id == line.company_id.currency_id:
-                    base_currency_taxed = foreign_currency_taxed
+                    base_currency_taxed = Decimal(str(line.price_total))
                 else:
                     base_currency_taxed = line.currency_id._convert(
-                        from_amount=foreign_currency_taxed,
+                        from_amount=line.price_total,
                         to_currency=line.company_id.currency_id,
                         company=line.company_id,
                         date=line.date,
                     )
+                    base_currency_taxed = Decimal(str(base_currency_taxed))
 
             buschluessel = ''
 
