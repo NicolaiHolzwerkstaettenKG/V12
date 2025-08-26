@@ -1,5 +1,11 @@
 Changelog
 =========
+
+16.0.1.4.1
+----------
+* add field logo_height in res.company to customize the logo height in px.
+* Added constraint to logo height field to not exceed 125px.
+
 16.0.1.2.2
 ----------
 * fix space in salutation

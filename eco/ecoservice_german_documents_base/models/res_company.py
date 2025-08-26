@@ -1,7 +1,8 @@
 # Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
 # See COPYRIGHT and LICENSE files at the root directory for full details.
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 import re
 
 
@@ -10,6 +11,11 @@ class ResCompany(models.Model):
 
     # region Fields
     chief_executive_officer = fields.Text()
+    logo_height = fields.Integer(
+        string="Logo Height (max. 125px)",
+        default=60,
+        help="Custom height for the logo in px. Width will be scaled proportionally.",
+    )
     report_table_position = fields.Boolean(
         string='Show line item number in printed documents',
         default=True,
@@ -101,6 +107,13 @@ class ResCompany(models.Model):
             template.company_id = 1
             template.company_xml_id = template.get_external_id()[template.id]
         return templates
+
+    @api.constrains('logo_height')
+    def _check_logo_height(self):
+        standard_height = 125
+        for record in self:
+            if record.logo_height > standard_height:
+                raise ValidationError(_("logo height cannot be greater than 125px."))
 
     def _copy_template_to_company(self, template, company):
         new_template = self.env["text.template.config"].sudo().create({
