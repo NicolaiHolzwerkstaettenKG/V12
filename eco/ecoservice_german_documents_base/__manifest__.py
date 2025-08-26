@@ -5,7 +5,7 @@
     'name': 'German Documents (Base)',
     'summary': 'Designed German Documents for Odoo.',
     'category': 'Base',
-    'version': '16.0.1.2.13',
+    'version': '16.0.1.4.1',
     'license': 'OPL-1',
     'application': False,
     'installable': True,
@@ -17,6 +17,7 @@
     'images': [
         'images/main_screenshot.png',
     ],
+    'live_test_url': 'https://www.ecoservice.de/odoo-demo',
     # Dependencies
     'depends': [
         # odoo
@@ -24,7 +25,7 @@
         'sale_management',
         'web',
         # ecoservice
-        'ecoservice_partner_salutation',  # eco/finance-interface
+        'ecoservice_partner_salutation',
          'account',
     ],
     # Data

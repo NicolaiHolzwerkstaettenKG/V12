@@ -2,6 +2,7 @@
 # See COPYRIGHT and LICENSE files at the root directory for full details.
 
 from odoo import api, fields, models
+from markupsafe import Markup
 
 
 class EcoReportMixIn(models.AbstractModel):
@@ -66,4 +67,9 @@ class EcoReportMixIn(models.AbstractModel):
 
     def _get_prefixes(self):
         return []
+
+    def html_to_markup(self, html_content):
+        if not html_content:
+            return ''
+        return Markup(html_content)
     # endregion
