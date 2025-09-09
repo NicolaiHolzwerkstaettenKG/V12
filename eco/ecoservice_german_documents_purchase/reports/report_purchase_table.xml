@@ -67,7 +67,7 @@ you can to this here by inherit or override.
             <t t-if="not line.display_type">
               <t t-call="ecoservice_german_documents_purchase.show_position_number"/>
               <td align="left">
-                <span t-raw="description"/>
+                <span t-out="description"/>
               </td>
               <td align="center" t-if="display_taxes and is_po">
                 <span t-esc="line.report_taxes()"/>
