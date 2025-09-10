@@ -1,7 +1,7 @@
 # Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 
-from dateutil.relativedelta import relativedelta
+from dateutil.relativedelta import relativedelta, MO
 from odoo import _, fields, models
 from odoo.exceptions import UserError
 import logging
@@ -83,15 +83,19 @@ class AutoDatevExportConfig(models.Model):
                     record._cr.rollback()
 
     def get_time_period(self, period):
+        today = fields.Date.today()
         if period == 'daily':
-            start_date = fields.Date.today() - relativedelta(days=1)
+            start_date = today - relativedelta(days=1)
             end_date = start_date
         elif period == 'weekly':
-            start_date = fields.Date.today() - relativedelta(weeks=1)
-            end_date = fields.Date.today() - relativedelta(days=1)
+            start_date = today - relativedelta(weeks=1, weekday=MO(-1))
+            end_date = start_date + relativedelta(days=6)
         elif period == 'monthly':
-            start_date = fields.Date.today() - relativedelta(months=1)
-            end_date = fields.Date.today() - relativedelta(days=1)
+            last_month_start = today - relativedelta(months=1)
+            last_month_start = last_month_start.replace(day=1)
+            last_month_end = today.replace(day=1) - relativedelta(days=1)
+            start_date = last_month_start
+            end_date = last_month_end
         return start_date, end_date
 
     def create_export(self, start_date, end_date):
