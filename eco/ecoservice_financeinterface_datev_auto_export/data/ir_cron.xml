@@ -4,20 +4,42 @@
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 -->
 
-<odoo noupdate="1">
+<odoo>
 
-  <record id="ir_cron_auto_datev_export_mail" model="ir.cron">
-    <field name="name">Auto send mail with Finance Report</field>
-    <field eval="True" name="active"/>
-    <field name="user_id" ref="base.user_root"/>
+  <record id="ir_cron_auto_datev_export_mail_daily" model="ir.cron">
+    <field name="name">Auto send mail with Finance Export (Daily)</field>
+    <field name="model_id" ref="model_auto_datev_export_config"/>
+    <field name="active" eval="True"/>
     <field name="interval_number">1</field>
     <field name="interval_type">days</field>
     <field name="numbercall">-1</field>
-    <field eval="False" name="doall"/>
-    <field name="nextcall" eval="(datetime.utcnow() + timedelta(days=1)).strftime('%Y-%m-%d 04:00:00')"/>
-    <field eval="ref('ecoservice_financeinterface_datev_auto_export.model_auto_datev_export_config')" name="model_id"/>
+    <field name="doall" eval="False"/>
     <field name="state">code</field>
-    <field name="code">model.auto_mail_send()</field>
+    <field name="code">model.create_export_send_mail('daily')</field>
+  </record>
+
+  <record id="ir_cron_auto_datev_export_mail_weekly" model="ir.cron">
+    <field name="name">Auto send mail with Finance Export (Weekly)</field>
+    <field name="model_id" ref="model_auto_datev_export_config"/>
+    <field name="active" eval="True"/>
+    <field name="interval_number">1</field>
+    <field name="interval_type">weeks</field>
+    <field name="numbercall">-1</field>
+    <field name="doall" eval="False"/>
+    <field name="state">code</field>
+    <field name="code">model.create_export_send_mail('weekly')</field>
+  </record>
+
+  <record id="ir_cron_auto_datev_export_mail_monthly" model="ir.cron">
+    <field name="name">Auto send mail with Finance Export (Monthly)</field>
+    <field name="model_id" ref="model_auto_datev_export_config"/>
+    <field name="active" eval="True"/>
+    <field name="interval_number">1</field>
+    <field name="interval_type">months</field>
+    <field name="numbercall">-1</field>
+    <field name="doall" eval="False"/>
+    <field name="state">code</field>
+    <field name="code">model.create_export_send_mail('monthly')</field>
   </record>
 
 </odoo>

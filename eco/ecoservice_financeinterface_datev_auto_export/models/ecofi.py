@@ -1,18 +1,13 @@
 # Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 
-# Odoo
 from odoo import fields, models
 
 
-class ResCompany(models.Model):
-    _inherit = 'res.company'
+class Ecofi(models.Model):
+    _inherit = 'ecofi'
 
-    # region Fields
-
-    auto_datev_export_config_ids = fields.Many2many(
+    auto_datev_export = fields.Many2one(
         comodel_name='auto.datev.export.config',
-        string='Auto Mail Export Configuration',
+        string='Auto Datev Export'
     )
-
-    # endregion

@@ -2,19 +2,24 @@
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 {
     # App Information
-    'name': 'Auto Datev Export',
+    'name': 'Auto DATEV Export',
     'summary': 'Generate CSV files and send them via mail based on a time interval.',
     'category': 'Accounting',
-    'version': '16.0.1.0.1',
+    'version': '16.0.1.1.2',
     'license': 'OPL-1',
     'application': True,
     'installable': True,
     'price': 450.00,
+    'currency': 'EUR',
     # Author
-    'author': 'ecoservice',
-    'website': 'https://ecoservice.de/',
+    'author': 'ecoservice GbR',
+    'website': 'https://www.ecoservice.de/shop/auto-datev-export-138',
+    'live_test_url': 'https://www.ecoservice.de/odoo-demo',
     # Odoo Apps Store
     'support': 'financeinterface@ecoservice.de',
+    'images': [
+        'images/main_screenshot.gif',
+    ],
     # Dependencies
     'depends': [
         'ecoservice_financeinterface',  # eco/finace-interface
@@ -23,9 +28,8 @@
     # Data
     'data': [
         'security/ir.model.access.csv',
-        'data/ir_cron.xml',
         'data/mail_template.xml',
+        'data/ir_cron.xml',
         'views/auto_datev_export_config.xml',
-        'views/res_config_settings.xml'
     ],
 }
