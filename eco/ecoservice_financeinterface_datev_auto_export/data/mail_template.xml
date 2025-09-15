@@ -8,10 +8,10 @@
 
   <record id="email_template_auto_datev_export" model="mail.template">
     <field name="name">Auto Datev Export Mail</field>
-    <field name="model_id" ref="ecoservice_financeinterface_datev_auto_export.model_auto_datev_export_config"/>
+    <field name="model_id" ref="ecoservice_financeinterface_datev.model_ecofi"/>
     <field name="email_from">{{ object.company_id.email }}</field>
-    <field name="partner_to">{{ object.partner_id.id }}</field>
-    <field name="lang">{{ object.partner_id.lang }}</field>
+    <field name="partner_to">{{ object.auto_datev_export.partner_id.id }}</field>
+    <field name="lang">{{ object.auto_datev_export.partner_id.lang }}</field>
     <field name="body_html" type="html">
       <div style="margin: 0px; padding: 0px;">
         <p style="margin: 0px; padding: 0px; font-size: 13px;">

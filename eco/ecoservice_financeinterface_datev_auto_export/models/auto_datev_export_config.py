@@ -78,7 +78,7 @@ class AutoDatevExportConfig(models.Model):
                     ecofi = record.create_export(start_date, end_date)
                     record._cr.commit()
                     attachments = record.get_attachments(ecofi)
-                    record.send_mail(attachments, start_date, end_date)
+                    record.send_mail(attachments, start_date, end_date, ecofi)
                 except UserError:
                     record._cr.rollback()
 
@@ -100,36 +100,41 @@ class AutoDatevExportConfig(models.Model):
 
     def create_export(self, start_date, end_date):
         journals = self.journal_ids if self.journal_ids else self.env.company.journal_ids
-        if self.fi_datev_xml_installed and self.to_export:
+        if self.fi_datev_xml_installed:
             ecofi = self.env['ecofi'].ecofi_buchungen(
-                journals, start_date, end_date, self.to_export
+                journals, start_date, end_date, 'csv_and_beleg_export'
             )
         else:
             ecofi = self.env['ecofi'].ecofi_buchungen(
                 journals, start_date, end_date
             )
+        ecofi.write({
+            'auto_datev_export': self.id
+        })
         return ecofi
 
     def get_attachments(self, ecofi):
         attachments = []
 
         if ecofi.csv_file:
-            csv_attachment = self.env['ir.attachment'].create({
-                'name': ecofi.name + '.csv',
-                'datas': ecofi.csv_file,
-                'res_model': 'ecofi',
-                'type': 'binary'
-            })
-            attachments.append(csv_attachment.id)
+            if self.to_export == 'csv_export' or self.to_export == 'csv_and_beleg_export':
+                csv_attachment = self.env['ir.attachment'].create({
+                    'name': ecofi.name + '.csv',
+                    'datas': ecofi.csv_file,
+                    'res_model': 'ecofi',
+                    'type': 'binary'
+                })
+                attachments.append(csv_attachment.id)
 
         if self.fi_datev_xml_installed:
-            if ecofi.xml_export_attachment_id:
-                xml_attachment = ecofi.xml_export_attachment_id
-                attachments.append(xml_attachment.id)
+            if self.to_export == 'belege_export' or self.to_export == 'csv_and_beleg_export':
+                if ecofi.xml_export_attachment_id:
+                    xml_attachment = ecofi.xml_export_attachment_id
+                    attachments.append(xml_attachment.id)
 
         return attachments
 
-    def send_mail(self, attachments, start_date, end_date):
+    def send_mail(self, attachments, start_date, end_date, ecofi):
         template = self.env.ref(
             'ecoservice_financeinterface_datev_auto_export.email_template_auto_datev_export'
         )
@@ -140,12 +145,12 @@ class AutoDatevExportConfig(models.Model):
         if not self.partner_id:
             _logger.warning('There is no email recipient!')
 
-        template.attachment_ids = self.env['ir.attachment'].browse(attachments)
         template.subject = _('Datev Export from {start_date} to {end_date}').format(
             start_date=start_date.strftime('%d.%m.%Y'),
             end_date=end_date.strftime('%d.%m.%Y'),
         )
-        template.send_mail(self.id)
+        if ecofi:
+            ecofi.message_post_with_template(template.id, attachment_ids=attachments)
 
         _logger.info('Email sent.')
 
