@@ -129,7 +129,7 @@ class Ecofi(models.Model):
             )
 
             if datevdict.get('Buchungstext'):
-                if move.move_type in ['out_invoice', 'in_invoice']:
+                if move.move_type in ['out_invoice', 'in_invoice', 'entry']:
                     datevdict['Buchungstext'] = '{m_bu}, {l_bu}'.format(
                         m_bu=datevdict['Buchungstext'],
                         l_bu=line_name,
