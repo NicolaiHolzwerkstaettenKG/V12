@@ -1017,7 +1017,13 @@ class Ecofi(models.Model):
             )[-36:]
 
         if normalized_dict.get('Umsatz'):
-            if rounding_method == 'round_globally':
+            if self.env.user.company_id.datev_group_lines:
+                invoice = self.env['account.move'].search([
+                    ('name', '=', normalized_dict.get('Movename')),
+                ], limit=1)
+                if invoice:
+                    normalized_dict['Umsatz'] = str(invoice.amount_total).replace('.', ',')
+            elif rounding_method == 'round_globally':
                 normalized_dict['Umsatz'] = str(
                     round(Decimal(str(normalized_dict['Umsatz'].replace(',', '.'))), 2)
                 ).replace('.', ',')
