@@ -726,6 +726,11 @@ class Ecofi(models.Model):
                 csv_umsatz = -csv_umsatz
                 csv_basisbetrag = -csv_basisbetrag
 
+            if csv_basisbetrag and not csv_umsatz:
+                # 112020: Verhindern von 0 Beträgen bei Fremdwährungen
+                csv_umsatz = csv_basisbetrag
+                foreign_currency = base_currency
+
             if ignore_currency:
                 # Kunde wünscht keine Angabe von Fremdwährungen
                 # Basiswährungsangaben werden zur einzigen Währungsangabe
@@ -1018,11 +1023,16 @@ class Ecofi(models.Model):
 
         if normalized_dict.get('Umsatz'):
             if self.env.user.company_id.datev_group_lines:
-                invoice = self.env['account.move'].search([
-                    ('name', '=', normalized_dict.get('Movename')),
-                ], limit=1)
+                invoice = self.env['account.move'].search(
+                    [
+                        ('name', '=', normalized_dict.get('Movename')),
+                    ],
+                    limit=1,
+                )
                 if invoice:
-                    normalized_dict['Umsatz'] = str(invoice.amount_total).replace('.', ',')
+                    normalized_dict['Umsatz'] = str(invoice.amount_total).replace(
+                        '.', ','
+                    )
             elif rounding_method == 'round_globally':
                 normalized_dict['Umsatz'] = str(
                     round(Decimal(str(normalized_dict['Umsatz'].replace(',', '.'))), 2)
