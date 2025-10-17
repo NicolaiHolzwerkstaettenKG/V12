@@ -1029,7 +1029,7 @@ class Ecofi(models.Model):
                     ],
                     limit=1,
                 )
-                if invoice:
+                if invoice and invoice.move_type in ('out_invoice', 'in_invoice'):
                     normalized_dict['Umsatz'] = str(invoice.amount_total).replace(
                         '.', ','
                     )
