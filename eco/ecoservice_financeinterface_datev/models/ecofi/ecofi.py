@@ -3,7 +3,6 @@
 
 import re
 from decimal import Decimal
-from typing import Tuple as TTuple
 from odoo import api, models
 
 
@@ -19,6 +18,7 @@ class Ecofi(models.Model):
         :param line: The current `account.move.line` being processed.
         :return: A string with the determined reference for DATEV.
         """
+
         # Find a matching_number
         matching_number_to_use = line.matching_number
         if not matching_number_to_use:
@@ -39,22 +39,42 @@ class Ecofi(models.Model):
             )
             if invoice_lines:
                 invoice_move = invoice_lines[0].move_id
-                return invoice_move.ref or invoice_move.name
+                return self._get_reconcilation_name_for_move_type(
+                    move=move,
+                    submove=invoice_move,
+                )
 
             # if it is not an invoice, use the first line's move
             other_moves = reconciled_lines.mapped('move_id').filtered(
                 lambda m: m.id != move.id
             )
             if other_moves:
-                return other_moves[0].ref or other_moves[0].name
+                other_move = other_moves[0]
+                return self._get_reconcilation_name_for_move_type(
+                    move=move,
+                    submove=other_move,
+                )
 
         # if not matching_number is available, use the move's ref or name
         # reversal_move_id could be set, so we check for that
-        if move.move_type in ('out_refund', 'in_refund') and move.reversal_move_id:
+        if move.reversal_move_id and move.move_type in ('out_refund', 'in_refund'):
             return move.reversal_move_id.ref or move.reversal_move_id.name
 
         # fallback
-        return move.ref or move.name
+        return self._get_reconcilation_name_for_move_type(
+            move=move,
+            submove=move,
+        )
+
+    def _get_reconcilation_name_for_move_type(self, move, submove):
+        if submove.move_type == 'in_invoice':
+            if move.journal_id.type == 'bank':
+                # If journal type is bank, try to obtain the reference
+                # set in at the move if set, otherwise use name as fallback
+                return submove.ref or submove.name
+            elif move.journal_id.type == 'purchase':
+                return submove.ref
+        return submove.name
 
     def _set_buchungstext(self, move) -> str:
         """
@@ -89,12 +109,10 @@ class Ecofi(models.Model):
             move.journal_id._fields['type']._description_selection(self.env)
         ).get(move.journal_id.type)
 
-        # 111632 "Datev Export: Buchungsdatum und Belegdatum"
-        # Im Meeting vom 24.06.25 um 14:30 wurde durch Falk, Simon und Jan final
-        # beschlossen, dass das Feld "date" immer als Buchungsdatum und Belegdatum
-        # verwendet wird - wie im Odoo Standard. Alles andere ist eine Abweichung vom
-        # Odoo Standard UND vom DATEV Standard und wird somit NICHT mehr unterstützt.
-        datevdict['Belegdatum'] = move.date.strftime('%d%m')  # Do not change!
+        export_date = move.date
+        if move.invoice_date:
+            export_date = move.invoice_date
+        datevdict['Datum'] = export_date.strftime('%d%m')
         datevdict['Steuerperiode'] = move.date.strftime('%d%m%Y')
 
         # Standard
@@ -129,7 +147,7 @@ class Ecofi(models.Model):
             )
 
             if datevdict.get('Buchungstext'):
-                if move.move_type in ['out_invoice', 'in_invoice', 'entry']:
+                if move.move_type in ['out_invoice', 'in_invoice']:
                     datevdict['Buchungstext'] = '{m_bu}, {l_bu}'.format(
                         m_bu=datevdict['Buchungstext'],
                         l_bu=line_name,
@@ -171,7 +189,7 @@ class Ecofi(models.Model):
             datevdict['BelegInfoInhalt1'] = line.move_id.name
 
         # add code of analytic account to kost1 and kost2
-        datevdict = self._get_analytic_account_datev(datevdict, line)
+        datevdict['Kost1'], datevdict['Kost2'] = self.get_grouped_kost_columns(line)
 
         # delivery date
         if (
@@ -215,21 +233,6 @@ class Ecofi(models.Model):
             move.partner_id,
             lines=move.line_ids,
         )
-        return datevdict
-
-    def _get_analytic_account_datev(self, datevdict, line):
-        code1 = code2 = ''
-        if 'analytic_distribution' in line and line.analytic_distribution:
-            a_dist = line.analytic_distribution
-            for k, v in sorted(a_dist.items(), key=lambda item: (-item[1], item[0])):
-                analytic_account = self.env['account.analytic.account'].browse(int(k))
-                if analytic_account.code:
-                    if not code1:
-                        code1 = analytic_account.code
-                    elif not code2:
-                        code2 = analytic_account.code
-        datevdict['Kost1'] = code1
-        datevdict['Kost2'] = code2
         return datevdict
 
     def set_beleglink(self, move, line, datevdict):
@@ -317,7 +320,9 @@ class Ecofi(models.Model):
                 return False
         return True
 
-    def get_grouped_kost_columns(self, product_lines) -> TTuple[str, str]:
+    def get_grouped_kost_columns(self, product_lines) -> tuple[str, str]:
+        """Get Kost1 and Kost2 values grouped by the provided lines"""
+
         # Einstellungen -> Buchungszeilen -> Kostenrechnung
         if 'analytic_distribution' not in product_lines:
             # Feature disabled in settings
@@ -367,15 +372,6 @@ class Ecofi(models.Model):
 
         move_account_id = product_lines.mapped('account_id')
         move_counter_account_id = product_lines.mapped('ecofi_account_counterpart')
-        if len(move_account_id) != 1 or len(move_counter_account_id) != 1:
-            # Too many accounts for same invoice/batch. Can't export
-            # a grouped invoice/batch
-            return False
-
-        account_code = move_account_id and move_account_id.code or ''
-        counter_account_code = (
-            move_counter_account_id and move_counter_account_id.code or ''
-        )
 
         # Get taxes
         tax_ids = lines.mapped('tax_ids')
@@ -394,9 +390,7 @@ class Ecofi(models.Model):
         foreign_balance = move.amount_total_in_currency_signed
         foreign_currency = move.currency_id
         sollhaben = 'h' if base_balance < 0 else 's'
-        exchange_rate = 0
-        for line in product_lines:
-            exchange_rate += line._currency_exchange_rate()
+        exchange_rate = Decimal(str(move.invoice_currency_rate))
 
         if company.datev_ignore_currency:
             # Foreign and base currency is the same or the customer doesn't
@@ -467,8 +461,8 @@ class Ecofi(models.Model):
             exchange_rate or '',
             str(base_balance).replace('.', ','),  # Basiswaehrungsbetrag
             base_currency.name if base_currency else '',
-            account_code,
-            counter_account_code,
+            move_account_id.code,
+            move_counter_account_id.code,
             booking_key,
             export_date,
             move.name,  # Beleg1
@@ -614,14 +608,17 @@ class Ecofi(models.Model):
         move = self._prepare_move(move, export_method)
         ignore_currency = self.env.context.get('datev_ignore_currency')
 
-        for line in move.line_ids:
-            if line.debit == line.credit:
-                # Ignore zero moves
-                continue
+        # Standard
+        move_balance = 0
 
-            datevkonto = line.account_id.code
-            datevgegenkonto = line.ecofi_account_counterpart.code
-            if datevgegenkonto == datevkonto:
+        for line in move.line_ids.filtered(
+            lambda r: r.display_type not in ['line_section', 'line_note']
+        ):
+            account_code = line.account_id.code
+            account_contra_code = line.ecofi_account_counterpart.code
+
+            if account_code == account_contra_code:
+                # Account and contra account are the same.
                 if line.date_maturity:
                     faelligkeit = line.date_maturity.strftime('%d%m%y')
                 continue
@@ -666,6 +663,7 @@ class Ecofi(models.Model):
                 # We've got a rounding mistake
                 if line.currency_id == line.company_id.currency_id:
                     base_currency_taxed = Decimal(str(line.price_total))
+                    foreign_currency_taxed = base_currency_taxed
                 else:
                     base_currency_taxed = line.currency_id._convert(
                         from_amount=line.price_total,
@@ -675,6 +673,7 @@ class Ecofi(models.Model):
                     )
                     base_currency_taxed = Decimal(str(base_currency_taxed))
 
+            move_balance += foreign_currency_taxed
             buschluessel = ''
 
             # Standardmäßig gehen wir von einem Nettoexport aus
@@ -747,8 +746,8 @@ class Ecofi(models.Model):
                 'Kurs': str(csv_exchange_rate or '').replace('.', ','),
                 'Basiswaehrungsbetrag': str(csv_basisbetrag or '').replace('.', ','),
                 'Basiswaehrungskennung': base_currency.name or '',
-                'Gegenkonto': datevgegenkonto,
-                'Konto': datevkonto or '',
+                'Gegenkonto': account_contra_code,
+                'Konto': account_code or '',
                 'Buschluessel': buschluessel,
                 'Movename': move.name,
                 'Auftragsnummer': move.invoice_origin or '',
@@ -793,12 +792,14 @@ class Ecofi(models.Model):
                         line,
                         sollhaben,
                         csv_umsatz,
+                        csv_basisbetrag,
                         datevdict,
                     )
             else:
                 grouped_line[line.id] = datevdict
 
             buchungszeilencount += 1
+
         bookingdict['move_bookings'] = [
             self._create_export_line(datevdict, rounding_method)
             for datevdict in grouped_line.values()
@@ -859,7 +860,7 @@ class Ecofi(models.Model):
             })
         return move
 
-    def _datev_grouping(self, grouped, line, s_h, turnover, datev_dict):
+    def _datev_grouping(self, grouped, line, s_h, turnover, base_turnover, datev_dict):
         key = '{account_id}:{tax_id}:{s_h}:{kost1}:{kost2}'.format(
             account_id=line.account_id.id,
             tax_id=line.ecofi_tax_id.id,
@@ -874,11 +875,16 @@ class Ecofi(models.Model):
 
         grp_turnover = Decimal(grouped[key]['Umsatz'].replace(',', '.'))
         new_turnover = Decimal(str(turnover).replace(',', '.'))
-        grp_turnover += new_turnover
+        grp_turnover += Decimal(str(new_turnover))
+        grouped[key]['Umsatz'], _ = self.format_umsatz(grp_turnover)
 
-        grouped[key]['Umsatz'], _ = self.format_umsatz(
-            Decimal(str(grp_turnover)),
-        )
+        # Basisumsatz
+        bswb = (grouped[key]['Basiswaehrungsbetrag'] or '').strip()
+        if bswb:
+            grp_tbase = Decimal(bswb.replace(',', '.'))
+            new_tbase = Decimal(str(base_turnover).replace(',', '.'))
+            grp_tbase += Decimal(str(new_tbase))
+            grouped[key]['Basiswaehrungsbetrag'], _ = self.format_umsatz(grp_tbase)
 
         if (
             isinstance(line.name, str)
@@ -951,7 +957,7 @@ class Ecofi(models.Model):
             'Sollhaben': kwargs.get('Sollhaben', ''),
             'Umsatz': kwargs.get('Umsatz', ''),
             'Gegenkonto': kwargs.get('Gegenkonto', ''),
-            'Belegdatum': kwargs.get('Belegdatum', ''),
+            'Datum': kwargs.get('Datum', ''),
             'Konto': kwargs.get('Konto', ''),
             'Beleg1': kwargs.get('Beleg1', ''),
             'Beleg2': kwargs.get('Beleg2', ''),
@@ -1021,26 +1027,10 @@ class Ecofi(models.Model):
                 ).replace('.', ''),
             )[-36:]
 
-        if normalized_dict.get('Umsatz'):
-            if self.env.user.company_id.datev_group_lines:
-                invoice = self.env['account.move'].search(
-                    [
-                        ('name', '=', normalized_dict.get('Movename')),
-                    ],
-                    limit=1,
-                )
-                if invoice and invoice.move_type in ('out_invoice', 'in_invoice'):
-                    normalized_dict['Umsatz'] = str(invoice.amount_total).replace(
-                        '.', ','
-                    )
-            elif rounding_method == 'round_globally':
-                normalized_dict['Umsatz'] = str(
-                    round(Decimal(str(normalized_dict['Umsatz'].replace(',', '.'))), 2)
-                ).replace('.', ',')
-            elif rounding_method == 'round_per_line':
-                normalized_dict['Umsatz'] = str(normalized_dict['Umsatz']).replace(
-                    '.', ','
-                )
+        # Export format should always be xx,xx (2 decimal places)
+        umsatz = normalized_dict.get('Umsatz') or '0'
+        umsatz = round(Decimal(umsatz.replace(',', '.')), 2)
+        normalized_dict['Umsatz'] = str(umsatz).replace('.', ',')
 
         return normalized_dict
 

@@ -6,9 +6,6 @@ from collections import defaultdict
 from odoo import _, api, exceptions, fields, models
 from odoo.exceptions import UserError
 
-import inspect
-# do not remove 'inspect'! it's needed to recognise whether the move originates from the pos modul
-
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -17,16 +14,6 @@ class AccountMove(models.Model):
         copy=False,
         readonly=True,
     )  # Required for DATEV document links
-
-    visible_account_counterpart = fields.Boolean(
-        compute='_set_visible_account_counterpart'
-    )
-
-    def _set_visible_account_counterpart(self):
-        if self.user_has_groups('base.group_no_one') or self.ecofi_manual:
-            self.visible_account_counterpart = True
-        else:
-            self.visible_account_counterpart = False
 
     @api.ecofi_validate('validate_account_counter_account')
     def _validate_account_counter_account(self):
@@ -43,7 +30,8 @@ class AccountMove(models.Model):
             result = {}
 
             for line in move.line_ids.filtered(
-                lambda l: l.display_type not in ['line_section', 'line_note']  # Skip sections and notes
+                lambda l: l.display_type
+                not in ['line_section', 'line_note']  # Skip sections and notes
             ):
                 if not line.account_id or not line.ecofi_account_counterpart:
                     count += 1
@@ -59,23 +47,19 @@ class AccountMove(models.Model):
 
             error_msg = []
             if count:
-                if not (self.company_id.allow_pos_error_skip and move._pos_move()):
-                    error_msg.append(
-                        _(
-                            '{count} lines of move {move_name} ({move_id}) do not '
-                            'have both accounts, an account and a counter account, '
-                            'defined!'
-                        ).format(
-                            count=count,
-                            move_name=move.name,
-                            move_id=move.id,
-                        )
+                error_msg.append(
+                    _(
+                        '{count} lines of move {move_name} ({move_id}) do not '
+                        'have both accounts, an account and a counter account, '
+                        'defined!'
+                    ).format(
+                        count=count,
+                        move_name=move.name,
+                        move_id=move.id,
                     )
-                else:
-                    move.to_check = True
+                )
             if any(
-                abs(value['check'] + value['real']) > 10 ** -4
-                for value in result.values()
+                abs(value['check'] + value['real']) > 10**-4 for value in result.values()
             ):
                 error_msg.append(
                     _(
@@ -88,27 +72,20 @@ class AccountMove(models.Model):
                     )
                 )
             if error_msg:
-                raise exceptions.ValidationError(
-                    '\n\n'.join(error_msg)
-                )
+                raise exceptions.ValidationError('\n\n'.join(error_msg))
 
     def _pos_move(self):
-        """return True if move originates from pos, else return False"""
-
         module_is_installed = self.env['ir.module.module'].search(
-            [
-                ('name', '=', 'point_of_sale'),
-                ('state', '=', 'installed')
-            ]
+            [('name', '=', 'point_of_sale'), ('state', '=', 'installed')]
         )
         possible_pos_functions = [
             "action_pos_session_close",
             "action_pos_session_closing_control",
-            "action_pos_session_validate"
+            "action_pos_session_validate",
         ]
         if module_is_installed:
             for frame in inspect.stack():
-                if(
+                if (
                     len(frame) >= 4
                     and "/point_of_sale/models/pos_session.py" in frame[1]
                     and frame[3] in possible_pos_functions
@@ -116,22 +93,17 @@ class AccountMove(models.Model):
                     return True
         return False
 
-    def get_uuid4(self):
-        if not self.uuid4:
-            self.uuid4 = uuid4()
-        return self.uuid4
-
     def _post(self, soft=True):
+        result = super()._post(soft=soft)
         self.set_main_account()
         self.set_ecofi_tax_id()
-        result = super()._post(soft=soft)
-        # only if a new company account has been generated.
-        self.set_main_account()
         return result
 
     def button_draft(self):
         if self.vorlauf_id:
-            raise UserError(_('This invoice has been exported and cannot be reset to draft.'))
+            raise UserError(
+                _('This invoice has been exported and cannot be reset to draft.')
+            )
         else:
             return super(AccountMove, self).button_draft()
 
@@ -168,20 +140,20 @@ class AccountMove(models.Model):
         if journal != self.env.company.currency_exchange_journal_id:
             return None
 
-        accounts = set(self.line_ids.filtered(
-            lambda r: r.account_id == journal.default_account_id
-        ).mapped('account_id'))
+        accounts = set(
+            self.line_ids.filtered(
+                lambda r: r.account_id == journal.default_account_id
+            ).mapped('account_id')
+        )
         return journal.default_account_id if len(accounts) == 1 else None
 
     def _account_from_purchase(self):
         return self.partner_id.property_account_payable_id
 
     def _account_from_sale(self):
-        partner = self.partner_id or self.line_ids.partner_id
-        return partner.property_account_receivable_id
+        return self.partner_id.property_account_receivable_id
 
     def _account_from_bank(self):
-        # Einkommentiert lassen. Fixt 110070
         return self.journal_id.default_account_id
 
     def _account_from_cash(self):
@@ -189,18 +161,11 @@ class AccountMove(models.Model):
 
     def _set_payment_counter_account_from_pos(self) -> bool:
         module_is_installed = self.env['ir.module.module'].search(
-            [
-                ('name', '=', 'point_of_sale'),
-                ('state', '=', 'installed')
-            ]
+            [('name', '=', 'point_of_sale'), ('state', '=', 'installed')]
         )
         if module_is_installed:
-            payments = (
-                self.payment_id
-                or (
-                    self.statement_line_id
-                    and self.statement_line_id.payment_ids
-                )
+            payments = self.payment_id or (
+                self.statement_line_id and self.statement_line_id.payment_ids
             )
             if not payments:
                 return False
@@ -221,23 +186,18 @@ class AccountMove(models.Model):
             return False
 
     def _set_payment_counter_account_from_settings(self) -> bool:
-        payments = (
-            self.payment_id
-            or (
-                self.statement_line_id
-                and self.statement_line_id.payment_ids
-            )
+        payments = self.line_ids.mapped('payment_id') or (
+            self.statement_line_id and self.statement_line_id.payment_ids
         )
         if not payments:
             return False
 
         payment_types = payments.mapped('payment_type')
-        company = self.company_id
         counter = False
         if 'outbound' in payment_types:
-            counter = company.account_journal_payment_credit_account_id
+            counter = payments._get_outstanding_account('outbound')
         elif 'inbound' in payment_types:
-            counter = company.account_journal_payment_debit_account_id
+            counter = payments._get_outstanding_account('inbound')
 
         if not counter:
             # Get counter account by another way.
@@ -260,9 +220,7 @@ class AccountMove(models.Model):
 
     def _set_global_counter_account_from_lines(self) -> bool:
         # Ignore tax lines because tax accounts should never be counter accounts
-        tax_lines = self.line_ids.filtered(
-            lambda l: l.account_id.is_tax_account()
-        )
+        tax_lines = self.line_ids.filtered(lambda l: l.account_id.is_tax_account())
         debit_lines = self.line_ids.filtered('debit') - tax_lines
         credit_lines = self.line_ids.filtered('credit') - tax_lines
         debit_accounts = debit_lines.mapped('account_id')
@@ -348,3 +306,8 @@ class AccountMove(models.Model):
             return ret + self._handle_group(lines[1:])
 
         return ret + self._handle_debit_sub_group(lines[1:], amount, counter)
+
+    def get_uuid4(self):
+        if not self.uuid4:
+            self.uuid4 = uuid4()
+        return self.uuid4

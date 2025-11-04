@@ -12,7 +12,7 @@ class AccountAccount(models.Model):
     datev_vat_handover = fields.Boolean(
         string='Datev VAT-ID',
         help='Is required when transferring a sales tax identification number'
-             ' from the account partner (e.g. EU-Invoice)',
+        ' from the account partner (e.g. EU-Invoice)',
     )
     datev_automatic_account = fields.Boolean()
     datev_tax_ids = fields.Many2many(

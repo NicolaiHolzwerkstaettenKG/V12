@@ -51,13 +51,12 @@ class ResConfigSettings(models.TransientModel):
         required=True,
         readonly=False,
     )
-
-    column_config_ids = fields.One2many(
-        related='company_id.column_config_ids',
-        readonly=False,
-    )
     allow_pos_error_skip = fields.Boolean(
         related='company_id.allow_pos_error_skip',
+        readonly=False,
+    )
+    column_config_ids = fields.One2many(
+        related='company_id.column_config_ids',
         readonly=False,
     )
     # endregion
