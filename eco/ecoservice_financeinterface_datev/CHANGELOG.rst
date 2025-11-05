@@ -1,6 +1,10 @@
 Changelog
 =========
 
+16.0.2.5.7
+----------
+* Fix Type-Annotation
+
 16.0.2.5.3
 ----------
 * 112667 - backport changes from version 18 (#112346 get amount total by datev group lines.)

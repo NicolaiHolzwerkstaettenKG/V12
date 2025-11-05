@@ -6,6 +6,10 @@ from collections import defaultdict
 from odoo import _, api, exceptions, fields, models
 from odoo.exceptions import UserError
 
+# do NOT remove 'inspect'!
+# it's needed to recognise whether the move originates from the pos modul
+import inspect
+
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
