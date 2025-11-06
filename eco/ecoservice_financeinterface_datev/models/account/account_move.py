@@ -197,11 +197,12 @@ class AccountMove(models.Model):
             return False
 
         payment_types = payments.mapped('payment_type')
+        company = self.company_id
         counter = False
         if 'outbound' in payment_types:
-            counter = payments._get_outstanding_account('outbound')
+            counter = company.account_journal_payment_credit_account_id
         elif 'inbound' in payment_types:
-            counter = payments._get_outstanding_account('inbound')
+            counter = company.account_journal_payment_debit_account_id
 
         if not counter:
             # Get counter account by another way.

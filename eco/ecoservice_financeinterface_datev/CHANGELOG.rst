@@ -1,6 +1,10 @@
 Changelog
 =========
 
+16.0.2.5.8
+----------
+* 112843, 112906 - [FIX] AttributeError: 'account.payment' object has no attribute '_get_outstanding_account'
+
 16.0.2.5.7
 ----------
 * Fix Type-Annotation
