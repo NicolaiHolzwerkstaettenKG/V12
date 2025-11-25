@@ -69,5 +69,10 @@ class ResCompany(models.Model):
         inverse_name='company_id',
         readonly=False,
     )
+    datev_export_zero_values = fields.Boolean(
+        string='Export Zero Value Lines',
+        default=True,
+        help='If disabled, lines with zero amounts will not be exported to DATEV.',
+    )
 
     # endregion

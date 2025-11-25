@@ -75,6 +75,17 @@
                 <div class="text-muted">Accumulate credit &amp; debit towards the bigger side if sharing same account</div>
               </div>
             </div>
+
+            <div class="col-xs-12 col-md-3 o_setting_box">
+              <div class="o_setting_left_pane">
+                <field name="datev_export_zero_values" class="oe_inline"/>
+              </div>
+              <div class="o_setting_right_pane">
+                <label for="datev_export_zero_values"/>
+                <div class="text-muted">If enabled, move lines with zero amounts will be exported to DATEV.</div>
+              </div>
+            </div>
+
             <div class="col-xs-12 col-md-3 o_setting_box">
               <div class="o_setting_left_pane">
                 <field name="export_delivery_date" class="oe_inline"/>

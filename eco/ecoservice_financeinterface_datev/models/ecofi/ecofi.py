@@ -605,6 +605,7 @@ class Ecofi(models.Model):
         cash_basis = company.tax_cash_basis_journal_id
         tax_exigibility = company.tax_exigibility
         rounding_method = company.tax_calculation_rounding_method
+        export_zero_values = company.datev_export_zero_values
 
         move = self._prepare_move(move, export_method)
         ignore_currency = self.env.context.get('datev_ignore_currency')
@@ -612,9 +613,17 @@ class Ecofi(models.Model):
         # Standard
         move_balance = 0
 
-        for line in move.line_ids.filtered(
-            lambda r: r.display_type not in ['line_section', 'line_note']
-        ):
+        for line in move.line_ids:
+            if line.display_type in ['line_section', 'line_note']:
+                # Skip pure text lines
+                continue
+
+            if not export_zero_values and not line.debit and not line.credit:
+                # 113073: Customer doesn't want zero value lines in export
+                # This behaviour was standard for many years, make it configurable
+                # instead of suddenly forcing all customers to a new behaviour.
+                continue
+
             account_code = line.account_id.code
             account_contra_code = line.ecofi_account_counterpart.code
 

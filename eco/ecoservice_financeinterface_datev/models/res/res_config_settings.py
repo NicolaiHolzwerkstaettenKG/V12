@@ -59,4 +59,8 @@ class ResConfigSettings(models.TransientModel):
         related='company_id.column_config_ids',
         readonly=False,
     )
+    datev_export_zero_values = fields.Boolean(
+        related='company_id.datev_export_zero_values',
+        readonly=False,
+    )
     # endregion
