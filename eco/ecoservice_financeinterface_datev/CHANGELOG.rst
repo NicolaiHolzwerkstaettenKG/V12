@@ -1,7 +1,13 @@
 Changelog
 =========
 
-16.0.2.5.8
+16.0.2.6.0
+----------
+* [FIX] 113150: Point in comma value exports
+* [FIX] "Umsatz" vs. "Basiswährungsumsatz" mismatch
+* [IMP] Code cleanup
+
+16.0.2.5.9
 ----------
 * 113073: Allow the export of zero values
 

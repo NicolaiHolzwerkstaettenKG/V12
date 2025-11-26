@@ -162,7 +162,7 @@ class Ecofi(models.Model):
         )
 
         if line.account_id.datev_vat_handover and line.ecofi_tax_id:
-            datevdict['EUSteuer'] = str(line.ecofi_tax_id.amount).replace('.', ',')
+            datevdict['EUSteuer'] = line.ecofi_tax_id.amount
 
         module_oss = self.env['ir.module.module'].search(
             [('name', '=', 'l10n_eu_oss')], limit=1
@@ -174,10 +174,7 @@ class Ecofi(models.Model):
                     for tag in line.ecofi_tax_id.invoice_repartition_line_ids.tag_ids
                 )
                 if oss_found:
-                    datevdict['EUSteuer'] = str(line.ecofi_tax_id.amount).replace(
-                        '.', ','
-                    )
-
+                    datevdict['EUSteuer'] = line.ecofi_tax_id.amount
         if line.partner_id:
             datevdict['ZusatzInhalt1'] = line.partner_id.name
 
@@ -238,16 +235,6 @@ class Ecofi(models.Model):
 
     def set_beleglink(self, move, line, datevdict):
         return move, line, datevdict
-
-    def format_umsatz(self, lineumsatz):
-        """
-        Return the formatted amount.
-
-        :param lineumsatz: amountC
-        """
-        soll_haben = 's' if lineumsatz > 0 else 'h'
-        umsatz = str(abs(lineumsatz)).replace('.', ',')
-        return umsatz, soll_haben
 
     def generate_csv(self, ecofi_csv, bookingdict, log):
         """
@@ -349,242 +336,6 @@ class Ecofi(models.Model):
         if len(dist_codes) > 1:
             return dist_codes[0], dist_codes[1]
         return dist_codes[0], ''
-
-    def generate_grouped_csv_move_lines(  # noqa: C901
-        self,
-        move,
-        buchungserror,
-        errorcount,
-        thislog,
-        thismovename,
-        export_method,
-        partnererror,
-        buchungszeilencount,
-        bookingdict,
-    ):
-        lines = move.line_ids
-        company = move.company_id or self.env.company
-
-        # Get relevant line types
-        # Respect odoo standard or atleast comment changes to it properly
-        tax_lines = lines.filtered(lambda x: x.display_type == 'tax')
-        product_lines = lines.filtered(lambda x: x.display_type == 'product')
-        term_lines = lines.filtered(lambda x: x.display_type == 'payment_term')
-
-        move_account_id = product_lines.mapped('account_id')
-        move_counter_account_id = product_lines.mapped('ecofi_account_counterpart')
-
-        # Get taxes
-        tax_ids = lines.mapped('tax_ids')
-        if not (
-            company.datev_group_lines
-            and len(tax_ids) == 1
-            and len(move_account_id) == 1
-            and self.has_equal_kost_columns(product_lines=product_lines)
-        ):
-            return None
-
-        # Gross
-        base_balance = sum(term_lines.mapped('balance'))
-        base_balance = -base_balance if base_balance < 0 else base_balance
-        base_currency = move.company_currency_id
-        foreign_balance = move.amount_total_in_currency_signed
-        foreign_currency = move.currency_id
-        sollhaben = 'h' if base_balance < 0 else 's'
-        exchange_rate = Decimal(str(move.invoice_currency_rate))
-
-        if company.datev_ignore_currency:
-            # Foreign and base currency is the same or the customer doesn't
-            # want to export foreign currencies.
-            foreign_balance = base_currency
-            foreign_balance = base_balance
-            exchange_rate = ''
-            base_currency = ''
-            base_balance = ''
-
-        booking_key = tax_ids.mapped('l10n_de_datev_code')
-        booking_key = booking_key[0] if booking_key else ''
-
-        export_date = move.date
-        if move.invoice_date:
-            export_date = move.invoice_date
-        export_date = export_date.strftime('%d%m')
-
-        date_maturity = term_lines.mapped('date_maturity')
-        if date_maturity:
-            date_maturity = date_maturity[0].strftime('%d%m%y')
-
-        booking_text = '{:.55}'.format(
-            ', '.join([x for x in term_lines.mapped('name') if x])
-        )
-        receipt_link = '{link_type} ""{link}""'.format(
-            link_type=company.export_document_link_type.upper(),
-            link=move.get_uuid4(),
-        )
-
-        receiptInfoType1 = ''
-        receiptInfoContent1 = ''
-        if move.journal_id and move.journal_id.type in ['purchase']:
-            receiptInfoType1 = 'Odoo Bill no'
-            receiptInfoContent1 = move.name
-
-        kost1, kost2 = self.get_grouped_kost_columns(product_lines)
-
-        # EU Tax
-        ecofi_tax_ids = lines.mapped('ecofi_tax_id')
-        handovers = lines.mapped('account_id.datev_vat_handover')
-        eu_tax = ''
-        if any(handovers) and ecofi_tax_ids:
-            eu_tax = str(sum(ecofi_tax_ids.mapped('amount'))).replace('.', ',')
-
-        # Leistungsdatum
-        service_date = move.date.strftime('%d%m%Y')
-        if (
-            company.export_delivery_date
-            and move.move_type == 'out_invoice'
-            and move.delivery_date
-        ):
-            service_date = move.delivery_date.strftime('%d%m%Y')
-
-        # Tax Period
-        tax_period = move.date and move.date.strftime('%d%m%Y') or ''
-
-        # Only export positive values
-        if base_balance and base_balance < 0:
-            base_balance = -base_balance
-        if foreign_balance and foreign_balance < 0:
-            foreign_balance = -foreign_balance
-
-        bookingdict['move_bookings'].append([
-            str(foreign_balance).replace('.', ','),  # Umsatz
-            sollhaben,
-            foreign_currency.name if foreign_currency else '',
-            exchange_rate or '',
-            str(base_balance).replace('.', ','),  # Basiswaehrungsbetrag
-            base_currency.name if base_currency else '',
-            move_account_id.code,
-            move_counter_account_id.code,
-            booking_key,
-            export_date,
-            move.name,  # Beleg1
-            date_maturity or '',
-            '',  # Skonto
-            booking_text,
-            '',  # Postensperre
-            '',  # Diverse Adressnummer
-            '',  # Geschäftspartnerbank
-            '',  # Sachverhalt
-            '',  # Zinssperre
-            receipt_link or '',  # Beleglink
-            receiptInfoType1,  # Beleginfo - Art 1
-            receiptInfoContent1,  # Beleginfo - Inhalt 1
-            '',  # Beleginfo - Art 2
-            '',  # Beleginfo - Inhalt 2
-            '',  # Beleginfo - Art 3
-            '',  # Beleginfo - Inhalt 3
-            '',  # Beleginfo - Art 4
-            '',  # Beleginfo - Inhalt 4
-            '',  # Beleginfo - Art 5
-            '',  # Beleginfo - Inhalt 5
-            '',  # Beleginfo - Art 6
-            '',  # Beleginfo - Inhalt 6
-            '',  # Beleginfo - Art 7
-            '',  # Beleginfo - Inhalt 7
-            '',  # Beleginfo - Art 8
-            '',  # Beleginfo - Inhalt 8
-            kost1 or '',
-            kost2 or '',
-            '',  # Kostmenge,
-            self.get_country_code(move.partner_id, lines),  # EulandUSTID
-            eu_tax,  # EUSteuer
-            '',  # Abw. Versteuerungsart
-            '',  # Sachverhalt L+L
-            '',  # Funktionsergänzung L+L
-            '',  # BU 49 Hauptfunktionstyp
-            '',  # BU 49 Hauptfunktionsnummer
-            '',  # BU 49 Funktionsergänzung
-            '',  # Zusatzinformation - Art 1
-            '',  # Zusatzinformation- Inhalt 1
-            '',  # Zusatzinformation - Art 2
-            '',  # Zusatzinformation- Inhalt 2
-            '',  # Zusatzinformation - Art 3
-            '',  # Zusatzinformation- Inhalt 3
-            '',  # Zusatzinformation - Art 4
-            '',  # Zusatzinformation- Inhalt 4
-            '',  # Zusatzinformation - Art 5
-            '',  # Zusatzinformation- Inhalt 5
-            '',  # Zusatzinformation - Art 6
-            '',  # Zusatzinformation- Inhalt 6
-            '',  # Zusatzinformation - Art 7
-            '',  # Zusatzinformation- Inhalt 7
-            '',  # Zusatzinformation - Art 8
-            '',  # Zusatzinformation- Inhalt 8
-            '',  # Zusatzinformation - Art 9
-            '',  # Zusatzinformation- Inhalt 9
-            '',  # Zusatzinformation - Art 10
-            '',  # Zusatzinformation- Inhalt 10
-            '',  # Zusatzinformation - Art 11
-            '',  # Zusatzinformation- Inhalt 11
-            '',  # Zusatzinformation - Art 12
-            '',  # Zusatzinformation- Inhalt 12
-            '',  # Zusatzinformation - Art 13
-            '',  # Zusatzinformation- Inhalt 13
-            '',  # Zusatzinformation - Art 14
-            '',  # Zusatzinformation- Inhalt 14
-            '',  # Zusatzinformation - Art 15
-            '',  # Zusatzinformation- Inhalt 15
-            '',  # Zusatzinformation - Art 16
-            '',  # Zusatzinformation- Inhalt 16
-            '',  # Zusatzinformation - Art 17
-            '',  # Zusatzinformation- Inhalt 17
-            '',  # Zusatzinformation - Art 18
-            '',  # Zusatzinformation- Inhalt 18
-            '',  # Zusatzinformation - Art 19
-            '',  # Zusatzinformation- Inhalt 19
-            '',  # Zusatzinformation - Art 20
-            '',  # Zusatzinformation- Inhalt 20
-            '',  # Stück
-            '',  # Gewicht
-            '',  # Zahlweise
-            '',  # Forderungsart
-            '',  # Veranlagungsjahr
-            '',  # Zugeordnete Fälligkeit
-            '',  # Skontotyp
-            move.invoice_origin or '',  # Auftragsnummer
-            '',  # Buchungstyp
-            '',  # Ust-Schlüssel (Anzahlungen)
-            '',  # EU-Land (Anzahlungen)
-            '',  # Sachverhalt L+L (Anzahlungen)
-            '',  # EU-Steuersatz (Anzahlungen)
-            '',  # Erlöskonto (Anzahlungen)
-            '',  # Herkunft-Kz
-            '',  # Leerfeld
-            '',  # KOST-Datum
-            '',  # Mandatsreferenz
-            '',  # Skontosperre
-            '',  # Gesellschaftername
-            '',  # Beteiligtennummer
-            '',  # Identifikationsnummer
-            '',  # Zeichnernummer
-            '',  # Postensperre bis
-            '',  # Bezeichnung SoBil-Sachverhalt
-            '',  # Kennzeichen SoBil-Buchung
-            str(
-                int(bool(move.restrict_mode_hash_table and move.inalterable_hash))
-            ),  # Festschreibung
-            service_date,  # Leistungsdatum
-            tax_period,  # Datum Zuord.Steuerperiode
-        ])
-
-        return (
-            buchungserror,
-            errorcount,
-            thislog,
-            partnererror,
-            buchungszeilencount,
-            bookingdict,
-            tax_lines,
-        )
 
     def generate_csv_move_lines_v1(  # noqa: C901
         self,
@@ -727,9 +478,6 @@ class Ecofi(models.Model):
                     # ??? Bitte gewünschtes Verhalten dokumentieren!
                     buschluessel = str(tax.l10n_de_datev_code)
 
-            csv_umsatz = round(csv_umsatz, 2)
-            csv_basisbetrag = round(csv_basisbetrag, 2)
-
             if csv_umsatz < 0:
                 # Minusbeträge auf im export vermeiden
                 csv_umsatz = -csv_umsatz
@@ -751,10 +499,10 @@ class Ecofi(models.Model):
 
             datevdict = {
                 'Sollhaben': sollhaben,
-                'Umsatz': str(csv_umsatz),
-                'Waehrung': foreign_currency.name,
-                'Kurs': str(csv_exchange_rate or '').replace('.', ','),
-                'Basiswaehrungsbetrag': str(csv_basisbetrag or '').replace('.', ','),
+                'Umsatz': csv_umsatz,
+                'Waehrung': foreign_currency.name or '',
+                'Kurs': csv_exchange_rate,
+                'Basiswaehrungsbetrag': csv_basisbetrag,
                 'Basiswaehrungskennung': base_currency.name or '',
                 'Gegenkonto': account_contra_code,
                 'Konto': account_code or '',
@@ -794,6 +542,7 @@ class Ecofi(models.Model):
                         line,
                         sollhaben,
                         csv_umsatz,
+                        csv_basisbetrag,
                         datevdict,
                     )
                 else:
@@ -811,8 +560,7 @@ class Ecofi(models.Model):
             buchungszeilencount += 1
 
         bookingdict['move_bookings'] = [
-            self._create_export_line(datevdict, rounding_method)
-            for datevdict in grouped_line.values()
+            self._create_export_line(gl) for gl in grouped_line.values()
         ]
         return (
             buchungserror,
@@ -883,18 +631,12 @@ class Ecofi(models.Model):
             grouped[key] = datev_dict
             return
 
-        grp_turnover = Decimal(grouped[key]['Umsatz'].replace(',', '.'))
-        new_turnover = Decimal(str(turnover).replace(',', '.'))
-        grp_turnover += Decimal(str(new_turnover))
-        grouped[key]['Umsatz'], _ = self.format_umsatz(grp_turnover)
+        grouped[key]['Umsatz'] += turnover
 
         # Basisumsatz
-        bswb = (grouped[key]['Basiswaehrungsbetrag'] or '').strip()
+        bswb = grouped[key]['Basiswaehrungsbetrag']
         if bswb:
-            grp_tbase = Decimal(bswb.replace(',', '.'))
-            new_tbase = Decimal(str(base_turnover).replace(',', '.'))
-            grp_tbase += Decimal(str(new_tbase))
-            grouped[key]['Basiswaehrungsbetrag'], _ = self.format_umsatz(grp_tbase)
+            grouped[key]['Basiswaehrungsbetrag'] += base_turnover
 
         if (
             isinstance(line.name, str)
@@ -915,7 +657,9 @@ class Ecofi(models.Model):
                 nbu_text=line_name,
             )
 
-    def _datev_grouping_combined(self, grouped, line, s_h, turnover, datev_dict):
+    def _datev_grouping_combined(
+        self, grouped, line, s_h, turnover, base_turnover, datev_dict
+    ):
         key = '{account_id}:{tax_id}:{kost1}:{kost2}'.format(
             account_id=line.account_id.id,
             tax_id=line.ecofi_tax_id.id,
@@ -927,20 +671,20 @@ class Ecofi(models.Model):
             grouped[key] = datev_dict
             return
 
-        grp_turnover = Decimal(grouped[key]['Umsatz'].replace(',', '.'))
-        new_turnover = Decimal(str(turnover).replace(',', '.'))
-
+        grp_turnover = grouped[key]['Umsatz']
         if grouped[key]['Sollhaben'] != s_h:
-            new_turnover = -new_turnover
+            turnover = -turnover
+        grp_turnover += turnover
+        grouped[key]['Umsatz'] = grp_turnover
 
-        grp_turnover += new_turnover
+        grp_base_turnover = grouped[key]['Basiswaehrungsbetrag']
+        if grouped[key]['Sollhaben'] != s_h:
+            base_turnover = -base_turnover
+        grp_base_turnover += base_turnover
+        grouped[key]['Basiswaehrungsbetrag'] = grp_base_turnover
 
         if grp_turnover < 0.0:
             grouped[key]['Sollhaben'] = 's' if grouped[key]['Sollhaben'] == 'h' else 'h'
-
-        grouped[key]['Umsatz'], _ = self.format_umsatz(
-            Decimal(str(grp_turnover)),
-        )
 
         if (
             isinstance(line.name, str)
@@ -996,31 +740,29 @@ class Ecofi(models.Model):
         }
 
     @api.model
-    def _create_export_line(self, datev_dict: dict, rounding_method):
+    def _create_export_line(self, datev_dict: dict):
         """
         Create the datev csv move line.
         """
         return self.env['ecofi.export.columns'].get_datev_export_line(
-            self._normalize_datev_dict(datev_dict, rounding_method),
+            self._normalize_datev_dict(datev_dict),
         )
 
-    def _normalize_datev_dict(self, datev_dict: dict, rounding_method) -> dict:
-        normalized_dict = dict(datev_dict)
+    def _normalize_datev_dict(self, datev_dict: dict) -> dict:
+        if datev_dict.get('Buschluessel') == '0':
+            datev_dict['Buschluessel'] = ''
 
-        if normalized_dict.get('Buschluessel') == '0':
-            normalized_dict['Buschluessel'] = ''
+        datev_dict['Sollhaben'] = datev_dict['Sollhaben'].upper()
 
-        normalized_dict['Sollhaben'] = normalized_dict['Sollhaben'].upper()
-
-        if normalized_dict.get('Buchungstext'):
-            normalized_dict['Buchungstext'] = '{:.55}'.format(
-                normalized_dict['Buchungstext'],
+        if datev_dict.get('Buchungstext'):
+            datev_dict['Buchungstext'] = '{:.55}'.format(
+                datev_dict['Buchungstext'],
             )
 
-        if normalized_dict.get('Beleg1'):
-            beleg1 = normalized_dict['Beleg1']
+        if datev_dict.get('Beleg1'):
+            beleg1 = datev_dict['Beleg1']
 
-            normalized_dict['Beleg1'] = '{}'.format(
+            datev_dict['Beleg1'] = '{}'.format(
                 re.sub(
                     r'[^0-9A-Za-z$&%*+\-/]',
                     '',
@@ -1028,21 +770,31 @@ class Ecofi(models.Model):
                 ).replace('.', ''),
             )[-36:]
 
-        if normalized_dict.get('Beleg2'):
-            normalized_dict['Beleg2'] = '{}'.format(
+        if datev_dict.get('Beleg2'):
+            datev_dict['Beleg2'] = '{}'.format(
                 re.sub(
                     '[^{}]'.format(Ecofi._get_valid_chars()),
                     '',
-                    normalized_dict['Beleg2'],
+                    datev_dict['Beleg2'],
                 ).replace('.', ''),
             )[-36:]
 
         # Export format should always be xx,xx (2 decimal places)
-        umsatz = normalized_dict.get('Umsatz') or '0'
-        umsatz = round(Decimal(umsatz.replace(',', '.')), 2)
-        normalized_dict['Umsatz'] = str(umsatz).replace('.', ',')
+        val = datev_dict.get('Umsatz')
+        if val:
+            val = round(val, 2)
+            datev_dict['Umsatz'] = str(val).replace('.', ',')
 
-        return normalized_dict
+        val = datev_dict.get('Basiswaehrungsbetrag')
+        if val:
+            val = round(val, 2)
+            datev_dict['Basiswaehrungsbetrag'] = str(val).replace('.', ',')
+
+        val = datev_dict.get('EUSteuer')
+        if val:
+            datev_dict['EUSteuer'] = str(val).replace('.', ',')
+
+        return datev_dict
 
     def ecofi_buchungen(self, journal_ids, date_from, date_to):
         return super(
