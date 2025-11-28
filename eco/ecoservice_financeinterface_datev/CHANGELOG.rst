@@ -1,6 +1,10 @@
 Changelog
 =========
 
+16.0.2.6.1
+----------
+* 113173: Optionally show account counterpart field
+
 16.0.2.6.0
 ----------
 * [FIX] 113150: Point in comma value exports
