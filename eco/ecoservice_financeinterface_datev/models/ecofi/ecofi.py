@@ -40,21 +40,14 @@ class Ecofi(models.Model):
             )
             if invoice_lines:
                 invoice_move = invoice_lines[0].move_id
-                return self._get_reconcilation_name_for_move_type(
-                    move=move,
-                    submove=invoice_move,
-                )
+                return invoice_move.ref or invoice_move.name
 
             # if it is not an invoice, use the first line's move
             other_moves = reconciled_lines.mapped('move_id').filtered(
                 lambda m: m.id != move.id
             )
             if other_moves:
-                other_move = other_moves[0]
-                return self._get_reconcilation_name_for_move_type(
-                    move=move,
-                    submove=other_move,
-                )
+                return other_moves[0].ref or other_moves[0].name
 
         # if not matching_number is available, use the move's ref or name
         # reversal_move_id could be set, so we check for that
@@ -62,20 +55,7 @@ class Ecofi(models.Model):
             return move.reversal_move_id.ref or move.reversal_move_id.name
 
         # fallback
-        return self._get_reconcilation_name_for_move_type(
-            move=move,
-            submove=move,
-        )
-
-    def _get_reconcilation_name_for_move_type(self, move, submove):
-        if submove.move_type == 'in_invoice':
-            if move.journal_id.type == 'bank':
-                # If journal type is bank, try to obtain the reference
-                # set in at the move if set, otherwise use name as fallback
-                return submove.ref or submove.name
-            elif move.journal_id.type == 'purchase':
-                return submove.ref
-        return submove.name
+        return move.ref or move.name
 
     def _set_buchungstext(self, move) -> str:
         """
@@ -355,7 +335,6 @@ class Ecofi(models.Model):
         grouped_line = {}
         cash_basis = company.tax_cash_basis_journal_id
         tax_exigibility = company.tax_exigibility
-        rounding_method = company.tax_calculation_rounding_method
         export_zero_values = company.datev_export_zero_values
 
         move = self._prepare_move(move, export_method)

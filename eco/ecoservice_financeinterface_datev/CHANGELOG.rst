@@ -3,6 +3,10 @@ Changelog
 
 16.0.2.6.1
 ----------
+* 113192: revert part of Belegfeld logic
+
+16.0.2.6.1
+----------
 * 113173: Optionally show account counterpart field
 
 16.0.2.6.0
