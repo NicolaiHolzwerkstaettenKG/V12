@@ -1,7 +1,11 @@
 Changelog
 =========
 
-16.0.2.6.1
+16.0.2.6.3
+----------
+* 113225: revert point in comma logic for kurs
+
+16.0.2.6.2
 ----------
 * 113192: revert part of Belegfeld logic
 

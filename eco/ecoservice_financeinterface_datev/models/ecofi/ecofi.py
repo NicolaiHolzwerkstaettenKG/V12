@@ -480,7 +480,7 @@ class Ecofi(models.Model):
                 'Sollhaben': sollhaben,
                 'Umsatz': csv_umsatz,
                 'Waehrung': foreign_currency.name or '',
-                'Kurs': csv_exchange_rate,
+                'Kurs': str(csv_exchange_rate or '').replace('.', ','),
                 'Basiswaehrungsbetrag': csv_basisbetrag,
                 'Basiswaehrungskennung': base_currency.name or '',
                 'Gegenkonto': account_contra_code,
