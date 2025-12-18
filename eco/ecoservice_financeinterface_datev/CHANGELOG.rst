@@ -1,6 +1,10 @@
 Changelog
 =========
 
+16.0.2.6.4
+----------
+* 113578: fix zero export traceback
+
 16.0.2.6.3
 ----------
 * 113225: revert point in comma logic for kurs

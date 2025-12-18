@@ -762,16 +762,15 @@ class Ecofi(models.Model):
         val = datev_dict.get('Umsatz')
         if val:
             val = round(val, 2)
-            datev_dict['Umsatz'] = str(val).replace('.', ',')
+        datev_dict['Umsatz'] = str(val).replace('.', ',')
 
         val = datev_dict.get('Basiswaehrungsbetrag')
         if val:
             val = round(val, 2)
-            datev_dict['Basiswaehrungsbetrag'] = str(val).replace('.', ',')
+        datev_dict['Basiswaehrungsbetrag'] = str(val).replace('.', ',')
 
         val = datev_dict.get('EUSteuer')
-        if val:
-            datev_dict['EUSteuer'] = str(val).replace('.', ',')
+        datev_dict['EUSteuer'] = str(val).replace('.', ',')
 
         return datev_dict
 
