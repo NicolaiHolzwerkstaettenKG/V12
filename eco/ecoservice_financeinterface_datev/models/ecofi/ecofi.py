@@ -769,6 +769,10 @@ class Ecofi(models.Model):
             val = round(val, 2)
         datev_dict['Basiswaehrungsbetrag'] = str(val).replace('.', ',')
 
+        # 113633: Comma instead of point for exchange rate
+        val = datev_dict.get('Kurs')
+        datev_dict['Kurs'] = str(val).replace('.', ',')
+
         val = datev_dict.get('EUSteuer')
         datev_dict['EUSteuer'] = str(val).replace('.', ',')
 

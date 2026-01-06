@@ -1,6 +1,10 @@
 Changelog
 =========
 
+16.0.2.6.5
+----------
+* 113633: Comma instead of point for decimal places at exchange rates
+
 16.0.2.6.4
 ----------
 * 113578: fix zero export traceback
