@@ -1,6 +1,10 @@
 Changelog
 =========
 
+16.0.2.6.6
+----------
+* 114195: include tax lines in export not created from other move lines
+
 16.0.2.6.5
 ----------
 * 113633: Comma instead of point for decimal places at exchange rates

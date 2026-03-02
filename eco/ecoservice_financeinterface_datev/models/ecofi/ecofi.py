@@ -433,7 +433,9 @@ class Ecofi(models.Model):
                     if line.tax_line_id.active is False:
                         is_tax_archived = True
                 if (
-                    line.account_id.is_tax_account()
+                    # Only export tax lines not created from other move lines
+                    (line.tax_line_id
+                        or line.tax_repartition_line_id)
                     and not (tax_exigibility and line.journal_id == cash_basis)
                     and not line.datev_posting_key == 'SD'
                     and len(move.line_ids) != 2
