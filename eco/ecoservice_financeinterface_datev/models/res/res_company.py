@@ -41,8 +41,12 @@ class ResCompany(models.Model):
         string='Number of digits in an account code',
     )
     export_delivery_date = fields.Boolean(
-        default=True,
-        help='If enabled the delivery date from an invoice will be exported'
+        default=True, help='If enabled the delivery date from an invoice will be exported'
+    )
+    export_tax_period_in_out_invoice = fields.Boolean(
+        default=False,
+        string='Export Tax Period Only for In/Out Invoices',
+        help='If enabled, the tax period will only be exported for in and out invoices',
     )
     export_document_link_type = fields.Selection(
         selection=[
@@ -55,4 +59,20 @@ class ResCompany(models.Model):
         default='bedi',
         help='Defines the prefix in the "Beleglink" field in DATEV-Export',
     )
+    allow_pos_error_skip = fields.Boolean(
+        string='Allow POS Error Skip',
+        default=False,
+        help='If enabled, allows to skip errors on POS account moves.',
+    )
+    column_config_ids = fields.One2many(
+        comodel_name='ecofi.export.columns.config',
+        inverse_name='company_id',
+        readonly=False,
+    )
+    datev_export_zero_values = fields.Boolean(
+        string='Export Zero Value Lines',
+        default=True,
+        help='If disabled, lines with zero amounts will not be exported to DATEV.',
+    )
+
     # endregion

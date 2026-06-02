@@ -21,47 +21,51 @@ class EcofiExportColumns(models.AbstractModel):
         date_to = ecofi.date_to.strftime('%Y%m%d')
 
         if not ecofi.company_id.currency_id.name:
-            raise exceptions.UserError(_(
-                'Please ensure that your company has a valid currency set.',
-            ))
+            raise exceptions.UserError(
+                _(
+                    'Please ensure that your company has a valid currency set.',
+                )
+            )
 
         if not ecofi.company_id.sudo().chart_template_id:
-            raise exceptions.UserError(_(
-                'Please ensure that your company has'
-                ' a valid account chart set.',
-            ))
+            raise exceptions.UserError(
+                _(
+                    'Please ensure that your company has' ' a valid account chart set.',
+                )
+            )
 
         if (
             not ecofi.company_id.l10n_de_datev_client_number
             or not ecofi.company_id.l10n_de_datev_consultant_number
         ):
-            raise exceptions.UserError(_(
-                'Please set a client and consultant number'
-                ' in the DATEV settings.',
-            ))
+            raise exceptions.UserError(
+                _(
+                    'Please set a client and consultant number' ' in the DATEV settings.',
+                )
+            )
 
         if ecofi.date_from.strftime('%Y') != ecofi.date_to.strftime('%Y'):
-            raise exceptions.UserError(_(
-                'The period to be exported must be in the same year.'
-            ))
+            raise exceptions.UserError(
+                _('The period to be exported must be in the same year.')
+            )
 
         # Set the correct fiscal date
         str_fiscal_date = '{year}-{month}-{day}'.format(
-            year=ecofi.date_from.strftime('%Y'),
-            month='01',
-            day='01'
+            year=ecofi.date_from.strftime('%Y'), month='01', day='01'
         )
-        fiscal_date = (
-            datetime.strptime(str_fiscal_date, '%Y-%m-%d')
-        )
+        fiscal_date = datetime.strptime(str_fiscal_date, '%Y-%m-%d')
 
         # Get SKR No.
         skr_03 = self.env.ref('l10n_de_skr03.l10n_de_chart_template', False)
         skr_04 = self.env.ref('l10n_de_skr04.l10n_chart_de_skr04', False)
         chart_of_accounts = ecofi.sudo().company_id.chart_template_id
         skr_no = (
-            skr_03 and chart_of_accounts == skr_03 and '03'
-            or skr_04 and chart_of_accounts == skr_04 and '04'
+            skr_03
+            and chart_of_accounts == skr_03
+            and '03'
+            or skr_04
+            and chart_of_accounts == skr_04
+            and '04'
             or ''
         )
 
@@ -77,10 +81,18 @@ class EcofiExportColumns(models.AbstractModel):
             '',  # Source [type: string] # noqa: E501
             '',  # Exported by [length: X, type: string] # noqa: E501
             '',  # Imported by [type: string] # noqa: E501
-            str(ecofi.company_id.l10n_de_datev_consultant_number),  # Consultant Number von [length: 7, type: int] # noqa: E501
-            str(ecofi.company_id.l10n_de_datev_client_number),  # Client number [length: 5, type: int] # noqa: E501
-            fiscal_date.strftime('%Y%m%d'),  # Wirtschaftsjahresbeginn [type: datetime]  # noqa: E501
-            str(ecofi.company_id.account_code_digits),  # Sachkontennummernlänge [length: 1, type: int] # noqa: E501
+            str(
+                ecofi.company_id.l10n_de_datev_consultant_number
+            ),  # Consultant Number von [length: 7, type: int] # noqa: E501
+            str(
+                ecofi.company_id.l10n_de_datev_client_number
+            ),  # Client number [length: 5, type: int] # noqa: E501
+            fiscal_date.strftime(
+                '%Y%m%d'
+            ),  # Wirtschaftsjahresbeginn [type: datetime]  # noqa: E501
+            str(
+                ecofi.company_id.account_code_digits
+            ),  # Sachkontennummernlänge [length: 1, type: int] # noqa: E501
             date_from,  # Date from [type: datetime] # noqa: E501
             date_to,  # Date to [type: datetime] # noqa: E501
             '',  # Description [length: 30, type: string] # noqa: E501
@@ -221,11 +233,17 @@ class EcofiExportColumns(models.AbstractModel):
             'Kennzeichen SoBil-Buchung',
             'Festschreibung',
             'Leistungsdatum',
-            'Datum Zuord.Steuerperiode'
+            'Datum Zuord.Steuerperiode',
         ]
 
     @api.model
     def get_datev_export_line(self, datev_dict):
+        column_config_ids = self.env.company.column_config_ids.filtered(
+            lambda e: not e.to_export
+        )
+        # columns_not_to_export is a list of all columns which should not be exported
+        columns_not_to_export = [e.column for e in column_config_ids]
+        # WHEN YOU CHANGE THE NAMES, CHANGE IT EVERYWHERE(ie. ecofi_export_columns_config.py)
         return [
             datev_dict['Umsatz'] or '',
             datev_dict['Sollhaben'] or '',
@@ -263,8 +281,8 @@ class EcofiExportColumns(models.AbstractModel):
             '',  # Beleginfo - Inhalt 7
             '',  # Beleginfo - Art 8
             '',  # Beleginfo - Inhalt 8
-            datev_dict['Kost1'] or '',
-            datev_dict['Kost2'] or '',
+            (datev_dict['Kost1'] if 'Kost1' not in columns_not_to_export else '' or ''),
+            (datev_dict['Kost2'] if 'Kost2' not in columns_not_to_export else '' or ''),
             datev_dict['Kostmenge'] or '',
             datev_dict['EulandUSTID'] or '',
             datev_dict['EUSteuer'] or '',
@@ -274,8 +292,16 @@ class EcofiExportColumns(models.AbstractModel):
             '',  # BU 49 Hauptfunktionstyp
             '',  # BU 49 Hauptfunktionsnummer
             '',  # BU 49 Funktionsergänzung
-            datev_dict['Zusatzinformation - Art 1'] or '',
-            datev_dict['ZusatzInhalt1'] or '',  # Zusatzinformation- Inhalt 1
+            (
+                datev_dict['Zusatzinformation - Art 1']
+                if 'Zusatzinformation - Art 1' not in columns_not_to_export
+                else '' or ''
+            ),
+            (
+                datev_dict['ZusatzInhalt1']
+                if 'ZusatzInhalt1' not in columns_not_to_export
+                else '' or ''
+            ),  # Zusatzinformation- Inhalt 1
             '',  # Zusatzinformation - Art 2
             '',  # Zusatzinformation- Inhalt 2
             '',  # Zusatzinformation - Art 3
@@ -321,7 +347,11 @@ class EcofiExportColumns(models.AbstractModel):
             '',  # Veranlagungsjahr
             '',  # Zugeordnete Fälligkeit
             '',  # Skontotyp
-            datev_dict['Auftragsnummer'] or '',  # Auftragsnummer
+            (
+                datev_dict['Auftragsnummer']
+                if 'Auftragsnummer' not in columns_not_to_export
+                else '' or ''
+            ),  # Auftragsnummer
             '',  # Buchungstyp
             '',  # Ust-Schlüssel (Anzahlungen)
             '',  # EU-Land (Anzahlungen)
@@ -341,6 +371,10 @@ class EcofiExportColumns(models.AbstractModel):
             '',  # Bezeichnung SoBil-Sachverhalt
             '',  # Kennzeichen SoBil-Buchung
             datev_dict['Festschreibung'] or '',  # Festschreibung
-            datev_dict['Leistungsdatum'] or '',  # Leistungsdatum
-            datev_dict['Steuerperiode'] or ''   # Datum Zuord.Steuerperiode
+            (
+                datev_dict['Leistungsdatum']
+                if 'Leistungsdatum' not in columns_not_to_export
+                else '' or ''
+            ),  # Leistungsdatum
+            datev_dict['Steuerperiode'] or '',  # Datum Zuord.Steuerperiode
         ]

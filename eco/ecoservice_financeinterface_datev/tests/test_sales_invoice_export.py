@@ -20,24 +20,32 @@ class TestSalesInvoiceExport(BaseSetupDatev):
             'partner_id': self.customer.id,
             'move_type': 'out_invoice',
             'invoice_line_ids': [
-                (0, 0, {
-                    'name': 'ABC',
-                    'account_id': self.account_8400.id,
-                    'price_unit': 200.00,
-                    'quantity': 2,
-                    'tax_ids': [
-                        (6, 0, self.tax_ust_19.ids),
-                    ],
-                }),
-                (0, 0, {
-                    'name': 'DEF',
-                    'account_id': self.account_8300.id,
-                    'price_unit': 400.00,
-                    'quantity': 3,
-                    'tax_ids': [
-                        (6, 0, self.tax_ust_7.ids),
-                    ],
-                }),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'ABC',
+                        'account_id': self.account_8400.id,
+                        'price_unit': 200.00,
+                        'quantity': 2,
+                        'tax_ids': [
+                            (6, 0, self.tax_ust_19.ids),
+                        ],
+                    },
+                ),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'DEF',
+                        'account_id': self.account_8300.id,
+                        'price_unit': 400.00,
+                        'quantity': 3,
+                        'tax_ids': [
+                            (6, 0, self.tax_ust_7.ids),
+                        ],
+                    },
+                ),
             ],
         })
 
@@ -134,24 +142,30 @@ class TestSalesInvoiceExport(BaseSetupDatev):
 
         self.invoice.write({
             'invoice_line_ids': [
-                (0, 0, {
-                    'name': 'ABC2',
-                    'account_id': self.account_8400.id,
-                    'price_unit': 100.00,
-                    'quantity': 1,
-                    'tax_ids': [
-                        (6, 0, self.tax_ust_19.ids),
-                    ],
-                }),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'ABC2',
+                        'account_id': self.account_8400.id,
+                        'price_unit': 100.00,
+                        'quantity': 1,
+                        'tax_ids': [
+                            (6, 0, self.tax_ust_19.ids),
+                        ],
+                    },
+                ),
             ],
         })
         # Odoo changes the accounts of all lines to 8400
         # after adding the 3rd line. Therefore we need to reset it to 8300.
         self.invoice.write({
             'invoice_line_ids': [
-                (1, self.invoice.invoice_line_ids[1].id, {
-                    'account_id': self.account_8300.id
-                }),
+                (
+                    1,
+                    self.invoice.invoice_line_ids[1].id,
+                    {'account_id': self.account_8300.id},
+                ),
             ],
         })
         self.invoice._post(soft=False)
@@ -203,24 +217,32 @@ class TestSalesInvoiceExport(BaseSetupDatev):
 
         self.invoice.write({
             'invoice_line_ids': [
-                (0, 0, {
-                    'name': 'ABC2',
-                    'account_id': self.account_8400.id,
-                    'price_unit': 100.00,
-                    'quantity': 1,
-                    'tax_ids': [
-                        (6, 0, self.tax_ust_19.ids),
-                    ],
-                }),
-                (0, 0, {
-                    'name': 'Discount',
-                    'account_id': self.account_8400.id,
-                    'price_unit': -100.00,  # discount line
-                    'quantity': 1,
-                    'tax_ids': [
-                        (6, 0, self.tax_ust_19.ids),
-                    ],
-                }),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'ABC2',
+                        'account_id': self.account_8400.id,
+                        'price_unit': 100.00,
+                        'quantity': 1,
+                        'tax_ids': [
+                            (6, 0, self.tax_ust_19.ids),
+                        ],
+                    },
+                ),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'Discount',
+                        'account_id': self.account_8400.id,
+                        'price_unit': -100.00,  # discount line
+                        'quantity': 1,
+                        'tax_ids': [
+                            (6, 0, self.tax_ust_19.ids),
+                        ],
+                    },
+                ),
             ],
         })
         # Odoo changes the accounts of all lines to 8400
@@ -269,24 +291,32 @@ class TestSalesInvoiceExport(BaseSetupDatev):
 
         self.invoice.write({
             'invoice_line_ids': [
-                (0, 0, {
-                    'name': 'ABC2',
-                    'account_id': self.account_8400.id,
-                    'price_unit': 100.00,
-                    'quantity': 1,
-                    'tax_ids': [
-                        (6, 0, self.tax_ust_19.ids),
-                    ],
-                }),
-                (0, 0, {
-                    'name': 'Discount',
-                    'account_id': self.account_8400.id,
-                    'price_unit': -100.00,
-                    'quantity': 1,
-                    'tax_ids': [
-                        (6, 0, self.tax_ust_19.ids),
-                    ],
-                }),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'ABC2',
+                        'account_id': self.account_8400.id,
+                        'price_unit': 100.00,
+                        'quantity': 1,
+                        'tax_ids': [
+                            (6, 0, self.tax_ust_19.ids),
+                        ],
+                    },
+                ),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'Discount',
+                        'account_id': self.account_8400.id,
+                        'price_unit': -100.00,
+                        'quantity': 1,
+                        'tax_ids': [
+                            (6, 0, self.tax_ust_19.ids),
+                        ],
+                    },
+                ),
             ],
         })
         # Odoo changes the accounts of all lines to 8400
@@ -297,6 +327,40 @@ class TestSalesInvoiceExport(BaseSetupDatev):
         actual_lines = list(self._get_csv_reader())
 
         self._test_export_line(expected_lines, actual_lines)
+
+    def test_reconciliation_uses_invoice_name_for_out_invoice_export(self):
+        invoice = self._create_invoice('out_invoice')
+        invoice.write({'ref': 'TEST-REF-123'})
+        invoice._post(soft=False)
+
+        payment_method = self.env.ref('account.account_payment_method_manual_in')
+        journal = self.AJ.search(
+            [
+                ('type', '=', 'bank'),
+                ('company_id', '=', self.env.company.id),
+            ],
+            limit=1,
+        )
+
+        register_payment = invoice.action_register_payment()
+        payment = self.AP.with_context(register_payment['context']).create({
+            'payment_method_id': payment_method.id,
+            'journal_id': journal.id,
+            'amount': invoice.amount_total,
+            'date': invoice.invoice_date,
+        })
+        payment.action_post()
+
+        actual_lines = list(self._get_csv_reader())
+        invoice_name = invoice.name
+
+        self.assertGreaterEqual(
+            sum(1 for row in actual_lines if row['Beleg1'] == invoice_name),
+            2,
+        )
+        self.assertFalse(
+            any(row['Beleg1'] == 'TEST-REF-123' for row in actual_lines),
+        )
 
     def test_invoice_export_currency(self):
         self.skipTest('TODO: Klären')

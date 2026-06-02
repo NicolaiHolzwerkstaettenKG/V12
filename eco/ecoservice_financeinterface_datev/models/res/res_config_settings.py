@@ -42,10 +42,25 @@ class ResConfigSettings(models.TransientModel):
         related='company_id.export_delivery_date',
         readonly=False,
     )
+    export_tax_period_in_out_invoice = fields.Boolean(
+        related='company_id.export_tax_period_in_out_invoice',
+        readonly=False,
+    )
     export_document_link_type = fields.Selection(
         related='company_id.export_document_link_type',
         required=True,
         readonly=False,
     )
-
+    allow_pos_error_skip = fields.Boolean(
+        related='company_id.allow_pos_error_skip',
+        readonly=False,
+    )
+    column_config_ids = fields.One2many(
+        related='company_id.column_config_ids',
+        readonly=False,
+    )
+    datev_export_zero_values = fields.Boolean(
+        related='company_id.datev_export_zero_values',
+        readonly=False,
+    )
     # endregion

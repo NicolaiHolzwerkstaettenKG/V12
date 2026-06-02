@@ -8,6 +8,7 @@
 
   <record id="ecoservice_financeinterface.seq_eco_ecofi_vorlauf" model="ir.sequence">
     <field name="prefix">EXTF_</field>
+    <field name="company_id" eval="False"/>
   </record>
 
 </odoo>

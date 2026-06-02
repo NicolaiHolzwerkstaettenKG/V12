@@ -1,6 +1,7 @@
 # Developed by ecoservice (Uwe Böttcher und Falk Neubert GbR).
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 
+from decimal import Decimal
 from odoo import _, api, exceptions, fields, models
 
 
@@ -24,21 +25,6 @@ class AccountMoveLine(models.Model):
 
     # endregion
 
-    # region Getter
-
-    def get_tax(self):
-        """
-        Return the used tax.
-        """
-        self.ensure_one()
-        return (
-            self.tax_ids
-            or self.ecofi_tax_id
-            or self.env['account.tax']
-        )
-
-    # endregion
-
     # region Business Methods
 
     def _datev_is_automatic_account(self) -> bool:
@@ -48,16 +34,33 @@ class AccountMoveLine(models.Model):
         return self.account_id.datev_tax_required
 
     def _datev_is_credit_line(self) -> bool:
-        return (
-            self.account_id != self.ecofi_account_counterpart
-            and not (
-                self.account_id.is_tax_account()
-                or self.datev_posting_key != 'SD'
+        if self.display_type in ['line_note', 'line_section', 'tax']:
+            # 111124: Prevent traceback on non-product/term lines
+            return False
+
+        if not self.account_id:
+            raise exceptions.UserError(
+                _(f'Move line "{self.name}" ({self.id}) has no account set.')
             )
+
+        return self.account_id != self.ecofi_account_counterpart and not (
+            self.account_id.is_tax_account() or self.datev_posting_key != 'SD'
         )
 
     def _datev_has_tax(self) -> bool:
         return bool(self.get_tax())
+
+    def _currency_exchange_rate(self) -> Decimal:
+        """Get used exchange rate for current line."""
+        company = self.move_id.company_id or self.env.company
+        if company.currency_id == self.currency_id:
+            return Decimal(0)
+
+        if self.currency_rate:
+            return Decimal(self.currency_rate)
+
+        self._compute_currency_rate()
+        return Decimal(self.currency_rate or 0)
 
     @api.ecofi_validate(
         'validate_required_tax_is_set',
@@ -89,15 +92,13 @@ class AccountMoveLine(models.Model):
             _datev_is_tax_required,
         ),
     )
-    def _validate_required_tax_is_set(self):
+    def _validate_required_tax_has_tax(self):
         self.ensure_one()
 
         is_valid = self._datev_has_tax()
         if not is_valid:
             raise exceptions.ValidationError(
-                _(
-                    'The account requires a tax but no tax is set!'
-                ).format(
+                _('The account requires a tax but no tax is set!').format(
                     account=self.account_id.code,
                     debit=self.debit,
                     credit=self.credit,
@@ -114,7 +115,7 @@ class AccountMoveLine(models.Model):
         # Don't use self.get_tax() as we must make sure that standard tax
         # is set correctly
         is_valid = self.tax_ids in self.account_id.datev_tax_ids
-        if not is_valid:
+        if self.tax_ids and not is_valid:
             raise exceptions.ValidationError(
                 _(
                     'The account {account} is an automatic account but'
@@ -124,7 +125,13 @@ class AccountMoveLine(models.Model):
                     account=self.account_id.code,
                     tax=self.get_tax().description,
                     configured_taxes=', '.join(
-                        self.mapped('account_id.datev_tax_ids.description'),
+                        [
+                            desc
+                            for desc in self.mapped(
+                                'account_id.datev_tax_ids.description'
+                            )
+                            if desc and desc.strip()
+                        ],
                     ),
                 )
             )
@@ -139,9 +146,7 @@ class AccountMoveLine(models.Model):
         is_valid = bool(self.get_tax().l10n_de_datev_code)
         if not is_valid:
             raise exceptions.ValidationError(
-                _(
-                    'The booking key for the tax "{tax}" is not configured!'
-                ).format(
+                _('The booking key for the tax "{tax}" is not configured!').format(
                     tax=self.get_tax().name,
                 )
             )

@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0+e\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-18 10:16+0000\n"
-"PO-Revision-Date: 2024-09-18 10:16+0000\n"
+"POT-Creation-Date: 2025-05-09 14:06+0000\n"
+"PO-Revision-Date: 2025-05-09 14:06+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -43,6 +43,12 @@ msgid ""
 msgstr "Soll und Haben bei gleichem Konto zur größeren Seite kumulieren."
 
 #. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_company__allow_pos_error_skip
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_config_settings__allow_pos_error_skip
+msgid "Allow POS Error Skip"
+msgstr "POS-Fehler überspringen"
+
+#. module: ecoservice_financeinterface_datev
 #. odoo-python
 #: code:addons/ecoservice_financeinterface_datev/wizards/models/ecofi_set_account_counterpart.py:0
 #, python-format
@@ -50,11 +56,22 @@ msgid ""
 "At least one of the checkboxes 'Set account counterpart for bank journals' "
 "and 'Set account counterpart for cash journals' must be checked in order to "
 "proceed!"
-msgstr "Zum Fortfahren muss mindestens einer der Journaltypen ausgewählt sein!"
+msgstr ""
+"Zum Fortfahren muss mindestens einer der Journaltypen ausgewählt sein!"
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev.selection__ecofi_export_columns_config__column__auftragsnummer
+msgid "Auftragsnummer"
+msgstr ""
 
 #. module: ecoservice_financeinterface_datev
 #: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev.selection__res_company__export_document_link_type__bedi
 msgid "BEDI"
+msgstr ""
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev.selection__ecofi_export_columns_config__column__basiswaehrungsbetrag
+msgid "Basisumsatz"
 msgstr ""
 
 #. module: ecoservice_financeinterface_datev
@@ -96,7 +113,23 @@ msgstr ""
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_company__l10n_de_datev_client_number
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_config_settings__l10n_de_datev_client_number
 msgid "Client No."
-msgstr "Mandanten-Nr."
+msgstr "L10N De Datev-Kundennummer"
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_export_columns_config__column
+msgid "Column"
+msgstr "Spalte"
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_company__column_config_ids
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_config_settings__column_config_ids
+msgid "Column Config"
+msgstr "Spalten Konfig"
+
+#. module: ecoservice_financeinterface_datev
+#: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev.ecofi_column_config_tree_view
+msgid "Colums"
+msgstr "Spalte"
 
 #. module: ecoservice_financeinterface_datev
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_company__datev_group_sh
@@ -111,6 +144,11 @@ msgid "Companies"
 msgstr "Unternehmen"
 
 #. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_export_columns_config__company_id
+msgid "Company"
+msgstr "Unternehmen"
+
+#. module: ecoservice_financeinterface_datev
 #: model:ir.model,name:ecoservice_financeinterface_datev.model_res_config_settings
 msgid "Config Settings"
 msgstr "Konfigurationseinstellungen"
@@ -119,15 +157,17 @@ msgstr "Konfigurationseinstellungen"
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_company__l10n_de_datev_consultant_number
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_config_settings__l10n_de_datev_consultant_number
 msgid "Consultant No."
-msgstr "Berater-Nr."
+msgstr "L10N De Datev-Beraternummer"
 
 #. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_export_columns_config__create_uid
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_move_migration__create_uid
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_set_account_counterpart__create_uid
 msgid "Created by"
 msgstr "Erstellt von"
 
 #. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_export_columns_config__create_date
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_move_migration__create_date
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_set_account_counterpart__create_date
 msgid "Created on"
@@ -164,6 +204,11 @@ msgid "Datev Cashback Account"
 msgstr "Skontokonto"
 
 #. module: ecoservice_financeinterface_datev
+#: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev.view_ecoservice_finance_interface_datev_configuration
+msgid "Datev Export Columns Configuration"
+msgstr "Konfiguration der Datev-Exportspalten"
+
+#. module: ecoservice_financeinterface_datev
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_account_account__datev_tax_ids
 msgid "Datev Tax Account"
 msgstr "Steuerkonto"
@@ -180,6 +225,7 @@ msgid "Defines the prefix in the \"Beleglink\" field in DATEV-Export"
 msgstr "Definiert das Prefix des \"Beleglink\"-Feld im DATEV-Export"
 
 #. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_export_columns_config__display_name
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_move_migration__display_name
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_set_account_counterpart__display_name
 msgid "Display Name"
@@ -197,18 +243,16 @@ msgid "En- or disable specific checks company-wide"
 msgstr "Unternehmensweites ein- oder ausschalten spezifischer Überprüfungen"
 
 #. module: ecoservice_financeinterface_datev
-#. odoo-python
-#: code:addons/ecoservice_financeinterface_datev/models/ecofi/ecofi.py:0
-#, python-format
-msgid "Error! No sales tax identification number stored in the partner!"
-msgstr ""
-"Fehler! Keine Umsatzsteuer-Identifikationsnummer in dem Partner gespeichert!"
-
-#. module: ecoservice_financeinterface_datev
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_company__export_delivery_date
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_config_settings__export_delivery_date
 msgid "Export Delivery Date"
 msgstr "Export Leistungszeitraum"
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_company__export_tax_period_in_out_invoice
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_config_settings__export_tax_period_in_out_invoice
+msgid "Export Tax Period Only for In/Out Invoices"
+msgstr "Export Steuerperiode nur für Ein- und Ausgangsrechnungen"
 
 #. module: ecoservice_financeinterface_datev
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_res_company__datev_export_method
@@ -233,6 +277,7 @@ msgid "Group different move lines sharing the same account"
 msgstr "Gruppiere verschiedene Buchungszeilen mit demselben Konto"
 
 #. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_export_columns_config__id
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_move_migration__id
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_set_account_counterpart__id
 msgid "ID"
@@ -244,6 +289,23 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev.view_ecoservice_finance_interface_datev_configuration
 msgid "If enabled the delivery date from an invoice will be exported"
 msgstr "Wenn gesetzt, wird der Leistungszeitraum mit exportiert"
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,help:ecoservice_financeinterface_datev.field_res_company__allow_pos_error_skip
+#: model:ir.model.fields,help:ecoservice_financeinterface_datev.field_res_config_settings__allow_pos_error_skip
+#: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev.view_ecoservice_finance_interface_datev_configuration
+msgid "If enabled, allows to skip errors on POS account moves."
+msgstr "Wenn aktiviert, werden Fehler bei POS-Buchungen übersprungen."
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,help:ecoservice_financeinterface_datev.field_res_company__export_tax_period_in_out_invoice
+#: model:ir.model.fields,help:ecoservice_financeinterface_datev.field_res_config_settings__export_tax_period_in_out_invoice
+#: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev.view_ecoservice_finance_interface_datev_configuration
+msgid ""
+"If enabled, the tax period will only be exported for in and out invoices"
+msgstr ""
+"Wenn gesetzt, wird die Steuerperiode nur für Ein- und Ausgangsrechnungen "
+"exportiert"
 
 #. module: ecoservice_financeinterface_datev
 #: model:ir.model.fields,help:ecoservice_financeinterface_datev.field_res_company__datev_ignore_currency
@@ -290,22 +352,40 @@ msgid "Journal Item"
 msgstr "Buchungszeile"
 
 #. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev.selection__ecofi_export_columns_config__column__kost1
+msgid "KOST1 - Kostenstelle"
+msgstr ""
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev.selection__ecofi_export_columns_config__column__kost2
+msgid "KOST2 - Kostenstelle"
+msgstr ""
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_export_columns_config____last_update
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_move_migration____last_update
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_set_account_counterpart____last_update
 msgid "Last Modified on"
 msgstr "Zuletzt geändert am"
 
 #. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_export_columns_config__write_uid
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_move_migration__write_uid
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_set_account_counterpart__write_uid
 msgid "Last Updated by"
 msgstr "Zuletzt aktualisiert durch"
 
 #. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_export_columns_config__write_date
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_move_migration__write_date
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_set_account_counterpart__write_date
 msgid "Last Updated on"
 msgstr "Zuletzt aktualisiert am"
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev.selection__ecofi_export_columns_config__column__leistungsdatum
+msgid "Leistungsdatum"
+msgstr ""
 
 #. module: ecoservice_financeinterface_datev
 #: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev.view_ecoservice_finance_interface_datev_configuration
@@ -567,6 +647,13 @@ msgstr ""
 "Steuern und die korrekten Steuern und Automatikkonten konfiguriert sind."
 
 #. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_account_bank_statement_line__uuid4
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_account_move__uuid4
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_account_payment__uuid4
+msgid "Uuid4"
+msgstr "UUID4"
+
+#. module: ecoservice_financeinterface_datev
 #: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_validation__validate_account_counter_account
 msgid "Validate Account Counter Account"
 msgstr "Überprüfe Konto/Gegenkonto"
@@ -634,6 +721,11 @@ msgid "Visible Account Counterpart"
 msgstr ""
 
 #. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev.selection__ecofi_export_columns_config__column__basiswaehrungskennung
+msgid "WKZ Basisumsatz"
+msgstr ""
+
+#. module: ecoservice_financeinterface_datev
 #: model:ir.model,name:ecoservice_financeinterface_datev.model_ecofi_set_account_counterpart
 msgid "Wizard to set the account counterpart for move lines"
 msgstr "Wizard, um das Gegenkonto für Buchungszeilen zu setzen"
@@ -655,6 +747,21 @@ msgstr ""
 " Filter in der Listenasicht der Buchungssätze auswählen."
 
 #. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev.selection__ecofi_export_columns_config__column__zusatzinformation_-_art_1
+msgid "Zusatzinformation - Art 1"
+msgstr ""
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields.selection,name:ecoservice_financeinterface_datev.selection__ecofi_export_columns_config__column__zusatzinhalt1
+msgid "Zusatzinformation- Inhalt 1"
+msgstr ""
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model,name:ecoservice_financeinterface_datev.model_ecofi_export_columns_config
+msgid "defines which columns infos will be exported."
+msgstr ""
+
+#. module: ecoservice_financeinterface_datev
 #: model:ir.model,name:ecoservice_financeinterface_datev.model_ecofi
 msgid "ecoservice Finance Interface"
 msgstr "ecoservice Finanzinterface"
@@ -671,7 +778,9 @@ msgstr "Brutto"
 msgid ""
 "migrate all journal item from date is greater or equal then migrate all "
 "journal item to date"
-msgstr "Migration aller Buchungssätze von Datum ist größer oder gleich als Migration aller Buchungssätze zu Datum."
+msgstr ""
+"Migration aller Buchungssätze von Datum ist größer oder gleich als Migration"
+" aller Buchungssätze zu Datum."
 
 #. module: ecoservice_financeinterface_datev
 #: model_terms:ir.ui.view,arch_db:ecoservice_financeinterface_datev.view_ecofi_move_migration_result_form
@@ -700,6 +809,11 @@ msgstr "Bitte stelle auch die Migration aller Journaleinträge von Datum"
 #, python-format
 msgid "please set also migrate all journal item to date"
 msgstr "Bitte stelle auch die Migration aller Journaleinträge zu Datum"
+
+#. module: ecoservice_financeinterface_datev
+#: model:ir.model.fields,field_description:ecoservice_financeinterface_datev.field_ecofi_export_columns_config__to_export
+msgid "to export"
+msgstr "zu exportieren"
 
 #. module: ecoservice_financeinterface_datev
 #. odoo-python

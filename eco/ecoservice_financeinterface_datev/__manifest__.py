@@ -2,18 +2,20 @@
 # See COPYRIGHT and LICENSE files in the root directory of this module for full details.
 {
     # App Information
-    'name': 'Finance Interface DATEV',
+    'name': 'DATEV Export',
     'summary': 'Export of account moves to DATEV',
     'category': 'Accounting',
-    'version': '16.0.1.3.9',
+    'version': '16.0.2.6.7',
     'license': 'OPL-1',
     'application': True,
     'installable': True,
     # Author
-    'author': 'ecoservice',
+    'author': 'ecoservice GbR',
     'website': 'https://ecoservice.de/shop/product/odoo-datev-export-53',
     # Odoo Apps Store
-    #'live_test_url': 'https://eco-finance-interface-14-0.test.ecoservice.de/',
+    'live_test_url': 'https://www.ecoservice.de/odoo-demo',
+    'price': 650.00,
+    'currency': 'EUR',
     'support': 'financeinterface@ecoservice.de',
     'images': [
         'images/main_screenshot.png',
@@ -26,17 +28,16 @@
     'data': [
         'security/ir.model.access.csv',
         'data/ir_sequence.xml',
-
         # actions used in res_config_view
         'wizards/views/ecofi_move_migration.xml',
         'wizards/views/ecofi_set_account_counterpart.xml',
-
         'views/account/account_account.xml',
         'views/account/account_move.xml',
         'views/account/account_move_line.xml',
         'views/account/account_tax.xml',
         'views/ecofi/ecofi.xml',
         'views/ecofi/ecofi_validation.xml',
+        'views/ecofi/ecofi_column_config.xml',
         'views/res/res_config_settings.xml',
     ],
 }

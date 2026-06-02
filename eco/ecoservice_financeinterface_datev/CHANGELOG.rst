@@ -1,6 +1,57 @@
 Changelog
 =========
 
+16.0.2.6.7
+----------
+* 114797: move.name for Beleg1 in outgoing invoices
+
+16.0.2.6.6
+----------
+* 114195: include tax lines in export not created from other move lines
+
+16.0.2.6.5
+----------
+* 113633: Comma instead of point for decimal places at exchange rates
+
+16.0.2.6.4
+----------
+* 113578: fix zero export traceback
+
+16.0.2.6.3
+----------
+* 113225: revert point in comma logic for kurs
+
+16.0.2.6.2
+----------
+* 113192: revert part of Belegfeld logic
+
+16.0.2.6.1
+----------
+* 113173: Optionally show account counterpart field
+
+16.0.2.6.0
+----------
+* [FIX] 113150: Point in comma value exports
+* [FIX] "Umsatz" vs. "Basiswährungsumsatz" mismatch
+* [IMP] Code cleanup
+
+16.0.2.5.9
+----------
+* 113073: Allow the export of zero values
+
+
+16.0.2.5.8
+----------
+* 112843, 112906 - [FIX] AttributeError: 'account.payment' object has no attribute '_get_outstanding_account'
+
+16.0.2.5.7
+----------
+* Fix Type-Annotation
+
+16.0.2.5.3
+----------
+* 112667 - backport changes from version 18 (#112346 get amount total by datev group lines.)
+
 16.0.1.0.0
 ----------
 * Migration to 16.0
