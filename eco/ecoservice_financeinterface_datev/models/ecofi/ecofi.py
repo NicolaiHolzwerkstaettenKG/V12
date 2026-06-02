@@ -40,6 +40,9 @@ class Ecofi(models.Model):
             )
             if invoice_lines:
                 invoice_move = invoice_lines[0].move_id
+                if invoice_move.move_type == 'out_invoice':
+                    # 114797: Wenn Ausgangsrechnung vorliegt, soll der Rechnungsname im Belegfeld 1 exportiert werden.
+                    return invoice_move.name
                 return invoice_move.ref or invoice_move.name
 
             # if it is not an invoice, use the first line's move
@@ -55,6 +58,9 @@ class Ecofi(models.Model):
             return move.reversal_move_id.ref or move.reversal_move_id.name
 
         # fallback
+        if move.move_type == 'out_invoice':
+            # 114797: Wenn Ausgangsrechnung vorliegt, soll der Rechnungsname im Belegfeld 1 exportiert werden.
+            return move.name
         return move.ref or move.name
 
     def _set_buchungstext(self, move) -> str:
@@ -434,8 +440,7 @@ class Ecofi(models.Model):
                         is_tax_archived = True
                 if (
                     # Only export tax lines not created from other move lines
-                    (line.tax_line_id
-                        or line.tax_repartition_line_id)
+                    (line.tax_line_id or line.tax_repartition_line_id)
                     and not (tax_exigibility and line.journal_id == cash_basis)
                     and not line.datev_posting_key == 'SD'
                     and len(move.line_ids) != 2
@@ -495,7 +500,7 @@ class Ecofi(models.Model):
                 ),
             }
 
-            (errorcount, partnererror, thislog, thismovename, datevdict) = (
+            errorcount, partnererror, thislog, thismovename, datevdict = (
                 self.field_config(
                     move,
                     line,

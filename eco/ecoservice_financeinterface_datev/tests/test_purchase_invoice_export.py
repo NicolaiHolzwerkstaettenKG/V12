@@ -25,24 +25,32 @@ class TestPurchaseInvoiceExport(BaseSetupDatev):
             'partner_id': self.customer.id,
             'move_type': 'in_invoice',
             'invoice_line_ids': [
-                (0, 0, {
-                    'name': 'ABC',
-                    'account_id': self.account_3400.id,
-                    'price_unit': 200.00,
-                    'quantity': 2,
-                    'tax_ids': [
-                        (6, 0, self.tax_vst_19.ids),
-                    ],
-                }),
-                (0, 0, {
-                    'name': 'DEF',
-                    'account_id': self.account_3300.id,
-                    'price_unit': 400.00,
-                    'quantity': 3,
-                    'tax_ids': [
-                        (6, 0, self.tax_vst_7.ids),
-                    ],
-                }),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'ABC',
+                        'account_id': self.account_3400.id,
+                        'price_unit': 200.00,
+                        'quantity': 2,
+                        'tax_ids': [
+                            (6, 0, self.tax_vst_19.ids),
+                        ],
+                    },
+                ),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'DEF',
+                        'account_id': self.account_3300.id,
+                        'price_unit': 400.00,
+                        'quantity': 3,
+                        'tax_ids': [
+                            (6, 0, self.tax_vst_7.ids),
+                        ],
+                    },
+                ),
             ],
         })
 
@@ -62,6 +70,39 @@ class TestPurchaseInvoiceExport(BaseSetupDatev):
         actual_lines = list(self._get_csv_reader())
 
         self._test_export_line(expected_lines, actual_lines)
+
+    def test_reconciliation_uses_ref_for_in_invoice_export(self):
+        invoice = self._create_invoice('in_invoice')
+        invoice.write({'ref': 'TEST-REF-123'})
+        invoice._post(soft=False)
+
+        payment_method = self.env.ref('account.account_payment_method_manual_out')
+        journal = self.AJ.search(
+            [
+                ('type', '=', 'bank'),
+                ('company_id', '=', self.env.company.id),
+            ],
+            limit=1,
+        )
+
+        register_payment = invoice.action_register_payment()
+        payment = self.AP.with_context(register_payment['context']).create({
+            'payment_method_id': payment_method.id,
+            'journal_id': journal.id,
+            'amount': invoice.amount_total,
+            'date': invoice.invoice_date,
+        })
+        payment.action_post()
+
+        actual_lines = list(self._get_csv_reader())
+
+        self.assertGreaterEqual(
+            sum(1 for row in actual_lines if row['Beleg1'] == 'TEST-REF-123'),
+            2,
+        )
+        self.assertFalse(
+            any(row['Beleg1'] == invoice.name for row in actual_lines),
+        )
 
     # Test 1
     # Konfiguration:
@@ -139,24 +180,30 @@ class TestPurchaseInvoiceExport(BaseSetupDatev):
 
         self.invoice.write({
             'invoice_line_ids': [
-                (0, 0, {
-                    'name': 'ABC2',
-                    'account_id': self.account_3400.id,
-                    'price_unit': 100.00,
-                    'quantity': 1,
-                    'tax_ids': [
-                        (6, 0, self.tax_vst_19.ids),
-                    ],
-                }),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'ABC2',
+                        'account_id': self.account_3400.id,
+                        'price_unit': 100.00,
+                        'quantity': 1,
+                        'tax_ids': [
+                            (6, 0, self.tax_vst_19.ids),
+                        ],
+                    },
+                ),
             ],
         })
         # Odoo changes the accounts of all lines to 3400
         # after adding the 3rd line. Therefore we need to reset it to 3300.
         self.invoice.write({
             'invoice_line_ids': [
-                (1, self.invoice.invoice_line_ids[1].id, {
-                    'account_id': self.account_3300.id
-                }),
+                (
+                    1,
+                    self.invoice.invoice_line_ids[1].id,
+                    {'account_id': self.account_3300.id},
+                ),
             ],
         })
         self.invoice._post(soft=False)
@@ -208,24 +255,32 @@ class TestPurchaseInvoiceExport(BaseSetupDatev):
 
         self.invoice.write({
             'invoice_line_ids': [
-                (0, 0, {
-                    'name': 'ABC2',
-                    'account_id': self.account_3400.id,
-                    'price_unit': 100.00,
-                    'quantity': 1,
-                    'tax_ids': [
-                        (6, 0, self.tax_vst_19.ids),
-                    ],
-                }),
-                (0, 0, {
-                    'name': 'Discount',
-                    'account_id': self.account_3400.id,
-                    'price_unit': -100.00,  # discount line
-                    'quantity': 1,
-                    'tax_ids': [
-                        (6, 0, self.tax_vst_19.ids),
-                    ],
-                }),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'ABC2',
+                        'account_id': self.account_3400.id,
+                        'price_unit': 100.00,
+                        'quantity': 1,
+                        'tax_ids': [
+                            (6, 0, self.tax_vst_19.ids),
+                        ],
+                    },
+                ),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'Discount',
+                        'account_id': self.account_3400.id,
+                        'price_unit': -100.00,  # discount line
+                        'quantity': 1,
+                        'tax_ids': [
+                            (6, 0, self.tax_vst_19.ids),
+                        ],
+                    },
+                ),
             ],
         })
         # Odoo changes the accounts of all lines to 3400
@@ -274,24 +329,32 @@ class TestPurchaseInvoiceExport(BaseSetupDatev):
 
         self.invoice.write({
             'invoice_line_ids': [
-                (0, 0, {
-                    'name': 'ABC2',
-                    'account_id': self.account_3400.id,
-                    'price_unit': 100.00,
-                    'quantity': 1,
-                    'tax_ids': [
-                        (6, 0, self.tax_vst_19.ids),
-                    ],
-                }),
-                (0, 0, {
-                    'name': 'Discount',
-                    'account_id': self.account_3400.id,
-                    'price_unit': -100.00,
-                    'quantity': 1,
-                    'tax_ids': [
-                        (6, 0, self.tax_vst_19.ids),
-                    ],
-                }),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'ABC2',
+                        'account_id': self.account_3400.id,
+                        'price_unit': 100.00,
+                        'quantity': 1,
+                        'tax_ids': [
+                            (6, 0, self.tax_vst_19.ids),
+                        ],
+                    },
+                ),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'Discount',
+                        'account_id': self.account_3400.id,
+                        'price_unit': -100.00,
+                        'quantity': 1,
+                        'tax_ids': [
+                            (6, 0, self.tax_vst_19.ids),
+                        ],
+                    },
+                ),
             ],
         })
         # Odoo changes the accounts of all lines to 3400
@@ -333,15 +396,19 @@ class TestPurchaseInvoiceExport(BaseSetupDatev):
         invoice = self.AM.create({
             'partner_id': self.customer.id,
             'move_type': 'in_invoice',
-            'invoice_line_ids': [(0, 0, {
-                'name': 'ABC, der Kater lief im Schnee',
-                'account_id': self.account_4210.id,
-                'price_unit': 119.00,
-                'quantity': 1,
-                'tax_ids': [
+            'invoice_line_ids': [(
+                0,
+                0,
+                {
+                    'name': 'ABC, der Kater lief im Schnee',
+                    'account_id': self.account_4210.id,
+                    'price_unit': 119.00,
+                    'quantity': 1,
+                    'tax_ids': [
                         (6, 0, self.tax_vst_19_price_include.ids),
-                ],
-            })],
+                    ],
+                },
+            )],
         })
 
         invoice._post(soft=False)
@@ -378,21 +445,29 @@ class TestPurchaseInvoiceExport(BaseSetupDatev):
             'partner_id': self.customer.id,
             'move_type': 'in_invoice',
             'invoice_line_ids': [
-                (0, 0, {
-                    'name': 'Miete',
-                    'account_id': self.account_4210.id,
-                    'price_unit': 100.00,
-                    'quantity': 1,
-                    'tax_ids': [
-                        (6, 0, self.tax_vst_19.ids),
-                    ],
-                }),
-                (0, 0, {
-                    'name': 'Miete',
-                    'account_id': self.account_4210.id,
-                    'price_unit': 100.00,
-                    'quantity': 1,
-                }),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'Miete',
+                        'account_id': self.account_4210.id,
+                        'price_unit': 100.00,
+                        'quantity': 1,
+                        'tax_ids': [
+                            (6, 0, self.tax_vst_19.ids),
+                        ],
+                    },
+                ),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'Miete',
+                        'account_id': self.account_4210.id,
+                        'price_unit': 100.00,
+                        'quantity': 1,
+                    },
+                ),
             ],
         })
 
@@ -430,21 +505,29 @@ class TestPurchaseInvoiceExport(BaseSetupDatev):
             'partner_id': self.customer.id,
             'move_type': 'in_invoice',
             'invoice_line_ids': [
-                (0, 0, {
-                    'name': 'Miete',
-                    'account_id': self.account_4210.id,
-                    'price_unit': 100.00,
-                    'quantity': 1,
-                    'tax_ids': [
-                        (6, 0, self.tax_vst_19.ids),
-                    ],
-                }),
-                (0, 0, {
-                    'name': 'Miete',
-                    'account_id': self.account_4210.id,
-                    'price_unit': 100.00,
-                    'quantity': 1,
-                }),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'Miete',
+                        'account_id': self.account_4210.id,
+                        'price_unit': 100.00,
+                        'quantity': 1,
+                        'tax_ids': [
+                            (6, 0, self.tax_vst_19.ids),
+                        ],
+                    },
+                ),
+                (
+                    0,
+                    0,
+                    {
+                        'name': 'Miete',
+                        'account_id': self.account_4210.id,
+                        'price_unit': 100.00,
+                        'quantity': 1,
+                    },
+                ),
             ],
         })
 

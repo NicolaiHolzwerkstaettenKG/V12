@@ -1,6 +1,10 @@
 Changelog
 =========
 
+16.0.2.6.7
+----------
+* 114797: move.name for Beleg1 in outgoing invoices
+
 16.0.2.6.6
 ----------
 * 114195: include tax lines in export not created from other move lines
